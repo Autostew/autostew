@@ -10,8 +10,11 @@ enum_tables = [Server, Track, EventDefinition, SessionFlagDefinition, DamageDefi
                GameModeDefinition, VehicleClass, PenaltyDefinition, Vehicle, Livery]
 
 
+def env_init(server):
+    _recreate_enums(server)
+
+
 def init(server):
-    # _recreate_enums(server) # TODO set with parameter
     try:
         server_in_db = Server.objects.get(name=server.settings.server_name)
     except Server.DoesNotExist:

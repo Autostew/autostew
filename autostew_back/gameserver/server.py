@@ -15,7 +15,7 @@ class BreakPluginLoadingException(Exception):
 
 
 class Server:
-    def __init__(self):
+    def __init__(self, env_init):
         self.last_status_update_time = None
         self._setup_index = None
         self.state = None
@@ -30,7 +30,7 @@ class Server:
         self.members = MemberList(self.lists[ListName.member_attributes], self.lists, self.api)
         self.participants = ParticipantList(self.lists[ListName.participant_attributes], self.lists, self.api)
         self.fetch_status()
-        self._init_plugins()
+        self._init_plugins(env_init)
         self.load_next_setup(0)
 
     def fetch_status(self):
@@ -44,10 +44,14 @@ class Server:
         self.participants.update_from_game(status['participants'])
         self.last_status_update_time = time()
 
-    def _init_plugins(self):
+    def _init_plugins(self, env_init):
         try:
             for plugin in self.settings.plugins:
-                logging.info("Loading plugin {}".format(plugin.name))
+                if env_init:
+                    logging.info("Initializing environment for plugin {}.".format(plugin.name))
+                    if 'env_init' in dir(plugin):
+                        plugin.env_init(self)
+                logging.info("Loading plugin {}.".format(plugin.name))
                 if 'init' in dir(plugin):
                     plugin.init(self)
         except BreakPluginLoadingException:

@@ -209,11 +209,11 @@ class SessionSetup(models.Model):
     date_progression = models.IntegerField()
     weather_progression = models.IntegerField()
     weather_slots = models.IntegerField()
-    weather_1 = models.ForeignKey(WeatherDefinition)
-    weather_2 = models.ForeignKey(WeatherDefinition)
-    weather_3 = models.ForeignKey(WeatherDefinition)
-    weather_4 = models.ForeignKey(WeatherDefinition)
-    game_mode = models.ForeignKey(GameModeDefinition)
+    weather_1 = models.ForeignKey(WeatherDefinition, related_name='+')
+    weather_2 = models.ForeignKey(WeatherDefinition, related_name='+')
+    weather_3 = models.ForeignKey(WeatherDefinition, related_name='+')
+    weather_4 = models.ForeignKey(WeatherDefinition, related_name='+')
+    game_mode = models.ForeignKey(GameModeDefinition, related_name='+')
     track_latitude = models.IntegerField()
     track_longitude = models.IntegerField()
     track_altitude = models.IntegerField()
@@ -235,16 +235,16 @@ class Session(models.Model):
     running = models.BooleanField()  # TODO join these to one
     finished = models.BooleanField()  # TODO join these to one
 
-    first_snapshot = models.ForeignKey("SessionSnapshot", null=True)
-    current_snapshot = models.ForeignKey("SessionSnapshot", null=True)
-    starting_snapshot_lobby = models.ForeignKey("SessionSnapshot", null=True)
-    starting_snapshot_to_track = models.ForeignKey("SessionSnapshot", null=True)
-    starting_snapshot_practice1 = models.ForeignKey("SessionSnapshot", null=True)
-    starting_snapshot_practice2 = models.ForeignKey("SessionSnapshot", null=True)
-    starting_snapshot_qualifying = models.ForeignKey("SessionSnapshot", null=True)
-    starting_snapshot_warmup = models.ForeignKey("SessionSnapshot", null=True)
-    starting_snapshot_race = models.ForeignKey("SessionSnapshot", null=True)
-    ending_snapshot_race = models.ForeignKey("SessionSnapshot", null=True)
+    first_snapshot = models.ForeignKey("SessionSnapshot", null=True, related_name='+')
+    current_snapshot = models.ForeignKey("SessionSnapshot", null=True, related_name='+')
+    starting_snapshot_lobby = models.ForeignKey("SessionSnapshot", null=True, related_name='+')
+    starting_snapshot_to_track = models.ForeignKey("SessionSnapshot", null=True, related_name='+')
+    starting_snapshot_practice1 = models.ForeignKey("SessionSnapshot", null=True, related_name='+')
+    starting_snapshot_practice2 = models.ForeignKey("SessionSnapshot", null=True, related_name='+')
+    starting_snapshot_qualifying = models.ForeignKey("SessionSnapshot", null=True, related_name='+')
+    starting_snapshot_warmup = models.ForeignKey("SessionSnapshot", null=True, related_name='+')
+    starting_snapshot_race = models.ForeignKey("SessionSnapshot", null=True, related_name='+')
+    ending_snapshot_race = models.ForeignKey("SessionSnapshot", null=True, related_name='+')
 
 
 class SessionSnapshot(models.Model):
@@ -351,14 +351,13 @@ class ParticipantSnapshot(models.Model):
 
 
 class Event(models.Model):
-    snapshot = models.ForeignKey(SessionSnapshot, null=True)
-    definition = models.ForeignKey(EventDefinition, null=True)  # may be NULL and a custom event! eg. by a plugin
+    snapshot = models.ForeignKey(SessionSnapshot, null=True, related_name='+')
+    definition = models.ForeignKey(EventDefinition, null=True, related_name='+')  # may be NULL and a custom event! eg. by a plugin
     session = models.ForeignKey(SessionSnapshot)
 
 
 class RaceLapSnapshot(models.Model):
     snapshot = models.ForeignKey(SessionSnapshot, null=True)
-    session = models.ForeignKey(SessionSnapshot)
     lap = models.IntegerField()
 
 
