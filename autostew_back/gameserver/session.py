@@ -119,7 +119,7 @@ class Session(AbstractStatusTable):
             'value'
         )
         self.allowed_views = SessionAttributeLinkedToList(
-            self._from_list('AllowedViewsDefinition'),
+            self._from_list('AllowedViews'),
             api,
             lists[ListName.allowed_views],
             'value'
@@ -175,7 +175,7 @@ class Session(AbstractStatusTable):
             'value',
         )
         self.game_mode = SessionAttributeLinkedToList(
-            self._from_list('GameModeDefinition'),
+            self._from_list('GameMode'),
             api,
             lists[ListName.game_modes],
             'value'

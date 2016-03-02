@@ -4,6 +4,7 @@ from autostew_back.plugins import laptimes, crash_monitor, motd, db, db_reader, 
 from autostew_back.setups import prl_s4_r1_catalunya_casual
 
 logging.getLogger().setLevel(logging.DEBUG)
+logging.getLogger('django.db.backends').setLevel(logging.DEBUG)
 
 
 class Settings:

@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 import argparse
 import logging
 import sys
@@ -17,7 +19,7 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=description, epilog=epilog)
-    parser.add_argument('env-init', default=False, action='store_true',
+    parser.add_argument('--env-init', default=False, action='store_true',
                         help="Initialize environment")
     args = parser.parse_args()
     sys.exit(main(args))
