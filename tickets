@@ -1,0 +1,24 @@
+BASE DEVELOPMENT
+5 ***** Error handling
+# ***   DB writer
+2 **    setup rotation as pluginn
+5 *     server as subprocess
+5 *     server.cfg writer
+
+PLUGINS
+3 ***** Kick retired players
+3 ****  Kick host if they doesn't start game on time
+5 ***   Show fastest laps (configurable by player via chat)
+2 ***    Warn, then kick crashers
+8 **    voting for next setup
+3 **    Warn, then kick players with lights off
+5 *     Watch player
+8 *     Elimination races
+# *     AI difficulty balancer
+3 *     Kick AFKs
+3 *     Warn pit exits
+# *     Restart hanging server
+5 *     Show temperatures & wetness
+1 *     Show in-game clock
+
+FUTURE DEVELOPMENT
