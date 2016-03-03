@@ -2,7 +2,7 @@ from django.db import models
 
 
 class Track(models.Model):
-    id = models.IntegerField(help_text='pCars internal ID', primary_key=True)
+    ingame_id = models.IntegerField(help_text='pCars internal ID')
     name = models.CharField(max_length=100)
     grid_size = models.SmallIntegerField()
 
@@ -12,7 +12,7 @@ class Track(models.Model):
 
 class VehicleClass(models.Model):
     name = models.CharField(max_length=50, unique=True)
-    id = models.IntegerField(primary_key=True, help_text='pCars internal ID')
+    ingame_id = models.IntegerField(help_text='pCars internal ID')
 
     def __str__(self):
         return self.name
@@ -20,7 +20,7 @@ class VehicleClass(models.Model):
 
 class Vehicle(models.Model):
     name = models.CharField(max_length=50, unique=True)
-    id = models.IntegerField(primary_key=True, help_text='pCars internal ID')
+    ingame_id = models.IntegerField(help_text='pCars internal ID')
     vehicle_class = models.ForeignKey(VehicleClass)
 
     def __str__(self):

@@ -13,7 +13,7 @@ class EventDefinition(models.Model):
 
 class GameModeDefinition(models.Model):
     name = models.CharField(max_length=50, unique=True)
-    id = models.IntegerField(primary_key=True, help_text='pCars internal ID')
+    ingame_id = models.IntegerField(help_text='pCars internal ID')
 
     def __str__(self):
         return self.name
@@ -21,7 +21,7 @@ class GameModeDefinition(models.Model):
 
 class TireWearDefinition(models.Model):
     name = models.CharField(max_length=50, unique=True)
-    id = models.IntegerField(primary_key=True, help_text='pCars internal ID')
+    ingame_id = models.IntegerField(help_text='pCars internal ID')
 
     def __str__(self):
         return self.name
@@ -29,7 +29,7 @@ class TireWearDefinition(models.Model):
 
 class PenaltyDefinition(models.Model):
     name = models.CharField(max_length=50, unique=True)
-    id = models.IntegerField(primary_key=True, help_text='pCars internal ID')
+    ingame_id = models.IntegerField(help_text='pCars internal ID')
 
     def __str__(self):
         return self.name
@@ -37,7 +37,7 @@ class PenaltyDefinition(models.Model):
 
 class FuelUsageDefinition(models.Model):
     name = models.CharField(max_length=50, unique=True)
-    id = models.IntegerField(primary_key=True, help_text='pCars internal ID')
+    ingame_id = models.IntegerField(help_text='pCars internal ID')
 
     def __str__(self):
         return self.name
@@ -45,7 +45,7 @@ class FuelUsageDefinition(models.Model):
 
 class AllowedViewsDefinition(models.Model):
     name = models.CharField(max_length=50, unique=True)
-    id = models.IntegerField(primary_key=True, help_text='pCars internal ID')
+    ingame_id = models.IntegerField(help_text='pCars internal ID')
 
     def __str__(self):
         return self.name
@@ -53,7 +53,7 @@ class AllowedViewsDefinition(models.Model):
 
 class PlayerFlagDefinition(models.Model):
     name = models.CharField(max_length=50, unique=True)
-    id = models.IntegerField(primary_key=True, help_text='pCars internal ID')
+    ingame_id = models.IntegerField(help_text='pCars internal ID')
 
     def __str__(self):
         return self.name
@@ -61,7 +61,7 @@ class PlayerFlagDefinition(models.Model):
 
 class WeatherDefinition(models.Model):
     name = models.CharField(max_length=50, unique=True)
-    id = models.IntegerField(primary_key=True, help_text='pCars internal ID')
+    ingame_id = models.IntegerField(help_text='pCars internal ID')
 
     def __str__(self):
         return self.name
@@ -69,7 +69,7 @@ class WeatherDefinition(models.Model):
 
 class DamageDefinition(models.Model):
     name = models.CharField(max_length=50, unique=True)
-    id = models.IntegerField(primary_key=True, help_text='pCars internal ID')
+    ingame_id = models.IntegerField(help_text='pCars internal ID')
 
     def __str__(self):
         return self.name
@@ -77,7 +77,7 @@ class DamageDefinition(models.Model):
 
 class SessionFlagDefinition(models.Model):
     name = models.CharField(max_length=50, unique=True)
-    id = models.IntegerField(primary_key=True, help_text='pCars internal ID')
+    ingame_id = models.IntegerField(help_text='pCars internal ID')
 
     def __str__(self):
         return self.name

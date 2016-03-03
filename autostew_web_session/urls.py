@@ -6,7 +6,7 @@ from . import views
 
 urlpatterns = [
     url(r'^$', ListView.as_view(
-        queryset=Track.objects.all(),
+        queryset=Track.objects.all().order_by('name'),
         template_name="autostew_web_session/tracks.html")),
     url(r'^(?P<pk>[0-9]+)/$', views.DetailView.as_view(), name='track'),
 ]

@@ -3,8 +3,8 @@ import logging
 from autostew_back.plugins import laptimes, crash_monitor, motd, db, db_reader, db_writer
 from autostew_back.setups import prl_s4_r2_zolder_casual
 
-logging.getLogger().setLevel(logging.INFO)
-logging.getLogger('django.db.backends').setLevel(logging.INFO)
+logging.getLogger().setLevel(logging.DEBUG)
+logging.getLogger('django.db.backends').setLevel(logging.DEBUG)
 
 
 class Settings:

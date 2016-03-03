@@ -75,8 +75,12 @@ class Server:
     def get_current_setup_name(self):
         return self.settings.setup_rotation[self._setup_index].name
 
-    def event_loop(self):
-        self.api.reset_event_offset()
+    def event_loop(self, event_offset=None):
+        if event_offset is None:
+            self.api.reset_event_offset()
+        else:
+            self.api.event_offset = event_offset
+
         while True:
             tick_start = time()
             updated_status_in_this_tick = False

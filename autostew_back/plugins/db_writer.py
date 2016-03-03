@@ -1,4 +1,5 @@
 import json
+import logging
 
 from autostew_back.gameserver.event import EventType
 from autostew_back.gameserver.lists import ListName
@@ -11,7 +12,8 @@ from autostew_web_enums.models import EventDefinition, GameModeDefinition, TireW
     SessionFlagDefinition, SessionAttributeDefinition, MemberAttributeDefinition, ParticipantAttributeDefinition
 
 name = 'DB writer'
-enum_tables = [Server, Track, EventDefinition, SessionFlagDefinition, DamageDefinition, WeatherDefinition, PlayerFlagDefinition, AllowedViewsDefinition, FuelUsageDefinition,
+enum_tables = [Track, EventDefinition, SessionFlagDefinition, DamageDefinition, WeatherDefinition,
+               PlayerFlagDefinition, AllowedViewsDefinition, FuelUsageDefinition,
                GameModeDefinition, VehicleClass, PenaltyDefinition, Vehicle, Livery, TireWearDefinition]
 current_session = None
 
@@ -74,14 +76,14 @@ def _create_session(server, server_in_db):
         race2_length=server.session.race2_length.get(),
         public=server.session.privacy.get() == Privacy.public,
         friends_can_join=server.session.privacy.get() in (Privacy.public, Privacy.friends),
-        damage=DamageDefinition.objects.get(id=server.session.damage.get()) if server.session.damage.get() else None,
-        tire_wear=TireWearDefinition.objects.get(id=server.session.tire_wear.get()) if server.session.tire_wear.get() else None,
-        fuel_usage=FuelUsageDefinition.objects.get(id=server.session.fuel_usage.get()) if server.session.fuel_usage.get() else None,
-        penalties=PenaltyDefinition.objects.get(id=server.session.penalties.get()) if server.session.penalties.get() else None,
-        allowed_views=AllowedViewsDefinition.objects.get(id=server.session.allowed_views.get()) if server.session.allowed_views.get() else None,
-        track=Track.objects.get(id=server.session.track.get()) if server.session.track.get() else None,
-        vehicle_class=VehicleClass.objects.get(id=server.session.vehicle_class.get()) if server.session.vehicle_class.get() else None,
-        vehicle=Vehicle.objects.get(id=server.session.vehicle.get()) if server.session.vehicle.get() else None,
+        damage=DamageDefinition.objects.get(ingame_id=server.session.damage.get()) if server.session.damage.get() else None,
+        tire_wear=TireWearDefinition.objects.get(ingame_id=server.session.tire_wear.get()) if server.session.tire_wear.get() else None,
+        fuel_usage=FuelUsageDefinition.objects.get(ingame_id=server.session.fuel_usage.get()) if server.session.fuel_usage.get() else None,
+        penalties=PenaltyDefinition.objects.get(ingame_id=server.session.penalties.get()) if server.session.penalties.get() else None,
+        allowed_views=AllowedViewsDefinition.objects.get(ingame_id=server.session.allowed_views.get()) if server.session.allowed_views.get() else None,
+        track=Track.objects.get(ingame_id=server.session.track.get()) if server.session.track.get() else None,
+        vehicle_class=VehicleClass.objects.get(ingame_id=server.session.vehicle_class.get()) if server.session.vehicle_class.get() else None,
+        vehicle=Vehicle.objects.get(ingame_id=server.session.vehicle.get()) if server.session.vehicle.get() else None,
         date_year=server.session.date_year.get(),
         date_month=server.session.date_month.get(),
         date_day=server.session.date_day.get(),
@@ -90,11 +92,11 @@ def _create_session(server, server_in_db):
         date_progression=server.session.date_progression.get(),
         weather_progression=server.session.weather_progression.get(),
         weather_slots=server.session.weather_slots.get(),
-        weather_1=WeatherDefinition.objects.get(id=server.session.weather_1.get()) if server.session.weather_1.get() else None,
-        weather_2=WeatherDefinition.objects.get(id=server.session.weather_2.get()) if server.session.weather_2.get() else None,
-        weather_3=WeatherDefinition.objects.get(id=server.session.weather_3.get()) if server.session.weather_3.get() else None,
-        weather_4=WeatherDefinition.objects.get(id=server.session.weather_4.get()) if server.session.weather_4.get() else None,
-        game_mode=GameModeDefinition.objects.get(id=server.session.game_mode.get()) if server.session.game_mode.get() else None,
+        weather_1=WeatherDefinition.objects.get(ingame_id=server.session.weather_1.get()) if server.session.weather_1.get() else None,
+        weather_2=WeatherDefinition.objects.get(ingame_id=server.session.weather_2.get()) if server.session.weather_2.get() else None,
+        weather_3=WeatherDefinition.objects.get(ingame_id=server.session.weather_3.get()) if server.session.weather_3.get() else None,
+        weather_4=WeatherDefinition.objects.get(ingame_id=server.session.weather_4.get()) if server.session.weather_4.get() else None,
+        game_mode=GameModeDefinition.objects.get(ingame_id=server.session.game_mode.get()) if server.session.game_mode.get() else None,
         track_latitude=server.session.track_latitude.get(),
         track_longitude=server.session.track_longitude.get(),
         track_altitude=server.session.track_altitude.get(),
@@ -114,10 +116,11 @@ def _create_session(server, server_in_db):
 
     for it in server.members.elements:
         member_flags = it.race_stat_flags.get_flags()
+        vehicle = Vehicle.objects.get(ingame_id=it.vehicle.get()) if it.vehicle.get() else None
         member = Member(
             session=session,
-            vehicle=Vehicle.objects.get(id=it.vehicle.get()) if it.vehicle.get() else None,
-            livery=Livery.objects.get(id=it.livery.get()) if it.livery.get() else None,
+            vehicle=vehicle,
+            livery=Livery.objects.get(id_for_vehicle=it.livery.get(), vehicle=vehicle) if vehicle else None,
             refid=it.refid.get(),
             steam_id=it.steam_id.get(),
             name=it.name.get(),
@@ -142,14 +145,15 @@ def _create_session(server, server_in_db):
         member.save(True)
 
     for it in server.participants.elements:
+        vehicle = Vehicle.objects.get(ingame_id=it.vehicle.get()) if it.vehicle.get() else None
         participant = Participant(
             member=Member.objects.get(refid=it.refid.get(), session=session),
             ingame_id=it.id.get(),
             refid=it.refid.get(),
             name=it.name.get(),
             is_ai=not it.is_player.get(),
-            vehicle=Vehicle.objects.get(id=it.vehicle.get()),
-            livery=Livery.objects.get(id=it.livery.get()),
+            vehicle=Vehicle.objects.get(ingame_id=it.vehicle.get()),
+            livery=Livery.objects.get(id_for_vehicle=it.livery.get(), vehicle=vehicle),
         )
         participant.save(True)
 
@@ -241,10 +245,12 @@ def _clear_enums():
 
 def _create_enums(server):
     def _create_name_value(model, listname):
+        logging.info("Creating enum {}".format(listname))
         for i in server.lists[listname].list:
-            model(name=i.name, id=i.value).save(True)
+            model(name=i.name, ingame_id=i.value).save(True)
 
     def _create_attribute(model, listname):
+        logging.info("Creating attribute {}".format(listname))
         for i in server.lists[listname].list:
             model(name=i.name, type=i.type, access=i.access, description=i.description).save(True)
 
@@ -262,20 +268,25 @@ def _create_enums(server):
     _create_attribute(MemberAttributeDefinition, ListName.member_attributes)
     _create_attribute(ParticipantAttributeDefinition, ListName.participant_attributes)
 
+    logging.info("Creating PlayerFlags")
     for pflag in server.lists[ListName.player_flags].list:
         if pflag.value == 0:
             continue
-        PlayerFlagDefinition(name=pflag.name, id=pflag.value).save(True)
+        PlayerFlagDefinition(name=pflag.name, ingame_id=pflag.value).save(True)
 
+    logging.info("Creating Tracks")
     for track in server.lists[ListName.tracks].list:
-        Track(id=track.id, name=track.name, grid_size=track.gridsize).save(True)
+        Track(ingame_id=track.id, name=track.name, grid_size=track.gridsize).save(True)
 
+    logging.info("Creating Events")
     for event in server.lists[ListName.events].list:
         EventDefinition(name=event.name, type=event.type, description=event.type, attributes=json.dumps(event.attributes)).save(True)
 
+    logging.info("Creating Vehicles")
     for vehicle in server.lists[ListName.vehicles].list:
-        Vehicle(id=vehicle.id, name=vehicle.name, vehicle_class=VehicleClass.objects.get(name=vehicle.class_name)).save(True)
+        Vehicle(ingame_id=vehicle.id, name=vehicle.name, vehicle_class=VehicleClass.objects.get(name=vehicle.class_name)).save(True)
 
+    logging.info("Creating Liveries")
     for livery_vehicle in server.lists[ListName.liveries].list:
         for livery in livery_vehicle.liveries:
             Livery(name=livery['name'], id_for_vehicle=livery['id'], vehicle_id=livery_vehicle.id).save(True)
