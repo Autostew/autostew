@@ -1,0 +1,13 @@
+{% extends "autostew_web_session/base.html" %}
+
+{% block content %}
+                        <div class="page-header">
+                            <h1>Whoa amazing!</h1>
+                        </div>
+
+                        <p>Here comes a list of all tracks: </p>
+
+                        {% for track in object_list %}
+                            <h5><a href="/tracks/{{track.id}}">{{ track.name }}</a></h5>
+                        {% endfor %}
+{% endblock %}

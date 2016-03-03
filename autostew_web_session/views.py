@@ -1,9 +1,12 @@
-from django.shortcuts import render
-from django.http import HttpResponse
+
+from django.views import generic
+
+from .models import Track
 
 
-def index(request):
-    return list(request)
+class DetailView(generic.DetailView):
+    model = Track
+    template_name = 'autostew_web_session/track.html'
 
-def list(request):
-    return HttpResponse("Session list")
+    def get_queryset(self):
+        return Track.objects
