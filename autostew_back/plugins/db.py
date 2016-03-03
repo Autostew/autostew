@@ -21,5 +21,5 @@ init(None)
 def tick(server):
     pass
 
-def event(server):
+def event(server, event):
     pass

@@ -170,7 +170,7 @@ class SessionSnapshot(models.Model):
 
 
 class Member(models.Model):
-    session = models.ForeignKey(SessionSnapshot)
+    session = models.ForeignKey(Session)
     # TODO status = active, left
 
     vehicle = models.ForeignKey(Vehicle)
