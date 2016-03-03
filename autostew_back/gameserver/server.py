@@ -1,6 +1,8 @@
 import logging
 from time import time, sleep
 
+from datetime import timedelta
+
 from autostew_back.settings import Settings
 from autostew_back.gameserver.api import ApiCaller
 from autostew_back.gameserver.event import event_factory
@@ -45,6 +47,7 @@ class Server:
         self.last_status_update_time = time()
 
     def _init_plugins(self, env_init):
+        start_time = time()
         try:
             for plugin in self.settings.plugins:
                 if env_init:
@@ -56,6 +59,7 @@ class Server:
                     plugin.init(self)
         except BreakPluginLoadingException:
             pass
+        logging.info("Plugin init took {} seconds".format(timedelta(time()-start_time)))
 
     def load_next_setup(self, index=None):
         if index is None:

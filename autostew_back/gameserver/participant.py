@@ -39,38 +39,38 @@ class Participant(AbstractStatusTable):
             AttributeItem({'name': 'id', 'access': 'ReadOnly', 'type': '', 'description': ''}),
             api, subsection=None)
 
-        def _member_attribute(name):
+        def _participant_attribute(name):
             return ParticipantAttribute(self._from_list(name), api)
 
-        self.refid = _member_attribute('RefId')
-        self.name = _member_attribute('Name')
-        self.is_player = _member_attribute('IsPlayer')
-        self.grid_position = _member_attribute('GridPosition')
+        self.refid = _participant_attribute('RefId')
+        self.name = _participant_attribute('Name')
+        self.is_player = _participant_attribute('IsPlayer')
+        self.grid_position = _participant_attribute('GridPosition')
         self.vehicle = ParticipantAttributeLinkedToList(
             self._from_list('VehicleId'),
             api,
             lists[ListName.vehicles],
             'id'
         )
-        self.livery = _member_attribute('LiveryId')
-        self.race_position = _member_attribute('RacePosition')
-        self.current_lap = _member_attribute('CurrentLap')
-        self.current_sector = _member_attribute('CurrentSector')
-        self.sector1_time = _member_attribute('Sector1Time')
-        self.sector2_time = _member_attribute('Sector2Time')
-        self.sector3_time = _member_attribute('Sector3Time')
-        self.last_lap_time = _member_attribute('LastLapTime')
-        self.fastest_lap_time = _member_attribute('FastestLapTime')
-        self.state = _member_attribute('State')
-        self.headlights = _member_attribute('HeadlightsOn')
-        self.wipers = _member_attribute('WipersOn')
-        self.speed = _member_attribute('Speed')
-        self.gear = _member_attribute('Gear')
-        self.rpm = _member_attribute('RPM')
-        self.position_x = _member_attribute('PositionX')
-        self.position_y = _member_attribute('PositionY')
-        self.position_z = _member_attribute('PositionZ')
-        self.orientation = _member_attribute('Orientation')
+        self.livery = _participant_attribute('LiveryId')
+        self.race_position = _participant_attribute('RacePosition')
+        self.current_lap = _participant_attribute('CurrentLap')
+        self.current_sector = _participant_attribute('CurrentSector')
+        self.sector1_time = _participant_attribute('Sector1Time')
+        self.sector2_time = _participant_attribute('Sector2Time')
+        self.sector3_time = _participant_attribute('Sector3Time')
+        self.last_lap_time = _participant_attribute('LastLapTime')
+        self.fastest_lap_time = _participant_attribute('FastestLapTime')
+        self.state = _participant_attribute('State')
+        self.headlights = _participant_attribute('HeadlightsOn')
+        self.wipers = _participant_attribute('WipersOn')
+        self.speed = _participant_attribute('Speed')
+        self.gear = _participant_attribute('Gear')
+        self.rpm = _participant_attribute('RPM')
+        self.position_x = _participant_attribute('PositionX')
+        self.position_y = _participant_attribute('PositionY')
+        self.position_z = _participant_attribute('PositionZ')
+        self.orientation = _participant_attribute('Orientation')
 
     def send_chat(self, message):
         self.member.send_chat(message)

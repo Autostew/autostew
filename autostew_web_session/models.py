@@ -51,6 +51,8 @@ class SetupRotation(models.Model):
 class Server(models.Model):
     name = models.CharField(max_length=50, unique=True)
     running = models.BooleanField()
+    # TODO joinable = models.BooleanField()
+    # TODO state = server.state!!
 
     def __str__(self):
         return self.name
@@ -111,9 +113,9 @@ class SessionSetup(models.Model):
     weather_3 = models.ForeignKey('autostew_web_enums.WeatherDefinition', related_name='+', null=True)
     weather_4 = models.ForeignKey('autostew_web_enums.WeatherDefinition', related_name='+', null=True)
     game_mode = models.ForeignKey('autostew_web_enums.GameModeDefinition', related_name='+', null=True)
-    track_latitude = models.IntegerField()
-    track_longitude = models.IntegerField()
-    track_altitude = models.IntegerField()
+    track_latitude = models.IntegerField()  # TODO this should be on track model
+    track_longitude = models.IntegerField()  # TODO this should be on track model
+    track_altitude = models.IntegerField()  # TODO this should be on track model
 
 
 class Session(models.Model):
@@ -123,6 +125,9 @@ class Session(models.Model):
     planned = models.BooleanField()
     running = models.BooleanField()  # TODO join these to one
     finished = models.BooleanField()  # TODO join these to one
+
+    lobby_id = models.CharField(max_length=200)
+    max_member_count = models.IntegerField()
 
     first_snapshot = models.ForeignKey("SessionSnapshot", null=True, related_name='+')
     current_snapshot = models.ForeignKey("SessionSnapshot", null=True, related_name='+')
@@ -195,7 +200,7 @@ class Member(models.Model):
 
 class MemberSnapshot(models.Model):
     member = models.ForeignKey(Member)
-
+    snapshot = models.ForeignKey(SessionSnapshot)
     load_state = models.CharField(max_length=15)  # TODO check if this is correct
     ping = models.IntegerField()
     index = models.IntegerField()
@@ -217,6 +222,7 @@ class Participant(models.Model):
 
 
 class ParticipantSnapshot(models.Model):
+    snapshot = models.ForeignKey(SessionSnapshot)
     participant = models.ForeignKey(Participant)
     grid_position = models.IntegerField()
     race_position = models.IntegerField()

@@ -9,7 +9,7 @@ PLUGINS
 3 ***** Kick retired players
 3 ****  Kick host if they doesn't start game on time
 5 ***   Show fastest laps (configurable by player via chat)
-2 ***    Warn, then kick crashers
+2 ***   Warn, then kick crashers
 8 **    voting for next setup
 3 **    Warn, then kick players with lights off
 5 *     Watch player
