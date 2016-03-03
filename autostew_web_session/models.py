@@ -36,117 +36,6 @@ class Livery(models.Model):
         return "{} for {}".format(self.name, self.vehicle.name)
 
 
-class EventDefinition(models.Model):
-    name = models.CharField(max_length=50, unique=True)
-    type = models.CharField(max_length=50)
-    description = models.CharField(max_length=50)
-    attributes = models.TextField(max_length=200)
-
-    def __str__(self):
-        return "{}-{}".format(self.type, self.name)
-
-
-class GameModeDefinition(models.Model):
-    name = models.CharField(max_length=50, unique=True)
-    id = models.IntegerField(primary_key=True, help_text='pCars internal ID')
-
-    def __str__(self):
-        return self.name
-
-
-class TireWearDefinition(models.Model):
-    name = models.CharField(max_length=50, unique=True)
-    id = models.IntegerField(primary_key=True, help_text='pCars internal ID')
-
-    def __str__(self):
-        return self.name
-
-
-class PenaltyDefinition(models.Model):
-    name = models.CharField(max_length=50, unique=True)
-    id = models.IntegerField(primary_key=True, help_text='pCars internal ID')
-
-    def __str__(self):
-        return self.name
-
-
-class FuelUsageDefinition(models.Model):
-    name = models.CharField(max_length=50, unique=True)
-    id = models.IntegerField(primary_key=True, help_text='pCars internal ID')
-
-    def __str__(self):
-        return self.name
-
-class AllowedViewsDefinition(models.Model):
-    name = models.CharField(max_length=50, unique=True)
-    id = models.IntegerField(primary_key=True, help_text='pCars internal ID')
-
-    def __str__(self):
-        return self.name
-
-
-class PlayerFlagDefinition(models.Model):
-    name = models.CharField(max_length=50, unique=True)
-    id = models.IntegerField(primary_key=True, help_text='pCars internal ID')
-
-    def __str__(self):
-        return self.name
-
-
-class WeatherDefinition(models.Model):
-    name = models.CharField(max_length=50, unique=True)
-    id = models.IntegerField(primary_key=True, help_text='pCars internal ID')
-
-    def __str__(self):
-        return self.name
-
-
-class DamageDefinition(models.Model):
-    name = models.CharField(max_length=50, unique=True)
-    id = models.IntegerField(primary_key=True, help_text='pCars internal ID')
-
-    def __str__(self):
-        return self.name
-
-
-class SessionFlagDefinition(models.Model):
-    name = models.CharField(max_length=50, unique=True)
-    id = models.IntegerField(primary_key=True, help_text='pCars internal ID')
-
-    def __str__(self):
-        return self.name
-
-
-class SessionAttributeDefinition(models.Model):
-    name = models.CharField(max_length=50)
-    type = models.CharField(max_length=50)
-    access = models.CharField(max_length=50)
-    description = models.CharField(max_length=500)
-
-    def __str__(self):
-        return self.name
-
-
-class MemberAttributeDefinition(models.Model):
-    name = models.CharField(max_length=50)
-    type = models.CharField(max_length=50)
-    access = models.CharField(max_length=50)
-    description = models.CharField(max_length=500)
-
-    def __str__(self):
-        return self.name
-
-
-class ParticipantAttributeDefinition(models.Model):
-    name = models.CharField(max_length=50)
-    type = models.CharField(max_length=50)
-    access = models.CharField(max_length=50)
-    description = models.CharField(max_length=500)
-
-    def __str__(self):
-        return self.name
-
-
 class ServerConfiguration(models.Model):
     pass
 
@@ -157,6 +46,14 @@ class SessionConfiguration(models.Model):
 
 class SetupRotation(models.Model):
     pass
+
+
+class Server(models.Model):
+    name = models.CharField(max_length=50, unique=True)
+    running = models.BooleanField()
+
+    def __str__(self):
+        return self.name
 
 
 class SessionSetup(models.Model):
@@ -193,12 +90,12 @@ class SessionSetup(models.Model):
 
     public = models.BooleanField()
     friends_can_join = models.BooleanField()
-    damage = models.ForeignKey(DamageDefinition)
-    tire_wear = models.ForeignKey(TireWearDefinition)
-    fuel_usage = models.ForeignKey(FuelUsageDefinition)
-    penalties = models.ForeignKey(PenaltyDefinition)
-    allowed_views = models.ForeignKey(AllowedViewsDefinition)
-    track = models.ForeignKey(Track)
+    damage = models.ForeignKey('autostew_web_enums.DamageDefinition', null=True)
+    tire_wear = models.ForeignKey('autostew_web_enums.TireWearDefinition', null=True)
+    fuel_usage = models.ForeignKey('autostew_web_enums.FuelUsageDefinition', null=True)
+    penalties = models.ForeignKey('autostew_web_enums.PenaltyDefinition', null=True)
+    allowed_views = models.ForeignKey('autostew_web_enums.AllowedViewsDefinition', null=True)
+    track = models.ForeignKey(Track, null=True)
     vehicle_class = models.ForeignKey(VehicleClass, null=True)
     vehicle = models.ForeignKey(Vehicle, null=True)
     date_year = models.IntegerField()
@@ -209,22 +106,14 @@ class SessionSetup(models.Model):
     date_progression = models.IntegerField()
     weather_progression = models.IntegerField()
     weather_slots = models.IntegerField()
-    weather_1 = models.ForeignKey(WeatherDefinition, related_name='+')
-    weather_2 = models.ForeignKey(WeatherDefinition, related_name='+')
-    weather_3 = models.ForeignKey(WeatherDefinition, related_name='+')
-    weather_4 = models.ForeignKey(WeatherDefinition, related_name='+')
-    game_mode = models.ForeignKey(GameModeDefinition, related_name='+')
+    weather_1 = models.ForeignKey('autostew_web_enums.WeatherDefinition', related_name='+', null=True)
+    weather_2 = models.ForeignKey('autostew_web_enums.WeatherDefinition', related_name='+', null=True)
+    weather_3 = models.ForeignKey('autostew_web_enums.WeatherDefinition', related_name='+', null=True)
+    weather_4 = models.ForeignKey('autostew_web_enums.WeatherDefinition', related_name='+', null=True)
+    game_mode = models.ForeignKey('autostew_web_enums.GameModeDefinition', related_name='+', null=True)
     track_latitude = models.IntegerField()
     track_longitude = models.IntegerField()
     track_altitude = models.IntegerField()
-
-
-class Server(models.Model):
-    name = models.CharField(max_length=50, unique=True)
-    running = models.BooleanField()
-
-    def __str__(self):
-        return self.name
 
 
 class Session(models.Model):
@@ -304,7 +193,7 @@ class Member(models.Model):
     valid = models.BooleanField()  # idk what this means
 
 
-class MemberSnapshop(models.Model):
+class MemberSnapshot(models.Model):
     member = models.ForeignKey(Member)
 
     load_state = models.CharField(max_length=15)  # TODO check if this is correct
@@ -352,7 +241,7 @@ class ParticipantSnapshot(models.Model):
 
 class Event(models.Model):
     snapshot = models.ForeignKey(SessionSnapshot, null=True, related_name='+')
-    definition = models.ForeignKey(EventDefinition, null=True, related_name='+')  # may be NULL and a custom event! eg. by a plugin
+    definition = models.ForeignKey('autostew_web_enums.EventDefinition', null=True, related_name='+')  # may be NULL and a custom event! eg. by a plugin
     session = models.ForeignKey(SessionSnapshot)
 
 
