@@ -1,5 +1,6 @@
 import json
 
+from autostew_back.gameserver.event import EventType
 from autostew_back.gameserver.lists import ListName
 from autostew_back.gameserver.member import MemberFlags
 from autostew_back.gameserver.session import SessionFlags, Privacy
@@ -35,8 +36,9 @@ def tick(server):
     pass
 
 
-def event(server, event):
-
+def event(server, event):  # TODO participant_created and authenticated
+    if event.type == EventType.lap and event.race_position == 1:
+        _make_snapshot(server, current_session)
 
 
 def _create_session(server, server_in_db):
@@ -201,7 +203,7 @@ def _make_snapshot(server, session):
     for it in server.participants.elements:
         participant_snapshot = ParticipantSnapshot(
             snapshot=session_snapshot,
-            participant=Participant.objects.get(ingame_id=it.id.get(), member__refid=it.refid.get()),
+            participant=Participant.objects.get(ingame_id=it.id.get(), member__refid=it.refid.get(), member__session=session),
             grid_position=it.grid_position.get(),
             race_position=it.race_position.get(),
             current_lap=it.current_lap.get(),
