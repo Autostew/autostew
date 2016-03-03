@@ -10,7 +10,7 @@ def make_setup(server):
     server.session.server_controls_vehicle.set_to_game(0)
 
     server.session.vehicle_class.set_to_game_nice('GT3')
-    server.session.track.set_to_game_nice("Circuit de Barcelona-Catalunya GP")
+    server.session.track.set_to_game_nice("Zolder")
     server.session.grid_size.set_to_game(30, for_next_session=True)
     server.session.max_players.set_to_game(8)
 

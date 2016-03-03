@@ -1,6 +1,6 @@
 from autostew_back.gameserver.session import Privacy, SessionFlags
 
-name = 'Precision Racing League Season 4 Round 2 - Zolder'
+name = 'Good morning at Zolder'
 
 def make_setup(server):
     server.session.privacy.set_to_game(Privacy.public)
@@ -10,8 +10,8 @@ def make_setup(server):
     server.session.server_controls_vehicle.set_to_game(0)
 
     server.session.vehicle_class.set_to_game_nice('GT3')
-    server.session.track.set_to_game_nice("Circuit de Barcelona-Catalunya GP")
-    server.session.grid_size.set_to_game(30, for_next_session=True)
+    server.session.track.set_to_game_nice("Zolder")
+    server.session.grid_size.set_to_game(22, for_next_session=True)
     server.session.max_players.set_to_game(8)
 
     server.session.weather_slots.set_to_game(1)

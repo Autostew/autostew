@@ -99,7 +99,7 @@ class SessionSetupEvent(BaseEvent):
         self.race2_length = raw['attributes']['Race2Length']
         self.max_players = raw['attributes']['MaxPlayers']
         self.grid_size = raw['attributes']['GridSize']
-        self.game_mode = raw['attributes']['GameModeDefinition']  # TODO parse this
+        self.game_mode = raw['attributes']['GameMode']  # TODO parse this
         self.flags = raw['attributes']['Flags']  # TODO parse this
         self.track = raw['attributes']['TrackId']  # TODO parse this
 

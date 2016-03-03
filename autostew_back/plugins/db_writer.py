@@ -36,7 +36,7 @@ def tick(server):
 
 
 def event(server, event):
-    pass
+
 
 
 def _create_session(server, server_in_db):
@@ -147,7 +147,7 @@ def _create_session(server, server_in_db):
             name=it.name.get(),
             is_ai=not it.is_player.get(),
             vehicle=Vehicle.objects.get(id=it.vehicle.get()),
-            livery=Livery.objects.get(id=it.vehicle.get()),
+            livery=Livery.objects.get(id=it.livery.get()),
         )
         participant.save(True)
 

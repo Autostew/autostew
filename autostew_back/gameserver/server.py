@@ -59,7 +59,7 @@ class Server:
                     plugin.init(self)
         except BreakPluginLoadingException:
             pass
-        logging.info("Plugin init took {} seconds".format(timedelta(time()-start_time)))
+        logging.info("Plugin init took {} seconds".format(timedelta(seconds=time()-start_time)))
 
     def load_next_setup(self, index=None):
         if index is None:
