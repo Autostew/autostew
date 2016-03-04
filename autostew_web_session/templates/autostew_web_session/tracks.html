@@ -7,7 +7,7 @@
 
                         <p>Here comes a list of all tracks: </p>
 
-                        {% for track in object_list %}
+                        {% for track in track_list %}
                             <h5><a href="{% url 'track' track.id %}">{{ track.name }}</a></h5>
                         {% endfor %}
 {% endblock %}
