@@ -27,20 +27,19 @@ class TrackIndexViewTests(TestCase):
         self.assertContains(response, "No tracks are available")
         self.assertQuerysetEqual(response.context['track_list'], [])
 
-    # TODO: why is this not working!?
-    # def test_index_view_with_one_track(self):
-    #     """
-    #     Should list that track
-    #     """
-    #     track = create_track()
-    #     response = self.client.get(reverse('session:tracks'))
-    #     self.assertEqual(response.status_code, 200)
-    #     self.assertContains(response, track.name)
-    #     self.assertQuerysetEqual(response.context['track_list'], ['<Track: testtrack>'])
+    def test_index_view_with_one_track(self):
+        """
+        Should list that track
+        """
+        track = create_track()
+        response = self.client.get(reverse('session:tracks', args=()))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, track.name)
+        self.assertQuerysetEqual(response.context['track_list'], ['<Track: testtrack>'])
 
 
 class TrackDetailViewTests(TestCase):
-    def test_index_view_with_a_track(self):
+    def test_detail_view_of_a_track(self):
         """
         Should list the details of that track
         """
@@ -48,4 +47,5 @@ class TrackDetailViewTests(TestCase):
         response = self.client.get(reverse('session:track', args=(track.id,)))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, track.name)
+        self.assertContains(response, track.grid_size)
         self.assertEqual(response.context['track'], track)
