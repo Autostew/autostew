@@ -16,6 +16,10 @@ class BreakPluginLoadingException(Exception):
     pass
 
 
+class UnmetPluginDependencyException(Exception):
+    pass
+
+
 class Server:
     def __init__(self, env_init):
         self.last_status_update_time = None
@@ -49,12 +53,16 @@ class Server:
     def _init_plugins(self, env_init):
         start_time = time()
         try:
-            for plugin in self.settings.plugins:
+            for index, plugin in enumerate(self.settings.plugins):
                 if env_init:
                     logging.info("Initializing environment for plugin {}.".format(plugin.name))
                     if 'env_init' in dir(plugin):
                         plugin.env_init(self)
                 logging.info("Loading plugin {}.".format(plugin.name))
+                if 'dependencies' in dir(plugin):
+                    for dependency in plugin.dependencies:
+                        if dependency not in self.settings.plugins[:index]:
+                            raise UnmetPluginDependencyException
                 if 'init' in dir(plugin):
                     plugin.init(self)
         except BreakPluginLoadingException:
@@ -97,13 +105,15 @@ class Server:
                     updated_status_in_this_tick = True
 
                 for plugin in self.settings.plugins:
-                    plugin.event(self, event)
+                    if 'event' in dir(plugin):
+                        plugin.event(self, event)
 
             if time() - self.last_status_update_time > self.settings.full_update_period:
                 self.fetch_status()
 
             for plugin in self.settings.plugins:
-                plugin.tick(self)
+                if 'tick' in dir(plugin):
+                    plugin.tick(self)
 
             sleep_time = self.settings.event_poll_period - (time() - tick_start)
             if sleep_time > 0:

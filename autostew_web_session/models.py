@@ -167,7 +167,7 @@ class SessionSnapshot(models.Model):
 
 class Member(models.Model):
     session = models.ForeignKey(Session)
-    # TODO status = active, left
+    still_connected = models.BooleanField()
 
     vehicle = models.ForeignKey(Vehicle)
     livery = models.ForeignKey(Livery)
@@ -197,6 +197,7 @@ class Member(models.Model):
 class MemberSnapshot(models.Model):
     member = models.ForeignKey(Member)
     snapshot = models.ForeignKey(SessionSnapshot)
+    still_connected = models.BooleanField()
     load_state = models.CharField(max_length=15)  # TODO check if this is correct
     ping = models.IntegerField()
     index = models.IntegerField()
@@ -207,7 +208,7 @@ class MemberSnapshot(models.Model):
 
 class Participant(models.Model):
     member = models.ForeignKey(Member)
-    # TODO status = active, left
+    still_connected = models.BooleanField()
 
     ingame_id = models.IntegerField()
     refid = models.IntegerField()
@@ -220,6 +221,8 @@ class Participant(models.Model):
 class ParticipantSnapshot(models.Model):
     snapshot = models.ForeignKey(SessionSnapshot)
     participant = models.ForeignKey(Participant)
+    still_connected = models.BooleanField()
+
     grid_position = models.IntegerField()
     race_position = models.IntegerField()
     current_lap = models.IntegerField()
