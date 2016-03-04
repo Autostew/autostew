@@ -1,7 +1,7 @@
 from autostew_back.gameserver.event import EventType
 from autostew_back.gameserver.member import MemberFlags
 from autostew_back.gameserver.session import SessionFlags, Privacy, SessionState
-from autostew_back.plugins import db
+from autostew_back.plugins import db, db_enum_writer
 from autostew_web_session.models import Server, Track, VehicleClass, Vehicle, Livery, SessionSetup, Session, \
     SessionSnapshot, Member, Participant, MemberSnapshot, ParticipantSnapshot
 from autostew_web_enums.models import GameModeDefinition, TireWearDefinition, PenaltyDefinition, \
@@ -9,7 +9,7 @@ from autostew_web_enums.models import GameModeDefinition, TireWearDefinition, Pe
 
 
 name = 'DB writer'
-dependencies = [db]
+dependencies = [db, db_enum_writer]
 
 current_session = None
 server_in_db = None
@@ -60,6 +60,7 @@ def event(server, event):  # TODO fill out the gaps
 
 
 def _close_current_session():
+        global current_session
         current_session.running = False
         current_session.save()
         current_session = None
@@ -151,33 +152,33 @@ def _create_session(server, server_in_db):
 def _create_member(session, member):
     member_flags = member.race_stat_flags.get_flags()
     vehicle = Vehicle.objects.get(ingame_id=member.vehicle.get()) if member.vehicle.get() else None
-    member = Member(
-        session=session,
-        vehicle=vehicle,
-        livery=Livery.objects.get(id_for_vehicle=member.livery.get(), vehicle=vehicle) if vehicle else None,
-        refid=member.refid.get(),
-        steam_id=member.steam_id.get(),
-        name=member.name.get(),
-        setup_used=MemberFlags.setup_used in member_flags,
-        controller_gamepad=MemberFlags.controller_gamepad in member_flags,
-        controller_wheel=MemberFlags.controller_wheel in member_flags,
-        aid_steering=MemberFlags.aid_steering in member_flags,
-        aid_braking=MemberFlags.aid_braking in member_flags,
-        aid_abs=MemberFlags.aid_abs in member_flags,
-        aid_traction=MemberFlags.aid_traction in member_flags,
-        aid_stability=MemberFlags.aid_stability in member_flags,
-        aid_no_damage=MemberFlags.aid_no_damage in member_flags,
-        aid_auto_gears=MemberFlags.aid_auto_gears in member_flags,
-        aid_auto_clutch=MemberFlags.aid_auto_clutch in member_flags,
-        model_normal=MemberFlags.model_normal in member_flags,
-        model_experienced=MemberFlags.model_experienced in member_flags,
-        model_pro=MemberFlags.model_pro in member_flags,
-        model_elite=MemberFlags.model_elite in member_flags,
-        aid_driving_line=MemberFlags.aid_driving_line in member_flags,
-        valid=MemberFlags.valid in member_flags,
-    )
-    member.save(True)
-    return member
+    try:
+        member_in_db = Member.objects.get(session=session, steam_id=member.steam_id.get())
+    except Member.DoesNotExist:
+        member_in_db = Member(session=session, steam_id=member.steam_id.get())
+    member_in_db.vehicle = vehicle
+    member_in_db.livery = Livery.objects.get(id_for_vehicle=member.livery.get(), vehicle=vehicle) if vehicle else None
+    member_in_db.refid = member.refid.get()
+    member_in_db.name = member.name.get()
+    member_in_db.setup_used = MemberFlags.setup_used in member_flags
+    member_in_db.controller_gamepad = MemberFlags.controller_gamepad in member_flags
+    member_in_db.controller_wheel = MemberFlags.controller_wheel in member_flags
+    member_in_db.aid_steering = MemberFlags.aid_steering in member_flags
+    member_in_db.aid_braking = MemberFlags.aid_braking in member_flags
+    member_in_db.aid_abs = MemberFlags.aid_abs in member_flags
+    member_in_db.aid_traction = MemberFlags.aid_traction in member_flags
+    member_in_db.aid_stability = MemberFlags.aid_stability in member_flags
+    member_in_db.aid_no_damage = MemberFlags.aid_no_damage in member_flags
+    member_in_db.aid_auto_gears = MemberFlags.aid_auto_gears in member_flags
+    member_in_db.aid_auto_clutch = MemberFlags.aid_auto_clutch in member_flags
+    member_in_db.model_normal = MemberFlags.model_normal in member_flags
+    member_in_db.model_experienced = MemberFlags.model_experienced in member_flags
+    member_in_db.model_pro = MemberFlags.model_pro in member_flags
+    member_in_db.model_elite = MemberFlags.model_elite in member_flags
+    member_in_db.aid_driving_line = MemberFlags.aid_driving_line in member_flags
+    member_in_db.valid = MemberFlags.valid in member_flags
+    member_in_db.save()
+    return member_in_db
 
 
 def _create_participant(session, participant):

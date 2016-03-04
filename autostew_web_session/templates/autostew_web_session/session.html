@@ -1,0 +1,15 @@
+{% extends "autostew_web_session/base.html" %}
+
+{% block content %}
+                <h3>Session {{ session.id }}</h3>
+                <p>Track: {{session.setup.track.name}}</p>
+                <h4>Snapshots</h4>
+                <ul>
+                    {% for snapshot in session.sessionsnapshot_set.all %}
+                        <li>{{ snapshot.id }}</li>
+                    {% endfor %}
+                    {% for member in session.member_set.all %}
+                        <li>{{ member.name }}</li>
+                    {% endfor %}
+                </ul>
+{% endblock %}

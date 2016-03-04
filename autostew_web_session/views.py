@@ -1,6 +1,7 @@
 
 from django.views import generic
 
+from autostew_web_session.models import Session
 from .models import Track
 
 
@@ -15,3 +16,16 @@ class IndexView(generic.ListView):
 class DetailView(generic.DetailView):
     model = Track
     template_name = 'autostew_web_session/track.html'
+
+
+class ListSessions(generic.ListView):
+    template_name = 'autostew_web_session/sessions.html'
+    context_object_name = 'session_list'
+
+    def get_queryset(self):
+        return Session.objects.all()
+
+
+class SessionView(generic.DetailView):
+    model = Session
+    template_name = 'autostew_web_session/session.html'
