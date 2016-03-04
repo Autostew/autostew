@@ -1,7 +1,7 @@
 BASE DEVELOPMENT
-5 ***** Error handling
+# ***** Error handling
 # ***   DB writer
-2 **    setup rotation as pluginn
+2 **    setup rotation as plugin
 5 *     server as subprocess
 5 *     server.cfg writer
 

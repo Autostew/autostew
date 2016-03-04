@@ -40,10 +40,6 @@ class ServerConfiguration(models.Model):
     pass
 
 
-class SessionConfiguration(models.Model):
-    pass
-
-
 class SetupRotation(models.Model):
     pass
 

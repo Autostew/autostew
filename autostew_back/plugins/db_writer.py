@@ -16,6 +16,7 @@ enum_tables = [Track, EventDefinition, SessionFlagDefinition, DamageDefinition, 
                PlayerFlagDefinition, AllowedViewsDefinition, FuelUsageDefinition,
                GameModeDefinition, VehicleClass, PenaltyDefinition, Vehicle, Livery, TireWearDefinition]
 current_session = None
+server_in_db = None
 
 
 def env_init(server):
@@ -24,6 +25,7 @@ def env_init(server):
 
 def init(server):
     global current_session
+    global server_in_db
     try:
         server_in_db = Server.objects.get(name=server.settings.server_name)
     except Server.DoesNotExist:
@@ -38,9 +40,23 @@ def tick(server):
     pass
 
 
-def event(server, event):  # TODO participant_created and authenticated
+def event(server, event):  # TODO fill out the gaps
     if event.type == EventType.lap and event.race_position == 1:
         _make_snapshot(server, current_session)
+    if event.type == EventType.participant_created:
+        _create_participant(current_session, event.participant)
+    if event.type == EventType.participant_destroyed:
+        pass
+    if event.type == EventType.authenticated:
+        _create_member()
+    if event.type == EventType.player_left:
+        pass
+    if event.type == EventType.session_created:
+        _create_session(server, server_in_db)
+    if event.type == EventType.session_destroyed:
+        pass
+    if event.type == EventType.state_changed:
+        pass
 
 
 def _create_session(server, server_in_db):
@@ -114,51 +130,62 @@ def _create_session(server, server_in_db):
     )
     session.save(True)
 
-    for it in server.members.elements:
-        member_flags = it.race_stat_flags.get_flags()
-        vehicle = Vehicle.objects.get(ingame_id=it.vehicle.get()) if it.vehicle.get() else None
-        member = Member(
-            session=session,
-            vehicle=vehicle,
-            livery=Livery.objects.get(id_for_vehicle=it.livery.get(), vehicle=vehicle) if vehicle else None,
-            refid=it.refid.get(),
-            steam_id=it.steam_id.get(),
-            name=it.name.get(),
-            setup_used=MemberFlags.setup_used in member_flags,
-            controller_gamepad=MemberFlags.controller_gamepad in member_flags,
-            controller_wheel=MemberFlags.controller_wheel in member_flags,
-            aid_steering=MemberFlags.aid_steering in member_flags,
-            aid_braking=MemberFlags.aid_braking in member_flags,
-            aid_abs=MemberFlags.aid_abs in member_flags,
-            aid_traction=MemberFlags.aid_traction in member_flags,
-            aid_stability=MemberFlags.aid_stability in member_flags,
-            aid_no_damage=MemberFlags.aid_no_damage in member_flags,
-            aid_auto_gears=MemberFlags.aid_auto_gears in member_flags,
-            aid_auto_clutch=MemberFlags.aid_auto_clutch in member_flags,
-            model_normal=MemberFlags.model_normal in member_flags,
-            model_experienced=MemberFlags.model_experienced in member_flags,
-            model_pro=MemberFlags.model_pro in member_flags,
-            model_elite=MemberFlags.model_elite in member_flags,
-            aid_driving_line=MemberFlags.aid_driving_line in member_flags,
-            valid=MemberFlags.valid in member_flags,
-        )
-        member.save(True)
+    for member in server.members.elements:
+        _create_member(session, member)
 
-    for it in server.participants.elements:
-        vehicle = Vehicle.objects.get(ingame_id=it.vehicle.get()) if it.vehicle.get() else None
-        participant = Participant(
-            member=Member.objects.get(refid=it.refid.get(), session=session),
-            ingame_id=it.id.get(),
-            refid=it.refid.get(),
-            name=it.name.get(),
-            is_ai=not it.is_player.get(),
-            vehicle=Vehicle.objects.get(ingame_id=it.vehicle.get()),
-            livery=Livery.objects.get(id_for_vehicle=it.livery.get(), vehicle=vehicle),
-        )
-        participant.save(True)
+    for participant in server.participants.elements:
+        _create_participant(session, participant)
 
-    _make_snapshot(server, session)
+    snapshot = _make_snapshot(server, session)
+    session.first_snapshot = snapshot
+    session.save()
     return session
+
+
+def _create_member(session, member):
+    member_flags = member.race_stat_flags.get_flags()
+    vehicle = Vehicle.objects.get(ingame_id=member.vehicle.get()) if member.vehicle.get() else None
+    member = Member(
+        session=session,
+        vehicle=vehicle,
+        livery=Livery.objects.get(id_for_vehicle=member.livery.get(), vehicle=vehicle) if vehicle else None,
+        refid=member.refid.get(),
+        steam_id=member.steam_id.get(),
+        name=member.name.get(),
+        setup_used=MemberFlags.setup_used in member_flags,
+        controller_gamepad=MemberFlags.controller_gamepad in member_flags,
+        controller_wheel=MemberFlags.controller_wheel in member_flags,
+        aid_steering=MemberFlags.aid_steering in member_flags,
+        aid_braking=MemberFlags.aid_braking in member_flags,
+        aid_abs=MemberFlags.aid_abs in member_flags,
+        aid_traction=MemberFlags.aid_traction in member_flags,
+        aid_stability=MemberFlags.aid_stability in member_flags,
+        aid_no_damage=MemberFlags.aid_no_damage in member_flags,
+        aid_auto_gears=MemberFlags.aid_auto_gears in member_flags,
+        aid_auto_clutch=MemberFlags.aid_auto_clutch in member_flags,
+        model_normal=MemberFlags.model_normal in member_flags,
+        model_experienced=MemberFlags.model_experienced in member_flags,
+        model_pro=MemberFlags.model_pro in member_flags,
+        model_elite=MemberFlags.model_elite in member_flags,
+        aid_driving_line=MemberFlags.aid_driving_line in member_flags,
+        valid=MemberFlags.valid in member_flags,
+    )
+    member.save(True)
+    return member
+
+
+def _create_participant(session, participant):
+    vehicle = Vehicle.objects.get(ingame_id=participant.vehicle.get()) if participant.vehicle.get() else None
+    participant = Participant(
+        member=Member.objects.get(refid=participant.refid.get(), session=session),
+        ingame_id=participant.id.get(),
+        refid=participant.refid.get(),
+        name=participant.name.get(),
+        is_ai=not participant.is_player.get(),
+        vehicle=Vehicle.objects.get(ingame_id=participant.vehicle.get()),
+        livery=Livery.objects.get(id_for_vehicle=participant.livery.get(), vehicle=vehicle),
+    )
+    participant.save(True)
 
 
 def _make_snapshot(server, session):
