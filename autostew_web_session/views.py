@@ -1,7 +1,7 @@
 
 from django.views import generic
 
-from autostew_web_session.models import Session
+from autostew_web_session.models import Session, SessionSnapshot
 from .models import Track
 
 
@@ -29,3 +29,8 @@ class ListSessions(generic.ListView):
 class SessionView(generic.DetailView):
     model = Session
     template_name = 'autostew_web_session/session.html'
+
+
+class SnapshotView(generic.DetailView):
+    model = SessionSnapshot
+    template_name = 'autostew_web_session/snapshot.html'

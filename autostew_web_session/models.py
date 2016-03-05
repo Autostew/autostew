@@ -219,6 +219,8 @@ class Participant(models.Model):
 
 
 class ParticipantSnapshot(models.Model):
+    class Meta:
+        ordering = ['race_position']
     snapshot = models.ForeignKey(SessionSnapshot)
     participant = models.ForeignKey(Participant)
     still_connected = models.BooleanField()

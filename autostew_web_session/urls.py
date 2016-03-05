@@ -8,4 +8,5 @@ urlpatterns = [
     url(r'^(?P<pk>[0-9]+)/?$', views.DetailView.as_view(), name='track'),
     url(r'^sessions/$', views.ListSessions.as_view(), name='sessions'),
     url(r'^session/(?P<pk>[0-9]+)/?$', views.SessionView.as_view(), name='session'),
+    url(r'^session/snapshot/(?P<pk>[0-9]+)/?$', views.SnapshotView.as_view(), name='snapshot'),
 ]

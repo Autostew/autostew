@@ -49,7 +49,7 @@ def make_setup(server):
     server.session.date_minute.set_to_game(0)
     server.session.date_progression.set_to_game(5)
 
-    server.session.practice1_length.set_to_game(15)
+    server.session.practice1_length.set_to_game(0)
     server.session.practice2_length.set_to_game(0)
     server.session.qualify_length.set_to_game(15)
     server.session.warmup_length.set_to_game(0)

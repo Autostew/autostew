@@ -45,7 +45,7 @@ def event(server, event):  # TODO fill out the gaps
     if event.type == EventType.authenticated:
         _create_member(current_session, event.member)
     if event.type == EventType.player_left:
-        member = Member.get(refid=event.member.refid.get(), session=current_session)
+        member = Member.objects.get(refid=event.member.refid.get(), session=current_session)
         member.still_connected = False
         member.save()
     if event.type == EventType.session_created:

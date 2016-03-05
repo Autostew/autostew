@@ -6,7 +6,7 @@
                 <h4>Snapshots</h4>
                 <ul>
                     {% for snapshot in session.sessionsnapshot_set.all %}
-                        <li>{{ snapshot.id }}</li>
+                        <li><a href="{% url 'session:snapshot' snapshot.id %}">{{ snapshot.id }}</a></li>
                     {% endfor %}
                 </ul>
                 <h4>Members</h4>
