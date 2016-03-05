@@ -12,12 +12,25 @@
                 <h4>Members</h4>
                 <ol>
                     {% for member in session.member_set.all %}
-                        <li>{{ member.name }}</li>
+                        <li>
+                            <b>{{ member.name }}</b>
+                            {% if not member.still_connected %}
+                                (offline)
+                            {% endif %}
+                        </li>
                         <ul>
                         {% for participant in member.participant_set.all %}
-                            <li>{{ participant.name }}</li>
+                            <li>
+                                {{ participant.name }}
+                            </li>
                         {% endfor %}
                         </ul>
+                    {% endfor %}
+                </ol>
+                <h4>Laps</h4>
+                <ol>
+                    {% for lap in session.racelapsnapshot_set.all %}
+                        <li><a href="{% url 'session:snapshot' lap.snapshot.id %}">{{ lap.lap }}</a></li>
                     {% endfor %}
                 </ol>
 {% endblock %}

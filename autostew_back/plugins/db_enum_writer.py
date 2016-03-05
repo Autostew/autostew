@@ -13,7 +13,7 @@ from autostew_web_enums.models import EventDefinition, GameModeDefinition, TireW
     SessionFlagDefinition, SessionAttributeDefinition, MemberAttributeDefinition, ParticipantAttributeDefinition
 
 
-name = 'DB writer'
+name = 'DB enum writer'
 dependencies = [db]
 
 enum_tables = [Track, EventDefinition, SessionFlagDefinition, DamageDefinition, WeatherDefinition,

@@ -115,9 +115,13 @@ class SessionSetup(models.Model):
 
 
 class Session(models.Model):
+    class Meta:
+        ordering = ['start_timestamp']
     server = models.ForeignKey(Server)
     setup = models.ForeignKey(SessionSetup)
 
+    start_timestamp = models.DateTimeField(auto_now_add=True)
+    last_update_timestamp = models.DateTimeField(auto_now=True)
     planned = models.BooleanField()
     running = models.BooleanField()  # TODO join these to one
     finished = models.BooleanField()  # TODO join these to one
@@ -138,7 +142,10 @@ class Session(models.Model):
 
 
 class SessionSnapshot(models.Model):
+    class Meta:
+        ordering = ['timestamp']
     session = models.ForeignKey(Session)
+    timestamp = models.DateTimeField(auto_now_add=True)
     session_state = models.CharField(max_length=15)  # TODO these 3 are ugly
     session_stage = models.CharField(max_length=15)
     session_phase = models.CharField(max_length=15)
@@ -207,15 +214,16 @@ class MemberSnapshot(models.Model):
 
 
 class Participant(models.Model):
-    member = models.ForeignKey(Member)
+    member = models.ForeignKey(Member, null=True)  # AI will be NULL
+    session = models.ForeignKey(Session)
     still_connected = models.BooleanField()
 
     ingame_id = models.IntegerField()
     refid = models.IntegerField()
     name = models.CharField(max_length=200)
     is_ai = models.BooleanField()
-    vehicle = models.ForeignKey(Vehicle)
-    livery = models.ForeignKey(Livery)
+    vehicle = models.ForeignKey(Vehicle, null=True)  # NULL because AI owner change will do that
+    livery = models.ForeignKey(Livery, null=True)  # NULL because AI owner change will do that
 
 
 class ParticipantSnapshot(models.Model):
@@ -246,18 +254,23 @@ class ParticipantSnapshot(models.Model):
     orientation = models.IntegerField()
 
 
-class Event(models.Model):
+class Event(models.Model):  # TODO add timestamp and index
     snapshot = models.ForeignKey(SessionSnapshot, null=True, related_name='+')
     definition = models.ForeignKey('autostew_web_enums.EventDefinition', null=True, related_name='+')  # may be NULL and a custom event! eg. by a plugin
     session = models.ForeignKey(SessionSnapshot)
 
 
 class RaceLapSnapshot(models.Model):
-    snapshot = models.ForeignKey(SessionSnapshot, null=True)
+    class Meta:
+        ordering = ['lap']
+    session = models.ForeignKey(Session)
+    snapshot = models.ForeignKey(SessionSnapshot)
     lap = models.IntegerField()
 
 
 class Lap(models.Model):
+    class Meta:
+        ordering = ['lap']
     session = models.ForeignKey(SessionSnapshot)
     participant = models.ForeignKey(Participant)
     lap = models.IntegerField()
@@ -271,6 +284,8 @@ class Lap(models.Model):
 
 
 class Sector(models.Model):
+    class Meta:
+        ordering = ['lap', 'sector']
     session = models.ForeignKey(SessionSnapshot)
     participant = models.ForeignKey(Participant)
     lap = models.ForeignKey(Lap)

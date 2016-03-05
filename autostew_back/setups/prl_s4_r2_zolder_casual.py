@@ -51,6 +51,6 @@ def make_setup(server):
 
     server.session.practice1_length.set_to_game(0)
     server.session.practice2_length.set_to_game(0)
-    server.session.qualify_length.set_to_game(15)
+    server.session.qualify_length.set_to_game(10)
     server.session.warmup_length.set_to_game(0)
-    server.session.race1_length.set_to_game(15)
+    server.session.race1_length.set_to_game(5)
