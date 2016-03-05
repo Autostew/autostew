@@ -79,6 +79,8 @@ def _create_enums(server):
         Vehicle(ingame_id=vehicle.id, name=vehicle.name, vehicle_class=VehicleClass.objects.get(name=vehicle.class_name)).save(True)
 
     logging.info("Creating Liveries")
-    for livery_vehicle in server.lists[ListName.liveries].list:
+    for i, livery_vehicle in enumerate(server.lists[ListName.liveries].list):
+        if i % 10 == 0 and i > 0:
+            logging.info("Created liveries for {} out of {} vehicles".format(i, len(server.lists[ListName.liveries].list)))
         for livery in livery_vehicle.liveries:
             Livery(name=livery['name'], id_for_vehicle=livery['id'], vehicle=Vehicle.objects.get(ingame_id=livery_vehicle.id)).save(True)

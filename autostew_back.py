@@ -25,4 +25,5 @@ if __name__ == "__main__":
     args = parser.parse_args()
     if args.env_init:
         input("You are about to run env-init. Are you sure? (Enter to continue, ctrl+c to cancel)")
+        print("Okay let's do it.")
     sys.exit(main(args))

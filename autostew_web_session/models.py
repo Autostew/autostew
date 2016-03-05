@@ -271,7 +271,8 @@ class RaceLapSnapshot(models.Model):
 class Lap(models.Model):
     class Meta:
         ordering = ['lap']
-    session = models.ForeignKey(SessionSnapshot)
+    session = models.ForeignKey(Session)
+    session_stage = models.CharField(max_length=15)  # TODO this is ugly
     participant = models.ForeignKey(Participant)
     lap = models.IntegerField()
     count_this_lap = models.BooleanField()
@@ -286,7 +287,8 @@ class Lap(models.Model):
 class Sector(models.Model):
     class Meta:
         ordering = ['lap', 'sector']
-    session = models.ForeignKey(SessionSnapshot)
+    session = models.ForeignKey(Session)
+    session_stage = models.CharField(max_length=15)  # TODO this is ugly
     participant = models.ForeignKey(Participant)
     lap = models.ForeignKey(Lap)
     count_this_lap = models.BooleanField()

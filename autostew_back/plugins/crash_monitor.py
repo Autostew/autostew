@@ -6,9 +6,6 @@ name = 'crash monitor'
 crash_points_limit = 4000
 crash_points = {}
 
-def tick(server):
-    pass
-
 
 def event(server, event):
     global crash_points
@@ -18,12 +15,12 @@ def event(server, event):
             for participant in event.participants:
                 steam_id = server.members.get_by_id(participant.refid).steam_id.get()
                 crash_points[steam_id] = crash_points.setdefault(steam_id, 0) + event.magnitude
-                if crash_points[steam_id] > crash_points_limit / 2:
+                if crash_points[steam_id] > crash_points_limit / 3:
                     participant.send_chat(
                         "WARNING: You have collected {points} crash points.".format(points=crash_points[steam_id])
                     )
                     participant.send_chat(
-                        "You will be kicked at {max_points} crash points.".format(max_crash_points=crash_points_limit)
+                        "Disqualification at {max_points} points.".format(max_crash_points=crash_points_limit)
                     )
                 else:
                     participant.send_chat(

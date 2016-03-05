@@ -11,7 +11,7 @@ class EventType(Enum):
     stage_changed = 'StageChanged'
     session_created = 'SessionCreated'
     session_destroyed = 'SessionDestroyed'
-    state = 'State'
+    participant_state = 'State'
     server_chat = 'ServerChat'
     player_chat = 'PlayerChat'
     player_joined = 'PlayerJoined'
@@ -208,7 +208,7 @@ type_to_class = {
     EventType.stage_changed: StageChangedEvent,
     EventType.session_created: BaseEvent,
     EventType.session_destroyed: BaseEvent,
-    EventType.state: ParticipantStateEvent,
+    EventType.participant_state: ParticipantStateEvent,
     EventType.server_chat: ServerChatEvent,
     EventType.player_chat: PlayerChatEvent,
     EventType.player_joined: PlayerJoinedEvent,
