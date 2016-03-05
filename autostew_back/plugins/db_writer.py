@@ -2,6 +2,7 @@ from autostew_back.gameserver.event import EventType
 from autostew_back.gameserver.member import MemberFlags
 from autostew_back.gameserver.session import SessionFlags, Privacy, SessionState, SessionStage
 from autostew_back.plugins import db, db_enum_writer
+from autostew_back.utils import td_to_milli
 from autostew_web_session.models import Server, Track, VehicleClass, Vehicle, Livery, SessionSetup, Session, \
     SessionSnapshot, Member, Participant, MemberSnapshot, ParticipantSnapshot, RaceLapSnapshot, Lap, Sector
 from autostew_web_enums.models import GameModeDefinition, TireWearDefinition, PenaltyDefinition, \
@@ -34,55 +35,80 @@ def tick(server):
 
 def event(server, event):  # TODO fill out the gaps
     global current_session
-    if event.type == EventType.lap and event.race_position == 1 and server.session.session_stage == SessionStage.race1:
+
+    if event.type == EventType.lap and event.race_position == 1 and server.session.session_stage == SessionStage.race1 and event.lap > 0:
         snapshot = _make_snapshot(server, current_session)
         RaceLapSnapshot(lap=event.lap, snapshot=snapshot, session=current_session).save(True)
-    if event.type == EventType.lap:
+
+    if event.type == EventType.lap and event.lap > 0:
         Lap(
             session=current_session,
-            session_stage=current_session.session_stage,
-            participant=Participant.objects.get(refid=event.participant.refid.get(), session=current_session),
+            session_stage=server.session.session_stage.get(),
+            participant=Participant.objects.get(ingame_id=event.participant.id.get(), refid=event.participant.refid.get(), session=current_session),
             lap=event.lap,
-            count_this_lap=event.count_this_lap,
-            lap_time_seconds=event.lap_time,
+            count_this_lap=event.count_this_lap_times,
+            lap_time=td_to_milli(event.lap_time),
             position=event.race_position,
-            sector1_time=event.sector1_time,
-            sector2_time=event.sector2_time,
-            sector3_time=event.sector3_time,
+            sector1_time=td_to_milli(event.sector1_time),
+            sector2_time=td_to_milli(event.sector2_time),
+            sector3_time=td_to_milli(event.sector3_time),
             distance_travelled=event.distance_travelled,
         ).save(True)
-    if event.type == EventType.sector:
+
+    if event.type == EventType.sector and event.lap > 0:
         Sector(
-            session = current_session,
-            session_stage = current_session.current_stage,
-            participant = Participant.objects.get(refid=event.participant.refid.get(), session=current_session),
+            session=current_session,
+            session_stage=server.session.session_stage.get(),
+            participant=Participant.objects.get(ingame_id=event.participant.id.get(), refid=event.participant.refid.get(), session=current_session),
             lap=event.lap,
             count_this_lap=event.count_this_lap,
-            sector = event.sector,
-            sector_time = event.sector_time,
-        )
+            sector=event.sector,
+            sector_time=td_to_milli(event.sector_time),
+        ).save(True)
+
     if event.type == EventType.participant_created:
         _create_participant(current_session, event.participant)
+
     if event.type == EventType.participant_destroyed:
-        participant = Participant.objects.get(refid=event.participant.refid.get(), session=current_session)
+        # Using event.raw because participant does not exist at this point anymore
+        participant = Participant.objects.get(ingame_id=event.raw['participantid'], session=current_session)
         participant.still_connected = False
         participant.save()
+
     if event.type == EventType.authenticated:
         _create_member(current_session, event.member)
+
     if event.type == EventType.player_left:
         # using event.raw['refid'] because member does not exist anymore at this point
         member = Member.objects.get(refid=event.raw['refid'], session=current_session)
         member.still_connected = False
         member.save()
+
     if event.type == EventType.session_created:
         current_session = _create_session(server, server_in_db)
+
     if event.type == EventType.session_destroyed:
         _close_current_session()
+
     if event.type == EventType.state_changed:
         if event.new_state == SessionState.lobby:
             if current_session is not None:
                 _close_current_session()
             current_session = _create_session(server, server_in_db)
+
+    if event.type == EventType.stage_changed:
+        snapshot = _make_snapshot(server, current_session)
+        if event.new_stage == SessionStage.practice1:
+            current_session.starting_snapshot_practice1 = snapshot
+        if event.new_stage == SessionStage.practice2:
+            current_session.starting_snapshot_practice2 = snapshot
+        if event.new_stage == SessionStage.qualifying:
+            current_session.starting_snapshot_qualifying = snapshot
+        if event.new_stage == SessionStage.warmup:
+            current_session.starting_snapshot_warmup = snapshot
+        if event.new_stage == SessionStage.race1:
+            current_session.starting_snapshot_race = snapshot
+        current_session.save()
 
 
 def _close_current_session():

@@ -276,7 +276,7 @@ class Lap(models.Model):
     participant = models.ForeignKey(Participant)
     lap = models.IntegerField()
     count_this_lap = models.BooleanField()
-    lap_time_seconds = models.IntegerField()
+    lap_time = models.IntegerField()
     position = models.IntegerField()
     sector1_time = models.IntegerField()
     sector2_time = models.IntegerField()
@@ -290,7 +290,7 @@ class Sector(models.Model):
     session = models.ForeignKey(Session)
     session_stage = models.CharField(max_length=15)  # TODO this is ugly
     participant = models.ForeignKey(Participant)
-    lap = models.ForeignKey(Lap)
+    lap = models.IntegerField()
     count_this_lap = models.BooleanField()
     sector = models.SmallIntegerField()
     sector_time = models.IntegerField()

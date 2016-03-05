@@ -18,13 +18,26 @@
                                 (offline)
                             {% endif %}
                         </li>
-                        <ul>
-                        {% for participant in member.participant_set.all %}
-                            <li>
-                                {{ participant.name }}
-                            </li>
-                        {% endfor %}
-                        </ul>
+                    {% endfor %}
+                </ol>
+                <h4>Participants</h4>
+                <ol>
+                    {% for participant in session.participant_set.all %}
+                        <li>
+                            {{ participant.name }} ({{ participant.vehicle.name }})
+                            <ol>
+                                <li><b>Laps</b></li>
+                                {% for lap in participant.lap_set.all %}
+                                    <li>L{{ lap.lap }} P{{ lap.position }} {{ lap.lap_time }}</li>
+                                {% endfor %}
+                            </ol>
+                            <ol>
+                                <li><b>Sectors</b></li>
+                                {% for sector in participant.sector_set.all %}
+                                    <li>L{{ sector.lap }} S{{ sector.sector }} {{ sector.sector_time }}</li>
+                                {% endfor %}
+                            </ol>
+                        </li>
                     {% endfor %}
                 </ol>
                 <h4>Laps</h4>

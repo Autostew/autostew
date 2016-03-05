@@ -9,3 +9,7 @@ def strfdelta(tdelta, fmt):
 
 def std_time_format(tdelta):
     return strfdelta(tdelta, "{minutes}:{seconds}.{milliseconds}")
+
+
+def td_to_milli(tdelta):
+    return tdelta.microseconds/1000 + tdelta.seconds*1000
