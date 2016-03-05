@@ -156,6 +156,7 @@ def _create_member(session, member):
         member_in_db = Member.objects.get(session=session, steam_id=member.steam_id.get())
     except Member.DoesNotExist:
         member_in_db = Member(session=session, steam_id=member.steam_id.get())
+    member_in_db.still_connected = True
     member_in_db.vehicle = vehicle
     member_in_db.livery = Livery.objects.get(id_for_vehicle=member.livery.get(), vehicle=vehicle) if vehicle else None
     member_in_db.refid = member.refid.get()
@@ -185,6 +186,7 @@ def _create_participant(session, participant):
     vehicle = Vehicle.objects.get(ingame_id=participant.vehicle.get()) if participant.vehicle.get() else None
     participant = Participant(
         member=Member.objects.get(refid=participant.refid.get(), session=session),
+        still_connected=True,
         ingame_id=participant.id.get(),
         refid=participant.refid.get(),
         name=participant.name.get(),
@@ -229,6 +231,7 @@ def _make_snapshot(server, session):
         member_snapshot = MemberSnapshot(
             snapshot=session_snapshot,
             member=Member.objects.get(refid=it.refid.get(), session=session),
+            still_connected=True,
             load_state=it.load_state.get(),
             ping=it.ping.get(),
             index=it.index.get(),
@@ -242,6 +245,7 @@ def _make_snapshot(server, session):
         participant_snapshot = ParticipantSnapshot(
             snapshot=session_snapshot,
             participant=Participant.objects.get(ingame_id=it.id.get(), member__refid=it.refid.get(), member__session=session),
+            still_connected=True,
             grid_position=it.grid_position.get(),
             race_position=it.race_position.get(),
             current_lap=it.current_lap.get(),

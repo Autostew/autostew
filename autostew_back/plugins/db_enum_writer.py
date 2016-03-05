@@ -81,4 +81,4 @@ def _create_enums(server):
     logging.info("Creating Liveries")
     for livery_vehicle in server.lists[ListName.liveries].list:
         for livery in livery_vehicle.liveries:
-            Livery(name=livery['name'], id_for_vehicle=livery['id'], vehicle_id=livery_vehicle.id).save(True)
+            Livery(name=livery['name'], id_for_vehicle=livery['id'], vehicle=Vehicle.objects.get(ingame_id=livery_vehicle.id)).save(True)

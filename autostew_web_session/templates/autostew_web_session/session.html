@@ -8,8 +8,16 @@
                     {% for snapshot in session.sessionsnapshot_set.all %}
                         <li>{{ snapshot.id }}</li>
                     {% endfor %}
+                </ul>
+                <h4>Members</h4>
+                <ol>
                     {% for member in session.member_set.all %}
                         <li>{{ member.name }}</li>
+                        <ul>
+                        {% for participant in member.participant_set.all %}
+                            <li>{{ participant.name }}</li>
+                        {% endfor %}
+                        </ul>
                     {% endfor %}
-                </ul>
+                </ol>
 {% endblock %}
