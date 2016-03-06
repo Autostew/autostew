@@ -53,7 +53,7 @@ class AbstractAttributeLinkedToList(AbstractAttribute):
 
     def set_to_game_nice(self, nice_value):
         self.set_to_game(
-            self._list.get_list_elements(self._list_key_nice_value, nice_value)[0].raw[self._list_key_ugly_value]
+            self._list.get_list_items(self._list_key_nice_value, nice_value)[0].raw[self._list_key_ugly_value]
         )
 
     def set_to_game(self, value, copy_to_next=True, for_next_session=True):
@@ -65,7 +65,7 @@ class AbstractAttributeLinkedToList(AbstractAttribute):
         self._update_nice_value_from_ugly_value()
 
     def _update_nice_value_from_ugly_value(self):
-        candidates = self._list.get_list_elements(self._list_key_ugly_value, self._value)
+        candidates = self._list.get_list_items(self._list_key_ugly_value, self._value)
         if len(candidates) == 0 and self._value == 0:
             self._nice_value = None
         else:
@@ -106,7 +106,7 @@ class AbstractFlagAttribute(AbstractAttribute):
 
 class AbstractStatusTable:
     def _from_list(self, name):
-        return self.attr_list.get_list_elements('name', name).pop()
+        return self.attr_list.get_list_items('name', name).pop()
 
     def update_from_game(self, status):
         for attr in dir(self):
