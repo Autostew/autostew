@@ -20,12 +20,3 @@ class TestApi(TestCase):
             with self.assertRaises(requests.exceptions.ConnectionError):
                 api = ApiCaller(MockedServer(), False, False)
                 api.send_chat('Hi')
-
-    # This test is either ridiculously expensive or buggy
-    def disabled_test_get_lists(self):
-        with open('autostew_back/tests/test_assets/lists.json') as lists_json:
-            lists_result = lists_json.read()
-            api = FakeApi()
-            with mock.patch.object(requests, 'get', api.fake_request):
-                api = ApiCaller(MockedServer(), False, False)
-                self.assertDictEqual(json.loads(lists_result), api.get_lists())

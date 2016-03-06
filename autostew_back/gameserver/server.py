@@ -1,4 +1,5 @@
 import logging
+from enum import Enum
 from time import time, sleep
 
 from datetime import timedelta
@@ -10,6 +11,10 @@ from autostew_back.gameserver.member import MemberList
 from autostew_back.gameserver.participant import ParticipantList
 from autostew_back.gameserver.session import Session
 
+
+class ServerState(Enum):
+    running = "Running"
+    idle = "Idle"
 
 class BreakPluginLoadingException(Exception):
     pass
@@ -40,7 +45,7 @@ class Server:
 
     def fetch_status(self):
         status = self.api.get_status()
-        self.state = status['state']
+        self.state = ServerState(status['state'])
         self.lobby_id = status['lobbyid']
         self.joinable = status['joinable']
         self.max_member_count = status['max_member_count']
@@ -82,7 +87,7 @@ class Server:
     def get_current_setup_name(self):
         return self.settings.setup_rotation[self._setup_index].name
 
-    def poll_loop(self, event_offset=None):
+    def poll_loop(self, event_offset=None, only_one_run=False):
         if event_offset is None:
             self.api.reset_event_offset()
         else:
@@ -117,3 +122,6 @@ class Server:
             sleep_time = self.settings.event_poll_period - (time() - tick_start)
             if sleep_time > 0:
                 sleep(sleep_time)
+
+            if only_one_run:
+                return

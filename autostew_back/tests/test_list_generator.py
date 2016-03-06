@@ -26,10 +26,13 @@ class TestLists(TestCase):
          vice-versa
         """
         lists = self.get_lists()
+        # Test if all keys in the response are known
         for k in lists.keys():
             assert k in ListName
+        # Test if all known keys are present in the response
         for i in ListName:
             assert i in lists.keys()
+        # Test if all lists have at least one element
         for k, v in lists.items():
             self.assertGreater(len(v.list), 0)
 

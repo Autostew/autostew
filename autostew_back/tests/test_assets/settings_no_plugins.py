@@ -7,7 +7,7 @@ logging.getLogger('django.db.backends').setLevel(logging.INFO)
 logging.getLogger('requests.packages.urllib3.connectionpool').setLevel(logging.INFO)
 
 
-class Settings:
+class SettingsWithoutPlugins:
     host_name = "TestHost"
     server_name = "TestServer"
     config_file = "server.cfg"

@@ -1,10 +1,12 @@
 #!/usr/bin/python3
+import logging
 
 import requests
 from autostew_back.settings import Settings
-import autostew_back
 
-input("Run thsi only with a running DS with HTTP API enabled and no game ever started on it. Press enter to continue")
+logging.getLogger().setLevel(logging.DEBUG)
+
+input("Run this only with a running DS with HTTP API enabled and no game ever started on it. Press enter to continue")
 
 with open('autostew_back/tests/test_assets/version.json', 'w') as file_output:
     result = requests.get(Settings.url + '/api/version')

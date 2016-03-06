@@ -171,21 +171,6 @@ class StatusList:
             else:
                 return result[0]
 
-    def get_by_attribute(self, attribute, value, unique=True):
-        result = []
-        for element in self.elements:
-            if getattr(element.attributes, attribute).get() == value:
-                result.append(element)
-        if not unique:
-            return result
-        else:
-            if len(result) == 0:
-                return None
-            elif len(result) > 1:
-                raise Exception("More than one matching element found")
-            else:
-                return result[0]
-
     def update_from_game(self, status):  # TODO fix this shitty method
         elements_known = [getattr(el, self._id_attribute).get() for el in self.elements]
         elements_update = [el[self._id_attribute] for el in status]
