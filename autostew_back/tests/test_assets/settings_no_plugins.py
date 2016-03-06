@@ -12,8 +12,8 @@ class SettingsWithoutPlugins:
     server_name = "TestServer"
     config_file = "server.cfg"
     url = "http://localhost:9000"
-    event_poll_period = 1
-    full_update_period = 5
+    event_poll_period = 0
+    full_update_period = 0
 
     setup_rotation = [
         prl_s4_r2_zolder_casual
