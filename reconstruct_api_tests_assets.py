@@ -6,10 +6,18 @@ import autostew_back
 
 input("Run thsi only with a running DS with HTTP API enabled and no game ever started on it. Press enter to continue")
 
-with open('autostew_back/tests/test_assets/lists.json', 'w') as list_output:
-    result = requests.get(Settings.url + '/api/list/all')
-    list_output.write(result.text)
+with open('autostew_back/tests/test_assets/version.json', 'w') as file_output:
+    result = requests.get(Settings.url + '/api/version')
+    file_output.write(result.text)
 
-with open('autostew_back/tests/test_assets/empty_session.json', 'w') as session_output:
+with open('autostew_back/tests/test_assets/help.json', 'w') as file_output:
+    result = requests.get(Settings.url + '/api/help')
+    file_output.write(result.text)
+
+with open('autostew_back/tests/test_assets/lists.json', 'w') as file_output:
+    result = requests.get(Settings.url + '/api/list/all')
+    file_output.write(result.text)
+
+with open('autostew_back/tests/test_assets/empty_session.json', 'w') as file_output:
     result = requests.get(Settings.url + '/api/session/status?attributes=1&members=1&participants=1')
-    session_output.write(result.text)
+    file_output.write(result.text)

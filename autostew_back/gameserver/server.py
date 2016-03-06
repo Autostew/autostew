@@ -3,7 +3,6 @@ from time import time, sleep
 
 from datetime import timedelta
 
-from autostew_back.settings import Settings
 from autostew_back.gameserver.api import ApiCaller
 from autostew_back.gameserver.event import event_factory
 from autostew_back.gameserver.lists import ListGenerator, ListName
@@ -21,7 +20,7 @@ class UnmetPluginDependencyException(Exception):
 
 
 class Server:
-    def __init__(self, env_init):
+    def __init__(self, settings, env_init):
         self.last_status_update_time = None
         self._setup_index = None
         self.state = None
@@ -29,7 +28,7 @@ class Server:
         self.joinable = None
         self.max_member_count = None
 
-        self.settings = Settings()
+        self.settings = settings
         self.api = ApiCaller(self)
         self.lists = ListGenerator(self.api).generate_all()
         self.session = Session(self.lists[ListName.session_attributes], self.lists, self.api)
@@ -83,7 +82,7 @@ class Server:
     def get_current_setup_name(self):
         return self.settings.setup_rotation[self._setup_index].name
 
-    def event_loop(self, event_offset=None):
+    def poll_loop(self, event_offset=None):
         if event_offset is None:
             self.api.reset_event_offset()
         else:

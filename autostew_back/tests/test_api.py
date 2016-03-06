@@ -5,12 +5,13 @@ import requests
 from django.test import TestCase
 
 from autostew_back.gameserver.api import ApiCaller
-from autostew_back.tests.mocks import MockedRequestsResult, api_result_ok, MockedServer
+from autostew_back.tests.mocks import MockedServer, FakeApi
 
 
 class TestApi(TestCase):
     def test_send_chat(self):
-        with mock.patch.object(requests, 'get', return_value=MockedRequestsResult(api_result_ok, True)):
+        api = FakeApi()
+        with mock.patch.object(requests, 'get', api.fake_request):
             api = ApiCaller(MockedServer(), False, False)
             api.send_chat('Hi')
 
@@ -24,10 +25,7 @@ class TestApi(TestCase):
     def disabled_test_get_lists(self):
         with open('autostew_back/tests/test_assets/lists.json') as lists_json:
             lists_result = lists_json.read()
-            with mock.patch.object(
-                                   requests,
-                                   'get',
-                                   return_value=MockedRequestsResult(lists_result, api_result_ok)
-            ):
+            api = FakeApi()
+            with mock.patch.object(requests, 'get', api.fake_request):
                 api = ApiCaller(MockedServer(), False, False)
                 self.assertDictEqual(json.loads(lists_result), api.get_lists())

@@ -35,9 +35,13 @@ class MemberAttribute(AbstractAttribute):
 
 
 class MemberAttributeLinkedToList(AbstractAttributeLinkedToList):
-    type_name_in_list = 'member'
-    type_name_in_method = 'player'
+    def __init__(self, descriptor, api, api_list, list_key, subsection='attributes'):
+        AbstractAttributeLinkedToList.__init__(self, descriptor, api, api_list, list_key, subsection=subsection)
+        self._writable = False
+        self._writable_next_session = False
 
+
+class LiveryAttribute(AbstractAttributeLinkedToList):
     def __init__(self, descriptor, api, api_list, list_key, subsection='attributes'):
         AbstractAttributeLinkedToList.__init__(self, descriptor, api, api_list, list_key, subsection=subsection)
         self._writable = False
@@ -68,7 +72,7 @@ class Member(AbstractStatusTable):
             lists[ListName.vehicles],
             'id'
         )
-        self.livery = _member_attribute('LiveryId',)
+        self.livery = _member_attribute('LiveryId')
         self.load_state = _member_attribute('LoadState')
         self.race_stat_flags = MemberFlagAttribute(self._from_list('RaceStatFlags'), api, MemberFlags)
         self.ping = _member_attribute('Ping')

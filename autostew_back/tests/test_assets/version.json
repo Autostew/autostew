@@ -1,0 +1,8 @@
+{
+  "result" : "ok",
+  "response" : {
+    "build_version" : 87,
+    "protocol_version" : 135,
+    "lua_version" : 301
+  }
+}
