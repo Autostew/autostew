@@ -1,11 +1,11 @@
-
 from django.views import generic
+from django.views.generic import FormView
 
-from autostew_web_session.models import Session, SessionSnapshot
-from .models import Track
+from .models import Session, SessionSnapshot, Track
+from .forms import SessionSetupForm
 
 
-class IndexView(generic.ListView):
+class ListTracks(generic.ListView):
     template_name = 'autostew_web_session/tracks.html'
     context_object_name = 'track_list'
 
@@ -13,9 +13,19 @@ class IndexView(generic.ListView):
         return Track.objects.all().order_by('name')
 
 
-class DetailView(generic.DetailView):
+class TrackView(generic.DetailView):
     model = Track
     template_name = 'autostew_web_session/track.html'
+
+
+class CreateSessionView(FormView):
+    template_name = 'autostew_web_session/create_session.html'
+    form_class = SessionSetupForm
+    success_url = '/session/all'
+
+    def form_valid(self, form):
+        form.save()
+        return super(SessionSetupForm, self).form_valid(form)
 
 
 class ListSessions(generic.ListView):
@@ -34,3 +44,5 @@ class SessionView(generic.DetailView):
 class SnapshotView(generic.DetailView):
     model = SessionSnapshot
     template_name = 'autostew_web_session/snapshot.html'
+
+
