@@ -19,13 +19,9 @@ class TrackView(generic.DetailView):
 
 
 class CreateSessionView(FormView):
-    template_name = 'autostew_web_session/create_session.html'
+    template_name = 'autostew_web_session/create_form.html'
     form_class = SessionSetupForm
     success_url = '/session/all'
-
-    def form_valid(self, form):
-        form.save()
-        return super(SessionSetupForm, self).form_valid(form)
 
 
 class ListSessions(generic.ListView):
