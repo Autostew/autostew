@@ -1,3 +1,5 @@
+import logging
+
 from django.views import generic
 from django.views.generic import FormView
 
@@ -22,6 +24,11 @@ class CreateSessionView(FormView):
     template_name = 'autostew_web_session/create_form.html'
     form_class = SessionSetupForm
     success_url = '/session/all'
+
+    def form_valid(self, form):
+        logging.info("valid form data for session setup has been posted.")
+        form.save()
+        return super(CreateSessionView, self).form_valid(form)
 
 
 class ListSessions(generic.ListView):

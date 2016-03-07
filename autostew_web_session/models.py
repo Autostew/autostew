@@ -40,21 +40,8 @@ class ServerConfiguration(models.Model):
     pass
 
 
-class SetupRotation(models.Model):
-    pass
-
-
-class Server(models.Model):
-    name = models.CharField(max_length=50, unique=True)
-    running = models.BooleanField()
-    # TODO joinable = models.BooleanField()
-    # TODO state = server.state!!
-
-    def __str__(self):
-        return self.name
-
-
 class SessionSetup(models.Model):
+    name = models.CharField(max_length=50, unique=True)
     server_controls_setup = models.BooleanField()
     server_controls_track = models.BooleanField()
     server_controls_vehicle_class = models.BooleanField()
@@ -112,6 +99,24 @@ class SessionSetup(models.Model):
     track_latitude = models.IntegerField()  # TODO this should be on track model
     track_longitude = models.IntegerField()  # TODO this should be on track model
     track_altitude = models.IntegerField()  # TODO this should be on track model
+
+    def __str__(self):
+        return self.name
+
+
+class Server(models.Model):
+    name = models.CharField(max_length=50, unique=True)
+    session_setups = models.ManyToManyField(SessionSetup)
+
+    running = models.BooleanField()
+    # TODO joinable = models.BooleanField()
+    # TODO state = server.state!!
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        ordering = ('name', )
 
 
 class Session(models.Model):

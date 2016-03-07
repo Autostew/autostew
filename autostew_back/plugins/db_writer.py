@@ -121,6 +121,7 @@ def _close_current_session():
 def _create_session(server, server_in_db):
     flags = server.session.flags.get_flags()
     setup = SessionSetup(
+        name='default setup',
         server_controls_setup=server.session.server_controls_setup.get(),
         server_controls_track=server.session.server_controls_track.get(),
         server_controls_vehicle_class=server.session.server_controls_vehicle_class.get(),
