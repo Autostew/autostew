@@ -5,7 +5,7 @@ from autostew_back.gameserver.abstract_containers import AbstractAttribute, Abst
 from autostew_back.gameserver.lists import ListName, AttributeItem
 
 
-class ParticipantStates(Enum):
+class ParticipantState(Enum):
     racing = 'Racing'
     finished = 'Finished'
     dnf = 'DNF'
@@ -64,7 +64,7 @@ class Participant(AbstractStatusTable):
         self.state = AbstractAttributeLinkedToEnum(
             self._from_list('State'),
             api,
-            ParticipantStates,
+            ParticipantState,
             subsection='attributes'
         )
         self.headlights = _participant_attribute('HeadlightsOn')

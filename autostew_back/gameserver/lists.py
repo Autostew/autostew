@@ -47,7 +47,7 @@ class Vehicle(ServerListItem):
         ServerListItem.__init__(self, raw)
         self.name = raw['name']
         self.id = raw['id']
-        self.vehicle_class = vehicle_classes.get_list_items('name', raw['class'])
+        self.vehicle_class = vehicle_classes.get_list_items('name', raw['class'])[0]
         self.liveries = ServerList(raw['liveries'], Livery, no_subitems=True, vehicle=self)
 
 

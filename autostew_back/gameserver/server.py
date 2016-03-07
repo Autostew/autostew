@@ -20,7 +20,7 @@ class BreakPluginLoadingException(Exception):
     pass
 
 
-class UnmetPluginDependencyException(Exception):
+class UnmetPluginDependency(Exception):
     pass
 
 
@@ -66,7 +66,7 @@ class Server:
                 if 'dependencies' in dir(plugin):
                     for dependency in plugin.dependencies:
                         if dependency not in self.settings.plugins[:index]:
-                            raise UnmetPluginDependencyException
+                            raise UnmetPluginDependency
                 if 'init' in dir(plugin):
                     plugin.init(self)
         except BreakPluginLoadingException:

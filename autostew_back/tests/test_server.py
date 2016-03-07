@@ -4,7 +4,7 @@ import requests
 from django.test import TestCase
 
 from autostew_back.gameserver.member import MemberLoadState, MemberFlags, MemberState
-from autostew_back.gameserver.participant import ParticipantStates
+from autostew_back.gameserver.participant import ParticipantState
 from autostew_back.gameserver.server import Server, ServerState
 from autostew_back.gameserver.session import SessionFlags, Privacy, SessionState, SessionStage, SessionPhase
 from autostew_back.tests.mocks import FakeApi
@@ -361,7 +361,7 @@ def participants_in_quali(test_case, server):
     test_case.assertEqual(participant.sector3_time.get(), 0)
     test_case.assertEqual(participant.last_lap_time.get(), 0)
     test_case.assertEqual(participant.fastest_lap_time.get(), 0)
-    test_case.assertEqual(participant.state.get_nice(), ParticipantStates.in_garage)
+    test_case.assertEqual(participant.state.get_nice(), ParticipantState.in_garage)
     test_case.assertEqual(participant.headlights.get(), False)
     test_case.assertEqual(participant.wipers.get(), False)
     test_case.assertEqual(participant.gear.get(), 0)
@@ -387,7 +387,7 @@ def participants_in_quali(test_case, server):
     test_case.assertEqual(participant.sector3_time.get(), 0)
     test_case.assertEqual(participant.last_lap_time.get(), 0)
     test_case.assertEqual(participant.fastest_lap_time.get(), 0)
-    test_case.assertEqual(participant.state.get_nice(), ParticipantStates.racing)
+    test_case.assertEqual(participant.state.get_nice(), ParticipantState.racing)
     test_case.assertEqual(participant.headlights.get(), False)
     test_case.assertEqual(participant.wipers.get(), False)
     test_case.assertEqual(participant.gear.get(), 4)
@@ -400,95 +400,95 @@ def participants_in_quali(test_case, server):
 
 class TestServer(TestCase):
     def test_empty_server_construction(self):
-            """
-            Tests starting autostew_back on an empty DS
-            """
-            api = FakeApi()
-            with mock.patch.object(requests, 'get', api.fake_request):
-                server = Server(SettingsWithoutPlugins(), False)
-                status_empty(self, server)
+        """
+        Tests starting autostew_back on an empty DS
+        """
+        api = FakeApi()
+        with mock.patch.object(requests, 'get', api.fake_request):
+            server = Server(SettingsWithoutPlugins(), False)
+            status_empty(self, server)
 
     def test_in_lobby_one_player_setup_without_setup(self):
-            """
-            Tests starting on an in-lobby server. No race setup is made to test if the data from the API is read
-            properly (loading a setup would overwrite that data).
-            """
-            api = FakeApi('autostew_back/tests/test_assets/session_in_lobby_one_player.json')
-            settings = SettingsWithoutPlugins()
-            settings.setup_rotation = [no_setup]
-            with mock.patch.object(requests, 'get', api.fake_request):
-                server = Server(settings, False)
-                status_in_lobby(self, server)
+        """
+        Tests starting on an in-lobby server. No race setup is made to test if the data from the API is read
+        properly (loading a setup would overwrite that data).
+        """
+        api = FakeApi('autostew_back/tests/test_assets/session_in_lobby_one_player.json')
+        settings = SettingsWithoutPlugins()
+        settings.setup_rotation = [no_setup]
+        with mock.patch.object(requests, 'get', api.fake_request):
+            server = Server(settings, False)
+            status_in_lobby(self, server)
 
     def test_in_lobby_one_player_members_without_setup(self):
-            """
-            Tests starting on an in-lobby server. No race setup is made to test if the data from the API is read
-            properly (loading a setup would overwrite that data).
-            """
-            api = FakeApi('autostew_back/tests/test_assets/session_in_lobby_one_player.json')
-            settings = SettingsWithoutPlugins()
-            settings.setup_rotation = [no_setup]
-            with mock.patch.object(requests, 'get', api.fake_request):
-                server = Server(settings, False)
-                members_one_player_lobby(self, server)
+        """
+        Tests starting on an in-lobby server. No race setup is made to test if the data from the API is read
+        properly (loading a setup would overwrite that data).
+        """
+        api = FakeApi('autostew_back/tests/test_assets/session_in_lobby_one_player.json')
+        settings = SettingsWithoutPlugins()
+        settings.setup_rotation = [no_setup]
+        with mock.patch.object(requests, 'get', api.fake_request):
+            server = Server(settings, False)
+            members_one_player_lobby(self, server)
 
     def test_setup_in_quali_two_player_14_ai_setup_without_setup(self):
-            """
-            Tests starting on an in-qualifying server. No race setup is made to test if the data from the API is read
-            properly (loading a setup would overwrite that data).
-            """
-            api = FakeApi('autostew_back/tests/test_assets/session_in_quali_two_players_14ai.json')
-            settings = SettingsWithoutPlugins()
-            settings.setup_rotation = [no_setup]
-            with mock.patch.object(requests, 'get', api.fake_request):
-                server = Server(settings, False)
-                status_quali(self, server)
+        """
+        Tests starting on an in-qualifying server. No race setup is made to test if the data from the API is read
+        properly (loading a setup would overwrite that data).
+        """
+        api = FakeApi('autostew_back/tests/test_assets/session_in_quali_two_players_14ai.json')
+        settings = SettingsWithoutPlugins()
+        settings.setup_rotation = [no_setup]
+        with mock.patch.object(requests, 'get', api.fake_request):
+            server = Server(settings, False)
+            status_quali(self, server)
 
     def test_setup_in_quali_two_player_14_ai_members_without_setup(self):
-            """
-            Tests starting on an in-qualifying server. No race setup is made to test if the data from the API is read
-            properly (loading a setup would overwrite that data).
-            """
-            api = FakeApi('autostew_back/tests/test_assets/session_in_quali_two_players_14ai.json')
-            settings = SettingsWithoutPlugins()
-            settings.setup_rotation = [no_setup]
-            with mock.patch.object(requests, 'get', api.fake_request):
-                server = Server(settings, False)
-                members_in_quali(self, server)
+        """
+        Tests starting on an in-qualifying server. No race setup is made to test if the data from the API is read
+        properly (loading a setup would overwrite that data).
+        """
+        api = FakeApi('autostew_back/tests/test_assets/session_in_quali_two_players_14ai.json')
+        settings = SettingsWithoutPlugins()
+        settings.setup_rotation = [no_setup]
+        with mock.patch.object(requests, 'get', api.fake_request):
+            server = Server(settings, False)
+            members_in_quali(self, server)
 
     def test_setup_in_quali_two_player_14_ai_participants_without_setup(self):
-            """
-            Tests starting on an in-qualifying server. No race setup is made to test if the data from the API is read
-            properly (loading a setup would overwrite that data).
-            """
-            api = FakeApi('autostew_back/tests/test_assets/session_in_quali_two_players_14ai.json')
-            settings = SettingsWithoutPlugins()
-            settings.setup_rotation = [no_setup]
-            with mock.patch.object(requests, 'get', api.fake_request):
-                server = Server(settings, False)
-                participants_in_quali(self, server)
+        """
+        Tests starting on an in-qualifying server. No race setup is made to test if the data from the API is read
+        properly (loading a setup would overwrite that data).
+        """
+        api = FakeApi('autostew_back/tests/test_assets/session_in_quali_two_players_14ai.json')
+        settings = SettingsWithoutPlugins()
+        settings.setup_rotation = [no_setup]
+        with mock.patch.object(requests, 'get', api.fake_request):
+            server = Server(settings, False)
+            participants_in_quali(self, server)
 
     def test_status_progression(self):
-            """
-            Tests fetching different status several times.
-            """
-            api = FakeApi('autostew_back/tests/test_assets/session_in_lobby_one_player.json')
-            settings = SettingsWithoutPlugins()
-            settings.setup_rotation = [no_setup]
-            with mock.patch.object(requests, 'get', api.fake_request):
-                server = Server(settings, False)
-                status_in_lobby(self, server)
-                api.status_result = 'autostew_back/tests/test_assets/session_in_quali_two_players_14ai.json'
-                server.fetch_status()
-                status_quali(self, server)
-                members_in_quali(self, server)
-                participants_in_quali(self, server)
-                api.status_result = 'autostew_back/tests/test_assets/session_in_race_two_players_14ai.json'
-                server.fetch_status()
-                self.assertEqual(server.state, ServerState.running)
-                self.assertEqual(server.joinable, False)
-                self.assertEqual(server.session.session_state.get_nice(), SessionState.race)
-                self.assertEqual(server.session.session_stage.get_nice(), SessionStage.race1)
-                self.assertEqual(server.session.session_phase.get_nice(), SessionPhase.green)
-                self.assertEqual(len(server.members.elements), 1)
-                self.assertEqual(len(server.participants.elements), 15)
+        """
+        Tests fetching different status several times.
+        """
+        api = FakeApi('autostew_back/tests/test_assets/session_in_lobby_one_player.json')
+        settings = SettingsWithoutPlugins()
+        settings.setup_rotation = [no_setup]
+        with mock.patch.object(requests, 'get', api.fake_request):
+            server = Server(settings, False)
+            status_in_lobby(self, server)
+            api.status_result = 'autostew_back/tests/test_assets/session_in_quali_two_players_14ai.json'
+            server.fetch_status()
+            status_quali(self, server)
+            members_in_quali(self, server)
+            participants_in_quali(self, server)
+            api.status_result = 'autostew_back/tests/test_assets/session_in_race_two_players_14ai.json'
+            server.fetch_status()
+            self.assertEqual(server.state, ServerState.running)
+            self.assertEqual(server.joinable, False)
+            self.assertEqual(server.session.session_state.get_nice(), SessionState.race)
+            self.assertEqual(server.session.session_stage.get_nice(), SessionStage.race1)
+            self.assertEqual(server.session.session_phase.get_nice(), SessionPhase.green)
+            self.assertEqual(len(server.members.elements), 1)
+            self.assertEqual(len(server.participants.elements), 15)
