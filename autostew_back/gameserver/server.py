@@ -1,15 +1,22 @@
 import logging
+from datetime import timedelta
 from time import time, sleep
 
-from datetime import timedelta
-
-from autostew_back.settings import Settings
 from autostew_back.gameserver.api import ApiCaller
 from autostew_back.gameserver.event import event_factory
 from autostew_back.gameserver.lists import ListGenerator, ListName
 from autostew_back.gameserver.member import MemberList
 from autostew_back.gameserver.participant import ParticipantList
 from autostew_back.gameserver.session import Session
+from autostew_back.settings import Settings
+
+
+def log_time(f):
+    def new_f():
+        start_time = time()
+        f()
+        logging.info("Plugin init took {} seconds".format(timedelta(seconds=time()-start_time)))
+    return new_f
 
 
 class BreakPluginLoadingException(Exception):
@@ -18,6 +25,16 @@ class BreakPluginLoadingException(Exception):
 
 class UnmetPluginDependencyException(Exception):
     pass
+
+
+class LogTime(object):
+    def __init__(self, f):
+        self.f = f
+
+    def __call__(self):
+        start_time = time()
+        self.f()
+        logging.info("Plugin init took {} seconds".format(timedelta(seconds=time()-start_time)))
 
 
 class Server:
@@ -51,23 +68,29 @@ class Server:
         self.last_status_update_time = time()
 
     def _init_plugins(self, env_init):
-        start_time = time()
+
         try:
             for index, plugin in enumerate(self.settings.plugins):
-                if env_init:
-                    logging.info("Initializing environment for plugin {}.".format(plugin.name))
-                    if 'env_init' in dir(plugin):
-                        plugin.env_init(self)
+                self.env_init_plugins(env_init, plugin)
                 logging.info("Loading plugin {}.".format(plugin.name))
-                if 'dependencies' in dir(plugin):
-                    for dependency in plugin.dependencies:
-                        if dependency not in self.settings.plugins[:index]:
-                            raise UnmetPluginDependencyException
-                if 'init' in dir(plugin):
-                    plugin.init(self)
+                self.init_plugins(index, plugin)
         except BreakPluginLoadingException:
             pass
-        logging.info("Plugin init took {} seconds".format(timedelta(seconds=time()-start_time)))
+
+    @log_time
+    def env_init_plugins(self, env_init, plugin):
+        if env_init:
+            logging.info("Initializing environment for plugin {}.".format(plugin.name))
+            if 'env_init' in dir(plugin):
+                plugin.env_init(self)
+
+    def init_plugins(self, index, plugin):
+        if 'dependencies' in dir(plugin):
+            for dependency in plugin.dependencies:
+                if dependency not in self.settings.plugins[:index]:
+                    raise UnmetPluginDependencyException
+        if 'init' in dir(plugin):
+            plugin.init(self)
 
     def load_next_setup(self, index=None):
         if index is None:
