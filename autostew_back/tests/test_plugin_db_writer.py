@@ -5,6 +5,7 @@ import requests
 from django.test import TestCase
 
 from autostew_back.gameserver.member import MemberLoadState, MemberState
+from autostew_back.gameserver.participant import ParticipantState
 from autostew_back.gameserver.server import Server as DServer, UnmetPluginDependency
 from autostew_back.plugins import db_enum_writer, db, db_writer
 from autostew_back.tests.mocks import FakeApi
@@ -16,6 +17,9 @@ from autostew_web_session import models
 
 class TestDBWriter(TestCase):
     def test_dependency(self):
+        """
+        Tests if the dependencies of the db_writer plugin are correctly handled
+        """
         api = FakeApi()
         settings = SettingsWithoutPlugins()
         with mock.patch.object(requests, 'get', api.fake_request):
@@ -28,7 +32,10 @@ class TestDBWriter(TestCase):
             settings.plugins = [db_enum_writer, db_writer]
             self.assertRaises(UnmetPluginDependency, DServer, settings, False)
 
-    def test_create_session(self):
+    def test_create_session_in_lobby(self):
+        """
+        Tests writing a basic session into the database
+        """
         api = FakeApi('autostew_back/tests/test_assets/session_in_lobby_one_player.json')
         settings = SettingsWithoutPlugins()
         settings.plugins = [db, db_enum_writer, db_writer]
@@ -151,3 +158,254 @@ class TestDBWriter(TestCase):
         self.assertEqual(m_snap.index, 0)
         self.assertEqual(m_snap.state.name, MemberState.connected.value)
         self.assertEqual(m_snap.host, True)
+
+    def test_create_session_in_race(self):
+        """
+        Tests writing an in-qualifying session into the db
+        """
+        api = FakeApi('autostew_back/tests/test_assets/session_in_quali_two_players_14ai.json')
+        settings = SettingsWithoutPlugins()
+        settings.plugins = [db, db_enum_writer, db_writer]
+        with mock.patch.object(requests, 'get', api.fake_request):
+            server = DServer(settings, True)
+        self.assertEqual(models.Server.objects.count(), 1)
+        self.assertEqual(SessionSetup.objects.count(), 1)
+        self.assertEqual(Session.objects.count(), 1)
+        self.assertEqual(SessionSnapshot.objects.count(), 1)
+        self.assertEqual(Member.objects.count(), 2)
+        self.assertEqual(MemberSnapshot.objects.count(), 2)
+        self.assertEqual(Participant.objects.count(), 16)
+        self.assertEqual(ParticipantSnapshot.objects.count(), 16)
+
+        server_in_db = models.Server.objects.all()[0]
+        self.assertEqual(server_in_db.name, settings.server_name)
+        self.assertTrue(server_in_db.running)
+
+        session_setup = models.SessionSetup.objects.all()[0]
+        self.assertTrue(session_setup.server_controls_setup)
+        self.assertTrue(session_setup.server_controls_track)
+        self.assertFalse(session_setup.server_controls_vehicle)
+        self.assertTrue(session_setup.server_controls_vehicle_class)
+        self.assertEqual(session_setup.grid_size, 22)
+        self.assertEqual(session_setup.max_players, 8)
+        self.assertEqual(session_setup.opponent_difficulty, 100)
+        self.assertEqual(session_setup.force_identical_vehicles, False)
+        self.assertEqual(session_setup.allow_custom_vehicle_setup, True)
+        self.assertEqual(session_setup.force_realistic_driving_aids, True)
+        self.assertEqual(session_setup.force_manual, False)
+        self.assertEqual(session_setup.rolling_starts, False)
+        self.assertEqual(session_setup.force_same_vehicle_class, True)
+        self.assertEqual(session_setup.fill_session_with_ai, True)
+        self.assertEqual(session_setup.mechanical_failures, False)
+        self.assertEqual(session_setup.auto_start_engine, True)
+        self.assertEqual(session_setup.timed_race, False)
+        self.assertEqual(session_setup.ghost_griefers, True)
+        self.assertEqual(session_setup.enforced_pitstop, True)
+        self.assertEqual(session_setup.practice1_length, 0)
+        self.assertEqual(session_setup.practice2_length, 0)
+        self.assertEqual(session_setup.qualify_length, 10)
+        self.assertEqual(session_setup.warmup_length, 0)
+        self.assertEqual(session_setup.race1_length, 5)
+        self.assertEqual(session_setup.race2_length, 0)
+        self.assertEqual(session_setup.public, True)
+        self.assertEqual(session_setup.friends_can_join, True)
+        self.assertEqual(session_setup.damage.name, "FULL")
+        self.assertEqual(session_setup.tire_wear.name, "X2")
+        self.assertEqual(session_setup.fuel_usage.name, "STANDARD")
+        self.assertEqual(session_setup.penalties.name, "FULL")
+        self.assertEqual(session_setup.allowed_views.name, "Any")
+        self.assertEqual(session_setup.track.name, "Zolder")
+        self.assertEqual(session_setup.vehicle_class.name, "GT3")
+        self.assertEqual(session_setup.date_progression, 5)
+        self.assertEqual(session_setup.weather_slots, 1)
+        self.assertEqual(session_setup.weather_1.name, "Clear")
+
+        session = Session.objects.all()[0]
+        session_snapshot = SessionSnapshot.objects.all()[0]
+        self.assertEqual(session.server, server_in_db)
+        self.assertEqual(session.setup, session_setup)
+        self.assertEqual(session.planned, False)
+        self.assertEqual(session.running, True)
+        self.assertEqual(session.finished, False)
+        self.assertEqual(session.lobby_id, '109775242847201392')
+        self.assertEqual(session.max_member_count, 22)
+        self.assertEqual(session.first_snapshot, session_snapshot)
+        self.assertEqual(session.current_snapshot, session_snapshot)
+        self.assertEqual(session.starting_snapshot_lobby, None)
+        self.assertEqual(session.starting_snapshot_to_track, None)
+        self.assertEqual(session.starting_snapshot_practice1, None)
+        self.assertEqual(session.starting_snapshot_practice2, None)
+        self.assertEqual(session.starting_snapshot_qualifying, None)
+        self.assertEqual(session.starting_snapshot_warmup, None)
+        self.assertEqual(session.starting_snapshot_race, None)
+        self.assertEqual(session.ending_snapshot_race, None)
+
+        self.assertEqual(session_snapshot.session, session)
+        self.assertEqual(session_snapshot.session_state.name, "Race")
+        self.assertEqual(session_snapshot.session_stage.name, "Qualifying")
+        self.assertEqual(session_snapshot.session_phase.name, "Green")
+        self.assertEqual(session_snapshot.session_time_elapsed, 185)
+        self.assertEqual(session_snapshot.session_time_duration, 600)
+        self.assertEqual(session_snapshot.num_participants_valid, 16)
+        self.assertEqual(session_snapshot.num_participants_disq, 0)
+        self.assertEqual(session_snapshot.num_participants_retired, 0)
+        self.assertEqual(session_snapshot.num_participants_dnf, 0)
+        self.assertEqual(session_snapshot.num_participants_finished, 0)
+        self.assertEqual(session_snapshot.current_year, 2015)
+        self.assertEqual(session_snapshot.current_month, 7)
+        self.assertEqual(session_snapshot.current_day, 6)
+        self.assertEqual(session_snapshot.current_hour, 13)
+        self.assertEqual(session_snapshot.current_minute, 14)
+        self.assertEqual(session_snapshot.rain_density_visual, 0)
+        self.assertEqual(session_snapshot.wetness_path, 0)
+        self.assertEqual(session_snapshot.wetness_off_path, 0)
+        self.assertEqual(session_snapshot.wetness_avg, 0)
+        self.assertEqual(session_snapshot.wetness_predicted_max, 0)
+        self.assertEqual(session_snapshot.wetness_max_level, 0)
+        self.assertEqual(session_snapshot.temperature_ambient, 27890)
+        self.assertEqual(session_snapshot.temperature_track, 39835)
+        self.assertEqual(session_snapshot.air_pressure, 100760)
+
+        member = Member.objects.all()[0]
+        self.assertEqual(member.session, session)
+        self.assertEqual(member.still_connected, True)
+        self.assertEqual(member.vehicle.name, "McLaren 12C GT3")
+        self.assertEqual(member.livery.name, "McLaren #59")
+        self.assertEqual(member.refid, 26752)
+        self.assertEqual(member.steam_id, '76561197969382874')
+        self.assertEqual(member.name, 'blak')
+        self.assertEqual(member.setup_used, True)
+        self.assertEqual(member.controller_gamepad, False)
+        self.assertEqual(member.controller_wheel, True)
+        self.assertEqual(member.aid_steering, False)
+        self.assertEqual(member.aid_braking, False)
+        self.assertEqual(member.aid_abs, True)
+        self.assertEqual(member.aid_traction, True)
+        self.assertEqual(member.aid_stability, True)
+        self.assertEqual(member.aid_no_damage, False)
+        self.assertEqual(member.aid_auto_gears, False)
+        self.assertEqual(member.aid_auto_clutch, True)
+        self.assertEqual(member.model_normal, False)
+        self.assertEqual(member.model_experienced, True)
+        self.assertEqual(member.model_pro, True)
+        self.assertEqual(member.model_elite, False)
+        self.assertEqual(member.aid_driving_line, False)
+        self.assertEqual(member.valid, True)
+
+        m_snap = MemberSnapshot.objects.all()[0]
+        self.assertEqual(m_snap.member, member)
+        self.assertEqual(m_snap.snapshot, session_snapshot)
+        self.assertEqual(m_snap.still_connected, True)
+        self.assertEqual(m_snap.load_state.name, MemberLoadState.started_race.value)
+        self.assertEqual(m_snap.ping, 14)
+        self.assertEqual(m_snap.index, 0)
+        self.assertEqual(m_snap.state.name, MemberState.connected.value)
+        self.assertEqual(m_snap.host, True)
+
+
+        member = Member.objects.all()[1]
+        self.assertEqual(member.session, session)
+        self.assertEqual(member.still_connected, True)
+        self.assertEqual(member.vehicle.name, "Aston Martin V12 Vantage GT3")
+        self.assertEqual(member.livery.name, "RaceOn OZ #55")
+        self.assertEqual(member.refid, 193)
+        self.assertEqual(member.steam_id, '76561198096164868')
+        self.assertEqual(member.name, 'cristov822')
+        self.assertEqual(member.setup_used, False)
+        self.assertEqual(member.controller_gamepad, True)
+        self.assertEqual(member.controller_wheel, False)
+        self.assertEqual(member.aid_steering, False)
+        self.assertEqual(member.aid_braking, False)
+        self.assertEqual(member.aid_abs, True)
+        self.assertEqual(member.aid_traction, True)
+        self.assertEqual(member.aid_stability, True)
+        self.assertEqual(member.aid_no_damage, False)
+        self.assertEqual(member.aid_auto_gears, True)
+        self.assertEqual(member.aid_auto_clutch, True)
+        self.assertEqual(member.model_normal, False)
+        self.assertEqual(member.model_experienced, False)
+        self.assertEqual(member.model_pro, False)
+        self.assertEqual(member.model_elite, True)
+        self.assertEqual(member.aid_driving_line, True)
+        self.assertEqual(member.valid, True)
+
+        m_snap = MemberSnapshot.objects.all()[1]
+        self.assertEqual(m_snap.member, member)
+        self.assertEqual(m_snap.snapshot, session_snapshot)
+        self.assertEqual(m_snap.still_connected, True)
+        self.assertEqual(m_snap.load_state.name, MemberLoadState.ready.value)
+        self.assertEqual(m_snap.ping, 73)
+        self.assertEqual(m_snap.index, 1)
+        self.assertEqual(m_snap.state.name, MemberState.connected.value)
+        self.assertEqual(m_snap.host, False)
+
+        participant = Participant.objects.all()[0]
+        self.assertEqual(participant.member, Member.objects.all()[0])
+        self.assertEqual(participant.session, session)
+        self.assertEqual(participant.still_connected, True)
+        self.assertEqual(participant.ingame_id, 0)
+        self.assertEqual(participant.refid, 26752)
+        self.assertEqual(participant.name, "blak")
+        self.assertEqual(participant.is_ai, False)
+        self.assertEqual(participant.vehicle.name, "McLaren 12C GT3")
+        self.assertEqual(participant.livery.name, "McLaren #59")
+
+        p_snapshot = ParticipantSnapshot.objects.get(participant__name="blak")
+        self.assertEqual(p_snapshot.snapshot, session_snapshot)
+        self.assertEqual(p_snapshot.participant, participant)
+        self.assertEqual(p_snapshot.still_connected, True)
+        self.assertEqual(p_snapshot.grid_position, 1)
+        self.assertEqual(p_snapshot.race_position, 16)
+        self.assertEqual(p_snapshot.current_lap, 0)
+        self.assertEqual(p_snapshot.current_sector, 0)
+        self.assertEqual(p_snapshot.sector1_time, 0)
+        self.assertEqual(p_snapshot.sector2_time, 0)
+        self.assertEqual(p_snapshot.sector3_time, 0)
+        self.assertEqual(p_snapshot.last_lap_time, 0)
+        self.assertEqual(p_snapshot.fastest_lap_time, 0)
+        self.assertEqual(p_snapshot.state.name, ParticipantState.in_garage.value)
+        self.assertEqual(p_snapshot.headlights, False)
+        self.assertEqual(p_snapshot.wipers, False)
+        self.assertEqual(p_snapshot.speed, 0)
+        self.assertEqual(p_snapshot.gear, 0)
+        self.assertEqual(p_snapshot.rpm, 0)
+        self.assertEqual(p_snapshot.position_x, 414900)
+        self.assertEqual(p_snapshot.position_y, 9470)
+        self.assertEqual(p_snapshot.position_z, 166000)
+        self.assertEqual(p_snapshot.orientation, 182)
+
+        participant = Participant.objects.all()[2]
+        self.assertEqual(participant.member, None)
+        self.assertEqual(participant.session, session)
+        self.assertEqual(participant.still_connected, True)
+        self.assertEqual(participant.ingame_id, 2)
+        self.assertEqual(participant.refid, 26752)
+        self.assertEqual(participant.name, "Carlos Eduardo de Araujo")
+        self.assertEqual(participant.is_ai, True)
+        self.assertEqual(participant.vehicle.name, "Audi R8 LMS Ultra")
+        self.assertEqual(participant.livery.name, "Pedace #17")
+
+        p_snapshot = ParticipantSnapshot.objects.get(participant__name="Carlos Eduardo de Araujo")
+        self.assertEqual(p_snapshot.snapshot, session_snapshot)
+        self.assertEqual(p_snapshot.participant, participant)
+        self.assertEqual(p_snapshot.still_connected, True)
+        self.assertEqual(p_snapshot.grid_position, 2)
+        self.assertEqual(p_snapshot.race_position, 14)
+        self.assertEqual(p_snapshot.current_lap, 1)
+        self.assertEqual(p_snapshot.current_sector, 1)
+        self.assertEqual(p_snapshot.sector1_time, 33832)
+        self.assertEqual(p_snapshot.sector2_time, 28404)
+        self.assertEqual(p_snapshot.sector3_time, 0)
+        self.assertEqual(p_snapshot.last_lap_time, 0)
+        self.assertEqual(p_snapshot.fastest_lap_time, 0)
+        self.assertEqual(p_snapshot.state.name, ParticipantState.racing.value)
+        self.assertEqual(p_snapshot.headlights, False)
+        self.assertEqual(p_snapshot.wipers, False)
+        self.assertEqual(p_snapshot.speed, 185)
+        self.assertEqual(p_snapshot.gear, 4)
+        self.assertEqual(p_snapshot.rpm, 7616)
+        self.assertEqual(p_snapshot.position_x, -371490)
+        self.assertEqual(p_snapshot.position_y, 6690)
+        self.assertEqual(p_snapshot.position_z, -239430)
+        self.assertEqual(p_snapshot.orientation, 166)
+

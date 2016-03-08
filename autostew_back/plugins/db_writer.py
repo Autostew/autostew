@@ -8,7 +8,8 @@ from autostew_web_enums import models
 from autostew_web_session.models import Server, Track, VehicleClass, Vehicle, Livery, SessionSetup, Session, \
     SessionSnapshot, Member, Participant, MemberSnapshot, ParticipantSnapshot, RaceLapSnapshot, Lap, Sector
 from autostew_web_enums.models import GameModeDefinition, TireWearDefinition, PenaltyDefinition, \
-    FuelUsageDefinition, AllowedViewsDefinition, WeatherDefinition, DamageDefinition, MemberLoadState, MemberState
+    FuelUsageDefinition, AllowedViewsDefinition, WeatherDefinition, DamageDefinition, MemberLoadState, MemberState, \
+    ParticipantState
 
 name = 'DB writer'
 dependencies = [db, db_enum_writer]
@@ -313,7 +314,7 @@ def _make_snapshot(server, session):
             sector3_time=it.sector3_time.get(),
             last_lap_time=it.last_lap_time.get(),
             fastest_lap_time=it.fastest_lap_time.get(),
-            state=it.state.get(),
+            state=ParticipantState.objects.get(name=it.state.get()),
             headlights=it.headlights.get(),
             wipers=it.wipers.get(),
             speed=it.speed.get(),

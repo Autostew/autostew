@@ -483,7 +483,7 @@ class TestServer(TestCase):
             status_quali(self, server)
             members_in_quali(self, server)
             participants_in_quali(self, server)
-            api.status_result = 'autostew_back/tests/test_assets/session_in_race_two_players_14ai.json'
+            api.status_result = 'autostew_back/tests/test_assets/session_in_race_one_player_14ai.json'
             server.fetch_status()
             self.assertEqual(server.state, ServerState.running)
             self.assertEqual(server.joinable, False)

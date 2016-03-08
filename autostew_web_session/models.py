@@ -1,6 +1,6 @@
 from django.db import models
 
-from autostew_web_enums.models import MemberLoadState, MemberState
+from autostew_web_enums.models import MemberLoadState, MemberState, ParticipantState
 
 
 class Track(models.Model):
@@ -244,7 +244,7 @@ class ParticipantSnapshot(models.Model):
     sector3_time = models.IntegerField()
     last_lap_time = models.IntegerField()
     fastest_lap_time = models.IntegerField()
-    state = models.CharField(max_length=20)
+    state = models.ForeignKey(ParticipantState)
     headlights = models.BooleanField()
     wipers = models.BooleanField()
     speed = models.IntegerField()
