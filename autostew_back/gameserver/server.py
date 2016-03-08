@@ -1,6 +1,7 @@
 import logging
 from datetime import timedelta
 from time import time, sleep
+from decorator import decorator
 
 from autostew_back.gameserver.api import ApiCaller
 from autostew_back.gameserver.event import event_factory
@@ -11,12 +12,11 @@ from autostew_back.gameserver.session import Session
 from autostew_back.settings import Settings
 
 
-def log_time(f):
-    def new_f():
-        start_time = time()
-        f()
-        logging.info("Plugin init took {} seconds".format(timedelta(seconds=time()-start_time)))
-    return new_f
+@decorator
+def log_time(f, *args, **kwargs):
+    start_time = time()
+    f(*args, **kwargs)
+    logging.info("Plugin init took {} seconds".format(timedelta(seconds=time()-start_time)))
 
 
 class BreakPluginLoadingException(Exception):
@@ -25,16 +25,6 @@ class BreakPluginLoadingException(Exception):
 
 class UnmetPluginDependencyException(Exception):
     pass
-
-
-class LogTime(object):
-    def __init__(self, f):
-        self.f = f
-
-    def __call__(self):
-        start_time = time()
-        self.f()
-        logging.info("Plugin init took {} seconds".format(timedelta(seconds=time()-start_time)))
 
 
 class Server:
