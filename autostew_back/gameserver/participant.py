@@ -1,11 +1,11 @@
 from enum import Enum
 
 from autostew_back.gameserver.abstract_containers import AbstractAttribute, AbstractAttributeLinkedToList, \
-    AbstractStatusTable, StatusList
+    AbstractStatusTable, StatusList, AbstractAttributeLinkedToEnum
 from autostew_back.gameserver.lists import ListName, AttributeItem
 
 
-class ParticipantStates(Enum):
+class ParticipantState(Enum):
     racing = 'Racing'
     finished = 'Finished'
     dnf = 'DNF'
@@ -61,7 +61,12 @@ class Participant(AbstractStatusTable):
         self.sector3_time = _participant_attribute('Sector3Time')
         self.last_lap_time = _participant_attribute('LastLapTime')
         self.fastest_lap_time = _participant_attribute('FastestLapTime')
-        self.state = _participant_attribute('State')
+        self.state = AbstractAttributeLinkedToEnum(
+            self._from_list('State'),
+            api,
+            ParticipantState,
+            subsection='attributes'
+        )
         self.headlights = _participant_attribute('HeadlightsOn')
         self.wipers = _participant_attribute('WipersOn')
         self.speed = _participant_attribute('Speed')

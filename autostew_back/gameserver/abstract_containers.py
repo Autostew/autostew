@@ -53,7 +53,7 @@ class AbstractAttributeLinkedToList(AbstractAttribute):
 
     def set_to_game_nice(self, nice_value):
         self.set_to_game(
-            self._list.get_list_elements(self._list_key_nice_value, nice_value)[0].raw[self._list_key_ugly_value]
+            self._list.get_list_items(self._list_key_nice_value, nice_value)[0].raw[self._list_key_ugly_value]
         )
 
     def set_to_game(self, value, copy_to_next=True, for_next_session=True):
@@ -65,11 +65,40 @@ class AbstractAttributeLinkedToList(AbstractAttribute):
         self._update_nice_value_from_ugly_value()
 
     def _update_nice_value_from_ugly_value(self):
-        candidates = self._list.get_list_elements(self._list_key_ugly_value, self._value)
+        candidates = self._list.get_list_items(self._list_key_ugly_value, self._value)
         if len(candidates) == 0 and self._value == 0:
             self._nice_value = None
-        else:
+        elif len(candidates) == 1:
             self._nice_value = candidates[0].raw[self._list_key_nice_value]
+        else:
+            raise Exception("Too many matching values")
+
+
+class AbstractAttributeLinkedToEnum(AbstractAttribute):
+    def __init__(self, descriptor, api, enum, subsection=None):
+        AbstractAttribute.__init__(self, descriptor, api, subsection)
+        self._nice_value = None
+        self._enum = enum
+
+    def get_nice(self):
+        return self._nice_value
+
+    def set_to_game_nice(self, nice_value):
+        self.set_to_game(nice_value.value)
+
+    def set_to_game(self, value, copy_to_next=True, for_next_session=True):
+        AbstractAttribute.set_to_game(self, value, copy_to_next, for_next_session)
+        self._update_nice_value_from_ugly_value()
+
+    def update_from_game(self, status):
+        AbstractAttribute.update_from_game(self, status)
+        self._update_nice_value_from_ugly_value()
+
+    def _update_nice_value_from_ugly_value(self):
+        try:
+            self._nice_value = self._enum(self._value)
+        except ValueError:
+            self._nice_value = None
 
 
 class AbstractFlagAttribute(AbstractAttribute):
@@ -106,7 +135,7 @@ class AbstractFlagAttribute(AbstractAttribute):
 
 class AbstractStatusTable:
     def _from_list(self, name):
-        return self.attr_list.get_list_elements('name', name).pop()
+        return self.attr_list.get_list_items('name', name).pop()
 
     def update_from_game(self, status):
         for attr in dir(self):
@@ -127,17 +156,20 @@ class StatusList:
     def get_by_id(self, id):
         return self.get_by_property(self._id_attribute, id)
 
-    def get_by_property(self, property, value):
+    def get_by_property(self, property, value, unique=True):
+        result = []
         for element in self.elements:
             if getattr(element, property).get() == value:
-                return element
-        return None
-
-    def get_by_attribute(self, attribute, value):
-        for element in self.elements:
-            if getattr(element.attributes, attribute).get() == value:
-                return element
-        return None
+                result.append(element)
+        if not unique:
+            return result
+        else:
+            if len(result) == 0:
+                return None
+            elif len(result) > 1:
+                raise Exception("More than one matching element found")
+            else:
+                return result[0]
 
     def update_from_game(self, status):  # TODO fix this shitty method
         elements_known = [getattr(el, self._id_attribute).get() for el in self.elements]

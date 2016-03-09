@@ -4,7 +4,7 @@ import argparse
 import logging
 import sys
 from autostew_back.gameserver.server import Server
-
+from autostew_back.settings import Settings
 
 description = """Autostew - A stuff doer for the Project Cars dedicated server"""
 epilog = """Don't use --env-init on productive servers!"""
@@ -12,8 +12,8 @@ epilog = """Don't use --env-init on productive servers!"""
 
 def main(args):
     logging.info("Starting autostew")
-    server = Server(args.env_init)
-    server.event_loop(args.event_offset)
+    server = Server(Settings(), args.env_init)
+    server.poll_loop(args.event_offset)
     return 0
 
 

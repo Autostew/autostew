@@ -2,7 +2,7 @@ from collections import Set
 from enum import Enum
 
 from autostew_back.gameserver.abstract_containers import AbstractAttribute, AbstractAttributeLinkedToList, \
-    AbstractFlagAttribute, AbstractStatusTable, StatusList
+    AbstractFlagAttribute, AbstractStatusTable, StatusList, AbstractAttributeLinkedToEnum
 from autostew_back.gameserver.lists import ListName, AttributeItem
 
 
@@ -27,6 +27,17 @@ class MemberFlags(Enum):
     aid_driving_line = 32768
     valid = 1073741824
 
+
+class MemberLoadState(Enum):
+    started_race = 'ADMIN_STARTED_RACE'
+    ready = 'CLIENT_READY'
+    unknown = 'UNKNOWN'
+
+
+class MemberState(Enum):
+    connected = 'Connected'
+
+
 class MemberAttribute(AbstractAttribute):
     def __init__(self, descriptor, api, subsection='attributes'):
         AbstractAttribute.__init__(self, descriptor, api, subsection)
@@ -35,9 +46,6 @@ class MemberAttribute(AbstractAttribute):
 
 
 class MemberAttributeLinkedToList(AbstractAttributeLinkedToList):
-    type_name_in_list = 'member'
-    type_name_in_method = 'player'
-
     def __init__(self, descriptor, api, api_list, list_key, subsection='attributes'):
         AbstractAttributeLinkedToList.__init__(self, descriptor, api, api_list, list_key, subsection=subsection)
         self._writable = False
@@ -68,15 +76,25 @@ class Member(AbstractStatusTable):
             lists[ListName.vehicles],
             'id'
         )
-        self.livery = _member_attribute('LiveryId',)
-        self.load_state = _member_attribute('LoadState')
+        self.livery = _member_attribute('LiveryId')
+        self.load_state = AbstractAttributeLinkedToEnum(
+            self._from_list('LoadState'),
+            api,
+            MemberLoadState,
+            subsection='attributes'
+        )
         self.race_stat_flags = MemberFlagAttribute(self._from_list('RaceStatFlags'), api, MemberFlags)
         self.ping = _member_attribute('Ping')
 
         self.index = MemberAttribute(AttributeItem({'name': 'index', 'access': 'ReadOnly', 'type': '', 'description': ''}), api, subsection=None)
         self.refid = MemberAttribute(AttributeItem({'name': 'refid', 'access': 'ReadOnly', 'type': '', 'description': ''}), api, subsection=None)
         self.steam_id = MemberAttribute(AttributeItem({'name': 'steamid', 'access': 'ReadOnly', 'type': '', 'description': ''}), api, subsection=None)
-        self.state = MemberAttribute(AttributeItem({'name': 'state', 'access': 'ReadOnly', 'type': '', 'description': ''}), api, subsection=None)
+        self.state = AbstractAttributeLinkedToEnum(
+            AttributeItem({'name': 'state', 'access': 'ReadOnly', 'type': '', 'description': ''}),
+            api,
+            MemberState,
+            subsection=None
+        )
         self.name = MemberAttribute(AttributeItem({'name': 'name', 'access': 'ReadOnly', 'type': '', 'description': ''}), api, subsection=None)
         self.join_time = MemberAttribute(AttributeItem({'name': 'jointime', 'access': 'ReadOnly', 'type': '', 'description': ''}), api, subsection=None)
         self.host = MemberAttribute(AttributeItem({'name': 'host', 'access': 'ReadOnly', 'type': '', 'description': ''}), api, subsection=None)

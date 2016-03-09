@@ -2,7 +2,7 @@ import datetime
 from enum import Enum
 
 from autostew_back.gameserver import session
-from autostew_back.gameserver.participant import ParticipantStates
+from autostew_back.gameserver.participant import ParticipantState
 
 
 class EventType(Enum):
@@ -48,12 +48,15 @@ class MemberEvent(BaseEvent):
     def __init__(self, raw, server):
         BaseEvent.__init__(self, raw, server)
         self.member = self.server.members.get_by_id(raw['refid'])
+        self.refid = raw['refid']
 
 
 class ParticipantEvent(MemberEvent):
     def __init__(self, raw, server):
         MemberEvent.__init__(self, raw, server)
         self.participant = self.server.participants.get_by_id(raw['participantid'])
+        self.refid = raw['refid']
+        self.participant_id = raw['id']
 
 
 class PlayerLeftEvent(MemberEvent):
@@ -116,8 +119,8 @@ class ParticipantCreatedEvent(ParticipantEvent):
 class ParticipantStateEvent(ParticipantEvent):
     def __init__(self, raw, server):
         ParticipantEvent.__init__(self, raw, server)
-        self.previous_state = ParticipantStates(raw['attributes']['PreviousState'])
-        self.new_state = ParticipantStates(raw['attributes']['NewState'])
+        self.previous_state = ParticipantState(raw['attributes']['PreviousState'])
+        self.new_state = ParticipantState(raw['attributes']['NewState'])
 
 
 class SectorEvent(ParticipantEvent):
@@ -127,7 +130,7 @@ class SectorEvent(ParticipantEvent):
         self.sector_time = datetime.timedelta(milliseconds=raw['attributes']['SectorTime'])
         self.total_time = datetime.timedelta(milliseconds=raw['attributes']['TotalTime'])
         self.lap = raw['attributes']['Lap']
-        self.sector = raw['attributes']['Sector']
+        self.sector = raw['attributes']['Sector'] + 1
         self.count_this_lap_times = raw['attributes']['CountThisLapTimes']
 
 
@@ -160,7 +163,7 @@ class ServerChatEvent(BaseEvent):
 class ResultsEvent(ParticipantEvent):
     def __init__(self, raw, server):
         ParticipantEvent.__init__(self, raw, server)
-        self.state = ParticipantStates(raw['attributes']['State'])
+        self.state = ParticipantState(raw['attributes']['State'])
         self.total_time = datetime.timedelta(milliseconds=raw['attributes']['TotalTime'])
         self.vehicle = raw['attributes']['VehicleId']  # TODO parse this
         self.fastest_lap_time = datetime.timedelta(raw['attributes']['FastestLapTime'])
