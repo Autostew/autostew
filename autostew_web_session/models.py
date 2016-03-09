@@ -1,6 +1,6 @@
 from django.db import models
 
-from autostew_web_enums.models import MemberLoadState, MemberState, ParticipantState
+from autostew_web_enums.models import MemberLoadState, MemberState, ParticipantState, SessionStage
 
 
 class Track(models.Model):
@@ -274,7 +274,7 @@ class Lap(models.Model):
     class Meta:
         ordering = ['lap']
     session = models.ForeignKey(Session)
-    session_stage = models.CharField(max_length=15)  # TODO this is ugly
+    session_stage = models.ForeignKey(SessionStage)
     participant = models.ForeignKey(Participant)
     lap = models.IntegerField()
     count_this_lap = models.BooleanField()
@@ -290,7 +290,7 @@ class Sector(models.Model):
     class Meta:
         ordering = ['lap', 'sector']
     session = models.ForeignKey(Session)
-    session_stage = models.CharField(max_length=15)  # TODO this is ugly
+    session_stage = models.ForeignKey(SessionStage)
     participant = models.ForeignKey(Participant)
     lap = models.IntegerField()
     count_this_lap = models.BooleanField()

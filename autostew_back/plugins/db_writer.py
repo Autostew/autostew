@@ -9,7 +9,7 @@ from autostew_web_session.models import Server, Track, VehicleClass, Vehicle, Li
     SessionSnapshot, Member, Participant, MemberSnapshot, ParticipantSnapshot, RaceLapSnapshot, Lap, Sector
 from autostew_web_enums.models import GameModeDefinition, TireWearDefinition, PenaltyDefinition, \
     FuelUsageDefinition, AllowedViewsDefinition, WeatherDefinition, DamageDefinition, MemberLoadState, MemberState, \
-    ParticipantState
+    ParticipantState, SessionStage as SessionStageModel
 
 name = 'DB writer'
 dependencies = [db, db_enum_writer]
@@ -46,7 +46,7 @@ def event(server, event):
     if event.type == EventType.lap and event.lap > 0:
         Lap(
             session=current_session,
-            session_stage=server.session.session_stage.get(),
+            session_stage=SessionStageModel.objects.get(name=server.session.session_stage.get()),
             participant=Participant.objects.get(ingame_id=event.participant.id.get(), refid=event.participant.refid.get(), session=current_session),
             lap=event.lap,
             count_this_lap=event.count_this_lap_times,
@@ -61,7 +61,7 @@ def event(server, event):
     if event.type == EventType.sector and event.lap > 0:
         Sector(
             session=current_session,
-            session_stage=server.session.session_stage.get(),
+            session_stage=SessionStageModel.objects.get(name=server.session.session_stage.get()),
             participant=Participant.objects.get(ingame_id=event.participant.id.get(), refid=event.participant.refid.get(), session=current_session),
             lap=event.lap,
             count_this_lap=event.count_this_lap,
