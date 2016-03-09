@@ -25,7 +25,7 @@ class UnmetPluginDependency(Exception):
 
 
 class Server:
-    def __init__(self, settings, env_init):
+    def __init__(self, settings, env_init=False, api_record=False):
         self.last_status_update_time = None
         self._setup_index = None
         self.state = None
@@ -34,7 +34,10 @@ class Server:
         self.max_member_count = None
 
         self.settings = settings
-        self.api = ApiCaller(self)
+        self.api = ApiCaller(
+            self,
+            record_destination=settings.api_record_destination if api_record is True else api_record
+        )
         self.lists = ListGenerator(self.api).generate_all()
         self.session = Session(self.lists[ListName.session_attributes], self.lists, self.api)
         self.members = MemberList(self.lists[ListName.member_attributes], self.lists, self.api)
