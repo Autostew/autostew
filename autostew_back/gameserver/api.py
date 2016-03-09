@@ -39,9 +39,13 @@ class ApiCaller:
         return parsed.get('response', None)
 
     def record_result(self, type, content):
-        with open(os.path.join(self.record_destination, type, self.record_indexes[type])) as f:
+        with open(os.path.join(
+                self.record_destination,
+                "{}-{}-{}.json".format(self.record_indexes['total'], type, self.record_indexes[type])
+        )) as f:
             json.dump(content, f, indent=4)
         self.record_indexes[type] += 1
+        self.record_indexes['total'] += 1
 
     def get_lists(self):
         return self._call('list/all')
