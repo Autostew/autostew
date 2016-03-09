@@ -23,12 +23,7 @@ class AbstractAttribute:
             self._value = status[self.name]
 
     def set_to_game(self, value, copy_to_next=True, for_next_session=False):
-        #if not self._writable and not for_next_session:
-        #    raise Exception("SessionSnapshot attribute {attr.name} can not be set for current session".format(attr=self))
-        #if not self._writable_next_session and for_next_session:
-        #    raise Exception("SessionSnapshot attribute {attr.name} can not be set for next session".format(attr=self))
         if for_next_session and copy_to_next:
-        #    logging.debug("Setting value {} only for next session".format(self.name))
             copy_to_next = False
 
         method = "set_next_attributes" if for_next_session else "set_attributes"
