@@ -1,22 +1,14 @@
+from autostew_back.gameserver.server import Server
 from autostew_back.gameserver.session import Privacy, SessionFlags
 from autostew_back.plugins import db
-from autostew_web_session.models import Server, SessionSetup
+from autostew_web_session.models import SessionSetup
 
 name = 'DB reader'
 dependencies = [db]
 
-server_in_db = None
-
 
 def init(server):
-    global server_in_db
-
     server.settings.setup_rotation = [DBSetup(setup) for setup in load_settings()]
-
-    try:
-        server_in_db = Server.objects.get(name=server.settings.server_name)
-    except Server.DoesNotExist:
-        server_in_db = Server(name=server.settings.server_name, running=True)
 
     # TODO load plugins from server
     # and then raise BreakPluginLoadingException
@@ -26,7 +18,7 @@ class DBSetup:
     def __init__(self, setup: SessionSetup):
         self.setup = setup
 
-    def make_setup(self, server):
+    def make_setup(self, server: Server):
         server.session.privacy.set_to_game(Privacy.public if self.setup.public else
                                            Privacy.friends if self.setup.friends_can_join else
                                            Privacy.private)
@@ -64,22 +56,23 @@ class DBSetup:
         server.session.flags.set_flags(SessionFlags.force_same_vehicle_class, self.setup.force_same_vehicle_class)
         server.session.flags.set_flags(SessionFlags.ghost_griefers, self.setup.ghost_griefers)
 
-        server.session.tire_wear.set_to_game_nice("X2")
-        server.session.allowed_views.set_to_game_nice('Any')
-        server.session.damage.set_to_game_nice('FULL')
-        server.session.fuel_usage.set_to_game_nice('STANDARD')
+        server.session.tire_wear.set_to_game(self.setup.tire_wear.ingame_id)
+        server.session.allowed_views.set_to_game(self.setup.allowed_views.ingame_id)
+        server.session.damage.set_to_game(self.setup.damage.ingame_id)
+        server.session.fuel_usage.set_to_game(self.setup.fuel_usage.ingame_id)
         server.session.opponent_difficulty.set_to_game(100)
-        server.session.penalties.set_to_game_nice('FULL')
+        server.session.penalties.set_to_game(self.setup.penalties.ingame_id)
 
-        server.session.date_hour.set_to_game(11)
-        server.session.date_minute.set_to_game(0)
-        server.session.date_progression.set_to_game(5)
+        server.session.date_hour.set_to_game(self.setup.date_hour)
+        server.session.date_minute.set_to_game(self.setup.date_minute)
+        server.session.date_progression.set_to_game(self.setup.date_progression)
 
-        server.session.practice1_length.set_to_game(45)
-        server.session.practice2_length.set_to_game(0)
-        server.session.qualify_length.set_to_game(15)
-        server.session.warmup_length.set_to_game(5)
-        server.session.race1_length.set_to_game(25)
+        server.session.practice1_length.set_to_game(self.setup.practice1_length)
+        server.session.practice2_length.set_to_game(self.setup.practice2_length)
+        server.session.qualify_length.set_to_game(self.setup.qualify_length)
+        server.session.warmup_length.set_to_game(self.setup.warmup_length)
+        server.session.race1_length.set_to_game(self.setup.race1_length)
+        server.session.race2_length.set_to_game(self.setup.race2_length)
 
 
 def event(server, event):
