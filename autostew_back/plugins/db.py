@@ -8,3 +8,6 @@ def init(server: DedicatedServer):
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "autostew.settings")
     from django.core.wsgi import get_wsgi_application
     get_wsgi_application()
+
+# this is needed, else other plugins won't load
+init(None)
