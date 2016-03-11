@@ -18,7 +18,7 @@ def event(server: DedicatedServer, event: BaseEvent):
 
     if event.type is EventType.impact and event.human_to_human:
             for participant in event.participants:
-                steam_id = server.members.get_by_id(participant.refid).steam_id.get()
+                steam_id = server.members.get_by_id(participant.refid.get()).steam_id.get()
                 crash_points[steam_id] = crash_points.setdefault(steam_id, 0) + event.magnitude
                 if crash_points[steam_id] > crash_points_limit / 3:
                     participant.send_chat(

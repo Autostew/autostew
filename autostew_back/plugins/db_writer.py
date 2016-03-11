@@ -1,6 +1,6 @@
-from autostew_back.gameserver.event import EventType
+from autostew_back.gameserver.event import EventType, BaseEvent, ParticipantEvent
 from autostew_back.gameserver.member import MemberFlags
-from autostew_back.gameserver.server import ServerState
+from autostew_back.gameserver.server import ServerState, Server as DServer
 from autostew_back.gameserver.session import SessionFlags, Privacy, SessionState, SessionStage
 from autostew_back.plugins import db, db_enum_writer
 from autostew_back.utils import td_to_milli
@@ -36,7 +36,7 @@ def tick(server):
     pass
 
 
-def event(server, event):
+def event(server: DServer, event: (BaseEvent, ParticipantEvent)):
     global current_session
 
     if event.type == EventType.lap and event.race_position == 1 and server.session.session_stage == SessionStage.race1 and event.lap > 0:
@@ -73,7 +73,7 @@ def event(server, event):
         _create_participant(current_session, event.participant)
 
     if event.type == EventType.participant_destroyed:
-        participant = Participant.objects.get(ingame_id=event.participantid, session=current_session)
+        participant = Participant.objects.get(ingame_id=event.participant.id.get(), session=current_session)
         participant.still_connected = False
         participant.save()
 
@@ -81,9 +81,12 @@ def event(server, event):
         _create_member(current_session, event.member)
 
     if event.type == EventType.player_left:
-        member = Member.objects.get(refid=event.refid, session=current_session)
-        member.still_connected = False
-        member.save()
+        try:
+            member = Member.objects.get(refid=event.refid, session=current_session)
+            member.still_connected = False
+            member.save()
+        except Member.DoesNotExist:
+            pass
 
     if event.type == EventType.session_created:
         current_session = _create_session(server, server_in_db)

@@ -49,6 +49,8 @@ def _recreate_enums(server):
 def _clear_enums():
     for e in enum_tables:
         e.objects.all().delete()
+    for enum, model in true_enums:
+        model.objects.all().delete()
 
 
 def _create_enums(server):
