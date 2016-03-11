@@ -8,7 +8,7 @@ def strfdelta(tdelta, fmt):
 
 
 def std_time_format(tdelta):
-    return strfdelta(tdelta, "{minutes}:{seconds}.{milliseconds}")
+    return strfdelta(tdelta, "{minutes}:{seconds:02d}.{milliseconds:03d}")
 
 
 def td_to_milli(tdelta):

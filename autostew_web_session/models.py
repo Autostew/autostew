@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models.aggregates import Sum
 
 from autostew_web_enums.models import MemberLoadState, MemberState, ParticipantState, SessionStage
 
@@ -254,6 +255,21 @@ class ParticipantSnapshot(models.Model):
     position_y = models.IntegerField()
     position_z = models.IntegerField()
     orientation = models.IntegerField()
+
+    def gap(self):
+        laps = Lap.objects.filter(participant=self.participant, lap__lte=self.current_lap)
+        if self.race_position == 1:
+            return 0
+        if laps.count() < self.current_lap:
+            return None
+        leader_time = Lap.objects.filter(
+            participant=ParticipantSnapshot.objects.get(snapshot=self.snapshot, race_position=1).participant,
+            lap__lte=self.current_lap
+        ).aggregate(Sum('lap_time'))['lap_time__sum']
+        own_time = laps.aggregate(Sum('lap_time'))['lap_time__sum']
+        if own_time is None or leader_time is None:
+            return None
+        return leader_time - own_time
 
 
 class Event(models.Model):  # TODO add timestamp and index

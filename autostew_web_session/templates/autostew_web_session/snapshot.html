@@ -1,12 +1,81 @@
 {% extends "autostew_web_session/base.html" %}
+{% load extra_filters %}
 
 {% block content %}
-                <h3>Snapshot {{ sessionsnapshot.id }} in {{ sessionsnapshot.session.id }}</h3>
-                <p>Track: {{sessionsnapshot.session.setup.track.name}}</p>
-                <h4>Participants</h4>
-                <ol>
-                    {% for participant in sessionsnapshot.participantsnapshot_set.all %}
-                        <li>{{ participant.participant.name }} ({{ participant.participant.vehicle.name }})</li>
-                    {% endfor %}
-                </ol>
+    <div class="row">
+        <div class="col-xs-8 col-sm-8 placeholder">
+            <h2>Race</h2>
+            <p>{{ sessionsnapshot.timestamp|date }} {{ sessionsnapshot.timestamp|time }}</p>
+        </div>
+        <div class="col-xs-4 col-sm-4 placeholder">
+            <h2>{{ sessionsnapshot.session_stage.name|upper }}</h2>
+
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xs-4 col-sm-4 placeholder">
+            <h3>Track</h3>
+            {{sessionsnapshot.session.setup.track.name}}
+        </div>
+        <div class="col-xs-4 col-sm-4 placeholder">
+            <h3>Setup</h3>
+            <p>{% if session.setup.server_controls_setup %}Server-controlled{% else %}Player-controlled{% endif %}</p>
+        </div>
+        <div class="col-xs-4 col-sm-4 placeholder">
+            <h3>Snapshots</h3>
+            {% for snapshot in session.sessionsnapshot_set.all %}
+                <a href="{% url 'session:snapshot' snapshot.id %}">{{ snapshot.id }}</a> --
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-striped table-hover table-condensed">
+            <thead>
+                <td>Name</td>
+                <td>Lap</td>
+                <td>Last lap</td>
+                <td>Best lap</td>
+                <td>Gap</td>
+                <td>Status</td>
+            </thead>
+            {% for participant in sessionsnapshot.participantsnapshot_set.all %}
+                <tr>
+                    <td>
+                        <div style="font-size: 220%; float: left; clear: left; padding-right: 15px">
+                            P{{ participant.race_position }}
+                        </div>
+                        <b>{{ participant.participant.name }}</b>
+                        {% if participant.participant.is_ai %}<b>(AI)</b>{% endif %}
+                        <br>
+                        {{ participant.participant.vehicle.name }}
+                    </td>
+                    <td>
+                        {{ participant.current_lap }}
+                    </td>
+                    <td>
+                        {% if participant.last_lap_time %}
+                            {{ participant.last_lap_time|milli_to_nicetime }}
+                        {% else %}
+                            ---
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if participant.fastest_lap_time %}
+                            {{ participant.fastest_lap_time|milli_to_nicetime }}
+                        {% else %}
+                            ---
+                        {% endif %}
+                    </td>
+                    <td>
+                        {{ participant.gap|milli_to_nicetime }}
+                    </td>
+                    <td>
+                        {{ participant.state.name }}
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
 {% endblock %}
