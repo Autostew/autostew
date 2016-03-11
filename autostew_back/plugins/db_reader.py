@@ -1,5 +1,6 @@
+from autostew_back.gameserver.event import EventType
 from autostew_back.gameserver.server import Server
-from autostew_back.gameserver.session import Privacy, SessionFlags
+from autostew_back.gameserver.session import Privacy, SessionFlags, SessionState
 from autostew_back.plugins import db
 from autostew_web_session.models import SessionSetup
 
@@ -8,10 +9,24 @@ dependencies = [db]
 
 
 def init(server):
-    server.settings.setup_rotation = [DBSetup(setup) for setup in load_settings()]
+    server.settings.setup_rotation.extend([DBSetup(setup) for setup in load_settings()])
 
     # TODO load plugins from server
     # and then raise BreakPluginLoadingException
+
+
+def event(server, event):
+    if event.type == EventType.state_changed:
+        if event.new_state == SessionState.lobby:
+            server.load_next_setup()
+
+
+def load_settings():
+    return SessionSetup.objects.all()
+
+
+def tick(server):
+    pass
 
 
 class DBSetup:
@@ -73,16 +88,4 @@ class DBSetup:
         server.session.warmup_length.set_to_game(self.setup.warmup_length)
         server.session.race1_length.set_to_game(self.setup.race1_length)
         server.session.race2_length.set_to_game(self.setup.race2_length)
-
-
-def event(server, event):
-    pass
-
-
-def load_settings():
-    return SessionSetup.objects.all()
-
-
-def tick(server):
-    pass
 
