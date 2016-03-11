@@ -1,4 +1,6 @@
-# Always show a message when a car completes a lap
+"""
+Show a message when a fastest lap is finished.
+"""
 from datetime import timedelta
 
 from autostew_back.gameserver.event import EventType

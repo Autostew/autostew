@@ -1,7 +1,7 @@
 import logging
 
-from autostew_back.plugins import db, laptimes, crash_monitor, motd, db_reader, db_writer, db_enum_writer
-from autostew_back.setups import prl_s4_r2_zolder_casual
+from autostew_back.plugins import db, laptimes, crash_monitor, motd, db_reader, db_writer, db_enum_writer, clock
+from autostew_back.setups import prl_s4_r3_hockenheim
 
 logging.getLogger().setLevel(logging.DEBUG)
 logging.getLogger('django.db.backends').setLevel(logging.INFO)
@@ -17,7 +17,7 @@ class Settings:
     full_update_period = 5
 
     setup_rotation = [
-        prl_s4_r2_zolder_casual
+        prl_s4_r3_hockenheim
     ]
 
     plugins = [
@@ -25,6 +25,7 @@ class Settings:
         db_reader,
         db_enum_writer,
         db_writer,
+        clock,
         laptimes,
         crash_monitor,
         motd,

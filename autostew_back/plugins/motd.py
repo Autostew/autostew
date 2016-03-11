@@ -1,3 +1,6 @@
+"""
+Show a message when a player logs in.
+"""
 from autostew_back.gameserver.event import EventType
 
 name = 'motd'
