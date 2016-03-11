@@ -31,9 +31,9 @@ class ApiCaller:
             path=path,
             params='&'.join(["{k}={v}".format(k=k, v=v) for k, v in params.items()])
         ))
-        parsed = json.loads(r.text)
         if not r.ok:
             raise self.ApiResultNotOk('Request returned {code}'.format(code=r.status_code))
+        parsed = json.loads(r.text)
         if parsed['result'] != 'ok':
             raise self.ApiResultNotOk('Request result was {result}'.format(result=parsed['result']))
         return parsed.get('response', None)
@@ -81,7 +81,10 @@ class ApiCaller:
         params = {'message': message}
         if player_refid is not None:
             params['refid'] = player_refid
-        return self._call("session/send_chat", params)
+        try:
+            return self._call("session/send_chat", params)
+        except ApiResultNotOk:
+            return None
 
     def api_help_parser(self):
         api_desc = self._call('help')
