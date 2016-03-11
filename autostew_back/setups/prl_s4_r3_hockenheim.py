@@ -1,6 +1,6 @@
 from autostew_back.gameserver.session import Privacy, SessionFlags
 
-name = 'Precision Racing League Season 4 Round 1 - Catalunya GP'
+name = 'Precision Racing League Season 4 Round 3 - Hockenheim GP'
 
 def make_setup(server):
     server.session.privacy.set_to_game(Privacy.public)
@@ -10,13 +10,13 @@ def make_setup(server):
     server.session.server_controls_vehicle.set_to_game(0)
 
     server.session.vehicle_class.set_to_game_nice('GT3')
-    server.session.track.set_to_game_nice("Circuit de Barcelona-Catalunya GP")
+    server.session.track.set_to_game_nice("Hockenheim GP")
     server.session.grid_size.set_to_game(30, for_next_session=True)
-    server.session.max_players.set_to_game(12)
+    server.session.max_players.set_to_game(8)
 
     server.session.weather_slots.set_to_game(2)
     server.session.weather_progression.set_to_game(5)
-    server.session.weather_1.set_to_game_nice("LightCloud")
+    server.session.weather_1.set_to_game_nice("HeavyCloud")
     server.session.weather_2.set_to_game_nice("Clear")
 
     server.session.flags.set_flags([
@@ -46,12 +46,12 @@ def make_setup(server):
     server.session.opponent_difficulty.set_to_game(100)
     server.session.penalties.set_to_game_nice('FULL')
 
-    server.session.date_hour.set_to_game(11)
+    server.session.date_hour.set_to_game(21)
     server.session.date_minute.set_to_game(0)
-    server.session.date_progression.set_to_game(5)
+    server.session.date_progression.set_to_game(2)
 
     server.session.practice1_length.set_to_game(45)
     server.session.practice2_length.set_to_game(0)
     server.session.qualify_length.set_to_game(15)
     server.session.warmup_length.set_to_game(5)
-    server.session.race1_length.set_to_game(25)
+    server.session.race1_length.set_to_game(27)

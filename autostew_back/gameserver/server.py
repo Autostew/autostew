@@ -14,6 +14,7 @@ from autostew_back.gameserver.session import Session
 
 class ServerState(Enum):
     running = "Running"
+    allocating = "Allocating"
     idle = "Idle"
 
 class BreakPluginLoadingException(Exception):
