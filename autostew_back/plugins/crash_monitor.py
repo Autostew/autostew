@@ -1,4 +1,8 @@
-# Monitor crashed
+"""
+Monitors crashes.
+Can also be set to warn and kick crashing players.
+"""
+
 from autostew_back.gameserver.event import EventType, BaseEvent
 from autostew_back.gameserver.server import Server as DedicatedServer
 
@@ -18,13 +22,13 @@ def event(server: DedicatedServer, event: BaseEvent):
                 crash_points[steam_id] = crash_points.setdefault(steam_id, 0) + event.magnitude
                 if crash_points[steam_id] > crash_points_limit / 3:
                     participant.send_chat(
-                        "WARNING: You have collected {points} crash points.".format(points=crash_points[steam_id])
+                        "CONTACT WARNING: You have collected {points} crash points.".format(points=crash_points[steam_id])
                     )
                     participant.send_chat(
-                        "Disqualification at {max_points} points.".format(max_crash_points=crash_points_limit)
+                        "CONTACT WARNING: Disqualification at {max_points} points.".format(max_crash_points=crash_points_limit)
                     )
                 else:
                     participant.send_chat(
-                        "Contact logged.".format(points=crash_points[steam_id])
+                        "CONTACT logged.".format(points=crash_points[steam_id])
                     )
 

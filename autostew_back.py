@@ -12,7 +12,7 @@ epilog = """Don't use --env-init on productive servers!"""
 
 def main(args):
     logging.info("Starting autostew")
-    server = Server(Settings(), args.env_init)
+    server = Server(Settings(), args.env_init, args.api_record)
     server.poll_loop(args.event_offset)
     return 0
 
@@ -21,6 +21,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=description, epilog=epilog)
     parser.add_argument('--env-init', default=False, action='store_true',
                         help="Initialize environment")
+    parser.add_argument('--api-record', nargs='?', const=True, default=False,
+                        help="Record API calls")
     parser.add_argument('--event-offset', help="Set initial event offset")
     args = parser.parse_args()
     if args.env_init:

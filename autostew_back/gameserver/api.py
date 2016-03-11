@@ -1,5 +1,7 @@
 import json
 import logging
+import os
+from collections import defaultdict
 
 import requests
 
@@ -8,9 +10,11 @@ class ApiCaller:
     class ApiResultNotOk(Exception):
         pass
 
-    def __init__(self, server, test_connection=True, show_api_definition=True):
+    def __init__(self, server, test_connection=True, show_api_definition=True, record_destination=None):
         self.server = server
         self.event_offset = 0
+        self.record_destination = record_destination
+        self.record_indexes = defaultdict(int)
         if test_connection:
             self._print_api_version()
         if show_api_definition:
@@ -34,6 +38,16 @@ class ApiCaller:
             raise self.ApiResultNotOk('Request result was {result}'.format(result=parsed['result']))
         return parsed.get('response', None)
 
+    def record_result(self, type, content):
+        with open(os.path.join(
+                os.getcwd(),
+                self.record_destination,
+                "{}-{}-{}.json".format(self.record_indexes['total'], type, self.record_indexes[type])
+        ), 'w') as f:
+            json.dump(content, f, indent=4)
+        self.record_indexes[type] += 1
+        self.record_indexes['total'] += 1
+
     def get_lists(self):
         return self._call('list/all')
 
@@ -43,7 +57,10 @@ class ApiCaller:
             'members': int(members),
             'participants': int(participants)
         }
-        return self._call("session/status", params)
+        result = self._call("session/status", params)
+        if self.record_destination:
+            self.record_result("status", result)
+        return result
 
     def reset_event_offset(self):
         result = self._call("log/range", {'count': 1, 'offset': -1})
@@ -52,10 +69,10 @@ class ApiCaller:
         else:
             self.event_offset = 0
 
-    def get_new_events(self, offset=None):
-        if offset is not None:
-            self.event_offset = offset
+    def get_new_events(self):
         result = self._call("log/range", {'count': 100, 'offset': self.event_offset})
+        if self.record_destination:
+            self.record_result("events", result)
         if result['events']:
             self.event_offset = result['events'][-1]['index'] + 1
         return result['events']
