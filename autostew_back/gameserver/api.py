@@ -40,9 +40,10 @@ class ApiCaller:
 
     def record_result(self, type, content):
         with open(os.path.join(
+                os.getcwd(),
                 self.record_destination,
                 "{}-{}-{}.json".format(self.record_indexes['total'], type, self.record_indexes[type])
-        )) as f:
+        ), 'w') as f:
             json.dump(content, f, indent=4)
         self.record_indexes[type] += 1
         self.record_indexes['total'] += 1
