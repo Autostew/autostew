@@ -5,13 +5,12 @@ from django.db import transaction
 
 from autostew_back.gameserver.event import EventType, LeavingReason
 from autostew_back.gameserver.lists import ListName
-from autostew_back.gameserver.member import MemberFlags, MemberLoadState, MemberState
+from autostew_back.gameserver.member import MemberLoadState, MemberState
 from autostew_back.gameserver.participant import ParticipantState
-from autostew_back.gameserver.session import SessionFlags, Privacy, SessionState, SessionStage, SessionPhase
+from autostew_back.gameserver.session import SessionState, SessionStage, SessionPhase
 from autostew_back.plugins import db
 from autostew_web_enums import models
-from autostew_web_session.models import Server, Track, VehicleClass, Vehicle, Livery, SessionSetup, Session, \
-    SessionSnapshot, Member, Participant, MemberSnapshot, ParticipantSnapshot
+from autostew_web_session.models import Server, Track, VehicleClass, Vehicle, Livery
 from autostew_web_enums.models import EventDefinition, GameModeDefinition, TireWearDefinition, PenaltyDefinition, \
     FuelUsageDefinition, AllowedViewsDefinition, PlayerFlagDefinition, WeatherDefinition, DamageDefinition, \
     SessionFlagDefinition, SessionAttributeDefinition, MemberAttributeDefinition, ParticipantAttributeDefinition
