@@ -2,7 +2,7 @@ import logging
 from enum import Enum
 
 from autostew_back.gameserver.abstract_containers import AbstractAttribute, AbstractAttributeLinkedToList, \
-    AbstractFlagAttribute, AbstractStatusTable
+    AbstractFlagAttribute, AbstractStatusTable, AbstractAttributeLinkedToEnum
 from autostew_back.gameserver.lists import ListName
 
 
@@ -67,6 +67,11 @@ class SessionAttributeLinkedToList(AbstractAttributeLinkedToList):
     type_name_in_method = 'session'
 
 
+class SessionAttributeLinkedToEnum(AbstractAttributeLinkedToEnum):
+    type_name_in_list = 'session'
+    type_name_in_method = 'session'
+
+
 class SessionFlagAttribute(AbstractFlagAttribute):
     type_name_in_list = 'session'
     type_name_in_method = 'session'
@@ -83,7 +88,7 @@ class Session(AbstractStatusTable):
         self.server_controls_track = _session_attribute('ServerControlsTrack')  # bool
         self.server_controls_vehicle_class = _session_attribute('ServerControlsVehicleClass')  # bool, Remember FORCE flag
         self.server_controls_vehicle = _session_attribute('ServerControlsVehicle')  # bool, Remember FORCE flag
-        self.grid_size = _session_attribute('GridSize')  # delta to MaxPlayers is AI
+        self.grid_size = _session_attribute('GridSize')
         self.max_players = _session_attribute('MaxPlayers')
         self.opponent_difficulty = _session_attribute('OpponentDifficulty')
         self.flags = SessionFlagAttribute(self._from_list('Flags'), api, SessionFlags)
@@ -93,7 +98,7 @@ class Session(AbstractStatusTable):
         self.warmup_length = _session_attribute('WarmupLength')
         self.race1_length = _session_attribute('Race1Length')
         self.race2_length = _session_attribute('Race2Length')
-        self.privacy = _session_attribute('Privacy')  # enum_available
+        self.privacy = SessionAttributeLinkedToEnum(self._from_list('Privacy'), api, Privacy)
         self.damage = SessionAttributeLinkedToList(
             self._from_list('DamageType'),
             api,
@@ -183,9 +188,9 @@ class Session(AbstractStatusTable):
         self.track_latitude = _session_attribute('Latitude')  # * 1000
         self.track_longitude = _session_attribute('Longitude')  # * 1000
         self.track_altitude = _session_attribute('Altitude')  # in mm
-        self.session_state = _session_attribute('SessionState')  # Enum available
-        self.session_stage = _session_attribute('SessionStage')  # Enum available
-        self.session_phase = _session_attribute('SessionPhase')  # Enum available
+        self.session_state = SessionAttributeLinkedToEnum(self._from_list('SessionState'), api, SessionState)
+        self.session_stage = SessionAttributeLinkedToEnum(self._from_list('SessionStage'), api, SessionStage)
+        self.session_phase = SessionAttributeLinkedToEnum(self._from_list('SessionPhase'), api, SessionPhase)
         self.session_time_elapsed = _session_attribute('SessionTimeElapsed')  # Note that this value might currently start counting during loading and otehr transitions, and then reset back to zero when the race really starts
         self.session_time_duration = _session_attribute('SessionTimeDuration')  # Time elapsed since the start of the session, in seconds
         self.num_participants_valid = _session_attribute('NumParticipantsValid')  # No. of positions?
@@ -207,3 +212,9 @@ class Session(AbstractStatusTable):
         self.temperature_ambient = _session_attribute('TemperatureAmbient')  # Celsius * 1000
         self.temperature_track = _session_attribute('TemperatureTrack')  # Celsius * 1000
         self.air_pressure = _session_attribute('AirPressure')
+
+    def number_of_ai_players(self):
+        if SessionFlags.fill_session_with_ai not in self.flags.get_flags():
+            return 0
+        else:
+            return self.grid_size.get() - self.max_players.get()

@@ -1,5 +1,7 @@
 from django.db import models
 
+from autostew_web_enums.models import MemberLoadState, MemberState, ParticipantState, SessionStage
+
 
 class Track(models.Model):
     ingame_id = models.IntegerField(help_text='pCars internal ID')
@@ -146,9 +148,9 @@ class SessionSnapshot(models.Model):
         ordering = ['timestamp']
     session = models.ForeignKey(Session)
     timestamp = models.DateTimeField(auto_now_add=True)
-    session_state = models.CharField(max_length=15)  # TODO these 3 are ugly
-    session_stage = models.CharField(max_length=15)
-    session_phase = models.CharField(max_length=15)
+    session_state = models.ForeignKey("autostew_web_enums.SessionState")
+    session_stage = models.ForeignKey("autostew_web_enums.SessionStage")
+    session_phase = models.ForeignKey("autostew_web_enums.SessionPhase")
     session_time_elapsed = models.BigIntegerField()
     session_time_duration = models.IntegerField()
     num_participants_valid = models.IntegerField()
@@ -205,10 +207,10 @@ class MemberSnapshot(models.Model):
     member = models.ForeignKey(Member)
     snapshot = models.ForeignKey(SessionSnapshot)
     still_connected = models.BooleanField()
-    load_state = models.CharField(max_length=15)  # TODO check if this is correct
+    load_state = models.ForeignKey(MemberLoadState)
     ping = models.IntegerField()
     index = models.IntegerField()
-    state = models.CharField(max_length=30)  # TODO this is ugly
+    state = models.ForeignKey(MemberState)
     join_time = models.IntegerField()
     host = models.BooleanField()
 
@@ -242,7 +244,7 @@ class ParticipantSnapshot(models.Model):
     sector3_time = models.IntegerField()
     last_lap_time = models.IntegerField()
     fastest_lap_time = models.IntegerField()
-    state = models.CharField(max_length=20)
+    state = models.ForeignKey(ParticipantState)
     headlights = models.BooleanField()
     wipers = models.BooleanField()
     speed = models.IntegerField()
@@ -272,7 +274,7 @@ class Lap(models.Model):
     class Meta:
         ordering = ['lap']
     session = models.ForeignKey(Session)
-    session_stage = models.CharField(max_length=15)  # TODO this is ugly
+    session_stage = models.ForeignKey(SessionStage)
     participant = models.ForeignKey(Participant)
     lap = models.IntegerField()
     count_this_lap = models.BooleanField()
@@ -288,7 +290,7 @@ class Sector(models.Model):
     class Meta:
         ordering = ['lap', 'sector']
     session = models.ForeignKey(Session)
-    session_stage = models.CharField(max_length=15)  # TODO this is ugly
+    session_stage = models.ForeignKey(SessionStage)
     participant = models.ForeignKey(Participant)
     lap = models.IntegerField()
     count_this_lap = models.BooleanField()

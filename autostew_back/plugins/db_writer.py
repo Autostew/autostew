@@ -1,13 +1,15 @@
 from autostew_back.gameserver.event import EventType
 from autostew_back.gameserver.member import MemberFlags
+from autostew_back.gameserver.server import ServerState
 from autostew_back.gameserver.session import SessionFlags, Privacy, SessionState, SessionStage
 from autostew_back.plugins import db, db_enum_writer
 from autostew_back.utils import td_to_milli
+from autostew_web_enums import models
 from autostew_web_session.models import Server, Track, VehicleClass, Vehicle, Livery, SessionSetup, Session, \
     SessionSnapshot, Member, Participant, MemberSnapshot, ParticipantSnapshot, RaceLapSnapshot, Lap, Sector
 from autostew_web_enums.models import GameModeDefinition, TireWearDefinition, PenaltyDefinition, \
-    FuelUsageDefinition, AllowedViewsDefinition, WeatherDefinition, DamageDefinition
-
+    FuelUsageDefinition, AllowedViewsDefinition, WeatherDefinition, DamageDefinition, MemberLoadState, MemberState, \
+    ParticipantState, SessionStage as SessionStageModel
 
 name = 'DB writer'
 dependencies = [db, db_enum_writer]
@@ -26,14 +28,15 @@ def init(server):
     server_in_db.running = True
     server_in_db.state = server.state
     server_in_db.save()
-    current_session = _create_session(server, server_in_db)  # TODO should be _find_or_create_session()
+    if server.state == ServerState.running:
+        current_session = _create_session(server, server_in_db)  # TODO should be _find_current_or_create_session()
 
 
 def tick(server):
     pass
 
 
-def event(server, event):  # TODO fill out the gaps
+def event(server, event):
     global current_session
 
     if event.type == EventType.lap and event.race_position == 1 and server.session.session_stage == SessionStage.race1 and event.lap > 0:
@@ -43,7 +46,7 @@ def event(server, event):  # TODO fill out the gaps
     if event.type == EventType.lap and event.lap > 0:
         Lap(
             session=current_session,
-            session_stage=server.session.session_stage.get(),
+            session_stage=SessionStageModel.objects.get(name=server.session.session_stage.get()),
             participant=Participant.objects.get(ingame_id=event.participant.id.get(), refid=event.participant.refid.get(), session=current_session),
             lap=event.lap,
             count_this_lap=event.count_this_lap_times,
@@ -58,7 +61,7 @@ def event(server, event):  # TODO fill out the gaps
     if event.type == EventType.sector and event.lap > 0:
         Sector(
             session=current_session,
-            session_stage=server.session.session_stage.get(),
+            session_stage=SessionStageModel.objects.get(name=server.session.session_stage.get()),
             participant=Participant.objects.get(ingame_id=event.participant.id.get(), refid=event.participant.refid.get(), session=current_session),
             lap=event.lap,
             count_this_lap=event.count_this_lap,
@@ -70,8 +73,7 @@ def event(server, event):  # TODO fill out the gaps
         _create_participant(current_session, event.participant)
 
     if event.type == EventType.participant_destroyed:
-        # Using event.raw because participant does not exist at this point anymore
-        participant = Participant.objects.get(ingame_id=event.raw['participantid'], session=current_session)
+        participant = Participant.objects.get(ingame_id=event.participantid, session=current_session)
         participant.still_connected = False
         participant.save()
 
@@ -79,8 +81,7 @@ def event(server, event):  # TODO fill out the gaps
         _create_member(current_session, event.member)
 
     if event.type == EventType.player_left:
-        # using event.raw['refid'] because member does not exist anymore at this point
-        member = Member.objects.get(refid=event.raw['refid'], session=current_session)
+        member = Member.objects.get(refid=event.refid, session=current_session)
         member.still_connected = False
         member.save()
 
@@ -149,16 +150,16 @@ def _create_session(server, server_in_db):
         warmup_length=server.session.warmup_length.get(),
         race1_length=server.session.race1_length.get(),
         race2_length=server.session.race2_length.get(),
-        public=server.session.privacy.get() == Privacy.public,
-        friends_can_join=server.session.privacy.get() in (Privacy.public, Privacy.friends),
-        damage=DamageDefinition.objects.get(ingame_id=server.session.damage.get()) if server.session.damage.get() else None,
-        tire_wear=TireWearDefinition.objects.get(ingame_id=server.session.tire_wear.get()) if server.session.tire_wear.get() else None,
-        fuel_usage=FuelUsageDefinition.objects.get(ingame_id=server.session.fuel_usage.get()) if server.session.fuel_usage.get() else None,
-        penalties=PenaltyDefinition.objects.get(ingame_id=server.session.penalties.get()) if server.session.penalties.get() else None,
-        allowed_views=AllowedViewsDefinition.objects.get(ingame_id=server.session.allowed_views.get()) if server.session.allowed_views.get() else None,
-        track=Track.objects.get(ingame_id=server.session.track.get()) if server.session.track.get() else None,
-        vehicle_class=VehicleClass.objects.get(ingame_id=server.session.vehicle_class.get()) if server.session.vehicle_class.get() else None,
-        vehicle=Vehicle.objects.get(ingame_id=server.session.vehicle.get()) if server.session.vehicle.get() else None,
+        public=server.session.privacy.get_nice() == Privacy.public,
+        friends_can_join=server.session.privacy.get_nice() in (Privacy.public, Privacy.friends),
+        damage=DamageDefinition.objects.get(ingame_id=server.session.damage.get()) if server.session.damage.get() is not None else None,
+        tire_wear=TireWearDefinition.objects.get(ingame_id=server.session.tire_wear.get()) if server.session.tire_wear.get() is not None else None,
+        fuel_usage=FuelUsageDefinition.objects.get(ingame_id=server.session.fuel_usage.get()) if server.session.fuel_usage.get() is not None else None,
+        penalties=PenaltyDefinition.objects.get(ingame_id=server.session.penalties.get()) if server.session.penalties.get() is not None else None,
+        allowed_views=AllowedViewsDefinition.objects.get(ingame_id=server.session.allowed_views.get()) if server.session.allowed_views.get() is not None else None,
+        track=Track.objects.get(ingame_id=server.session.track.get()) if server.session.track.get() is not None else None,
+        vehicle_class=VehicleClass.objects.get(ingame_id=server.session.vehicle_class.get()) if server.session.vehicle_class.get() is not None else None,
+        vehicle=Vehicle.objects.get(ingame_id=server.session.vehicle.get()) if server.session.vehicle.get() is not None else None,
         date_year=server.session.date_year.get(),
         date_month=server.session.date_month.get(),
         date_day=server.session.date_day.get(),
@@ -167,11 +168,11 @@ def _create_session(server, server_in_db):
         date_progression=server.session.date_progression.get(),
         weather_progression=server.session.weather_progression.get(),
         weather_slots=server.session.weather_slots.get(),
-        weather_1=WeatherDefinition.objects.get(ingame_id=server.session.weather_1.get()) if server.session.weather_1.get() else None,
-        weather_2=WeatherDefinition.objects.get(ingame_id=server.session.weather_2.get()) if server.session.weather_2.get() else None,
-        weather_3=WeatherDefinition.objects.get(ingame_id=server.session.weather_3.get()) if server.session.weather_3.get() else None,
-        weather_4=WeatherDefinition.objects.get(ingame_id=server.session.weather_4.get()) if server.session.weather_4.get() else None,
-        game_mode=GameModeDefinition.objects.get(ingame_id=server.session.game_mode.get()) if server.session.game_mode.get() else None,
+        weather_1=WeatherDefinition.objects.get(ingame_id=server.session.weather_1.get()) if server.session.weather_1.get() is not None else None,
+        weather_2=WeatherDefinition.objects.get(ingame_id=server.session.weather_2.get()) if server.session.weather_2.get() is not None else None,
+        weather_3=WeatherDefinition.objects.get(ingame_id=server.session.weather_3.get()) if server.session.weather_3.get() is not None else None,
+        weather_4=WeatherDefinition.objects.get(ingame_id=server.session.weather_4.get()) if server.session.weather_4.get() is not None else None,
+        game_mode=GameModeDefinition.objects.get(ingame_id=server.session.game_mode.get()) if server.session.game_mode.get() is not None else None,
         track_latitude=server.session.track_latitude.get(),
         track_longitude=server.session.track_longitude.get(),
         track_altitude=server.session.track_altitude.get(),
@@ -203,14 +204,14 @@ def _create_session(server, server_in_db):
 
 def _create_member(session, member):
     member_flags = member.race_stat_flags.get_flags()
-    vehicle = Vehicle.objects.get(ingame_id=member.vehicle.get()) if member.vehicle.get() else None
+    vehicle = Vehicle.objects.get(ingame_id=member.vehicle.get()) if member.vehicle.get() is not None else None
     try:
         member_in_db = Member.objects.get(session=session, steam_id=member.steam_id.get())
     except Member.DoesNotExist:
         member_in_db = Member(session=session, steam_id=member.steam_id.get())
     member_in_db.still_connected = True
     member_in_db.vehicle = vehicle
-    member_in_db.livery = Livery.objects.get(id_for_vehicle=member.livery.get(), vehicle=vehicle) if vehicle else None
+    member_in_db.livery = Livery.objects.get(id_for_vehicle=member.livery.get(), vehicle=vehicle) if vehicle is not None else None
     member_in_db.refid = member.refid.get()
     member_in_db.name = member.name.get()
     member_in_db.setup_used = MemberFlags.setup_used in member_flags
@@ -235,8 +236,8 @@ def _create_member(session, member):
 
 
 def _create_participant(session, participant):
-    vehicle = Vehicle.objects.get(ingame_id=participant.vehicle.get()) if participant.vehicle.get() else None
-    livery = Livery.objects.get(id_for_vehicle=participant.livery.get(), vehicle=vehicle) if participant.livery.get() else None
+    vehicle = Vehicle.objects.get(ingame_id=participant.vehicle.get()) if participant.vehicle.get() is not None else None
+    livery = Livery.objects.get(id_for_vehicle=participant.livery.get(), vehicle=vehicle) if participant.livery.get() is not None else None
     participant = Participant(
         member=Member.objects.get(refid=participant.refid.get(), session=session) if participant.is_player.get() else None,
         session=session,
@@ -254,9 +255,9 @@ def _create_participant(session, participant):
 def _make_snapshot(server, session):
     session_snapshot = SessionSnapshot(
         session=session,
-        session_state=server.session.session_state.get(),
-        session_stage=server.session.session_stage.get(),
-        session_phase=server.session.session_phase.get(),
+        session_state=models.SessionState.objects.get(name=server.session.session_state.get()),
+        session_stage=models.SessionStage.objects.get(name=server.session.session_stage.get()) if server.session.session_stage.get() is not None else None,
+        session_phase=models.SessionPhase.objects.get(name=server.session.session_phase.get()) if server.session.session_phase.get() is not None else None,
         session_time_elapsed=server.session.session_time_elapsed.get(),
         session_time_duration=server.session.session_time_duration.get(),
         num_participants_valid=server.session.num_participants_valid.get(),
@@ -286,10 +287,10 @@ def _make_snapshot(server, session):
             snapshot=session_snapshot,
             member=Member.objects.get(refid=it.refid.get(), session=session),
             still_connected=True,
-            load_state=it.load_state.get(),
+            load_state=MemberLoadState.objects.get(name=it.load_state.get()),
             ping=it.ping.get(),
             index=it.index.get(),
-            state=it.state.get(),
+            state=MemberState.objects.get(name=it.state.get()),
             join_time=it.join_time.get(),
             host=it.host.get(),
         )
@@ -313,7 +314,7 @@ def _make_snapshot(server, session):
             sector3_time=it.sector3_time.get(),
             last_lap_time=it.last_lap_time.get(),
             fastest_lap_time=it.fastest_lap_time.get(),
-            state=it.state.get(),
+            state=ParticipantState.objects.get(name=it.state.get()),
             headlights=it.headlights.get(),
             wipers=it.wipers.get(),
             speed=it.speed.get(),

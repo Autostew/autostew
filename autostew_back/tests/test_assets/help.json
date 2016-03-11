@@ -1,0 +1,751 @@
+{
+  "result" : "ok",
+  "response" : {
+    "methods" : [
+      {
+        "name" : "status",
+        "description" : "Display html page with server status",
+        "access" : "private",
+        "responsetype" : "html",
+        "parameters" : []
+      },
+      {
+        "name" : "api/help",
+        "description" : "Get list of all supported HTTP API methods",
+        "access" : "public",
+        "responsetype" : "json",
+        "parameters" : [],
+        "response" : [
+          {
+            "name" : "methods",
+            "type" : "array",
+            "optional" : false,
+            "description" : "List of all supported methods, each with name, description, parameters and responsetype fields"
+          }
+        ]
+      },
+      {
+        "name" : "api/version",
+        "description" : "Get information about server version",
+        "access" : "public",
+        "responsetype" : "json",
+        "parameters" : [],
+        "response" : [
+          {
+            "name" : "build_version",
+            "type" : "int",
+            "optional" : false,
+            "description" : "Server build version"
+          },
+          {
+            "name" : "protocol_version",
+            "type" : "int",
+            "optional" : false,
+            "description" : "Server-game protocol version"
+          },
+          {
+            "name" : "lua_version",
+            "type" : "int",
+            "optional" : false,
+            "description" : "Lua API version, encoded as major version * 100 + minor version"
+          }
+        ]
+      },
+      {
+        "name" : "api/performance",
+        "description" : "Get information about server performance",
+        "access" : "public",
+        "responsetype" : "json",
+        "parameters" : [],
+        "response" : [
+          {
+            "name" : "tick_recent",
+            "type" : "map",
+            "optional" : false,
+            "description" : "Structures with tick performance counters from the most recent tick sequences. Keys are sequence lengths"
+          },
+          {
+            "name" : "tick_worst",
+            "type" : "map",
+            "optional" : false,
+            "description" : "Structures with tick performance counters from the worst recorder tick sequences. Keys are sequence lengths"
+          }
+        ]
+      },
+      {
+        "name" : "api/list/all",
+        "description" : "Get all lists known to the server",
+        "access" : "public",
+        "responsetype" : "json",
+        "parameters" : [],
+        "response" : [
+          {
+            "name" : "lists",
+            "type" : "map",
+            "optional" : false,
+            "description" : "All known lists. Map from list names to structures with two fields, description and the list itself."
+          }
+        ]
+      },
+      {
+        "name" : "api/list/attributes",
+        "description" : "Get all attribute lists known to the server",
+        "access" : "public",
+        "responsetype" : "json",
+        "parameters" : [],
+        "response" : [
+          {
+            "name" : "lists",
+            "type" : "map",
+            "optional" : false,
+            "description" : "All known attribute lists. Map from list names to structures with two fields, description and the list itself."
+          }
+        ]
+      },
+      {
+        "name" : "api/list/attributes/session",
+        "description" : "Get session attribute list",
+        "access" : "public",
+        "responsetype" : "json",
+        "parameters" : [],
+        "response" : [
+          {
+            "name" : "description",
+            "type" : "string",
+            "optional" : false,
+            "description" : "The list's description."
+          },
+          {
+            "name" : "list",
+            "type" : "array",
+            "optional" : false,
+            "description" : "The list, structures containing name, type, access and description of all session attributes."
+          }
+        ]
+      },
+      {
+        "name" : "api/list/attributes/member",
+        "description" : "Get member (player) attribute list",
+        "access" : "public",
+        "responsetype" : "json",
+        "parameters" : [],
+        "response" : [
+          {
+            "name" : "description",
+            "type" : "string",
+            "optional" : false,
+            "description" : "The list's description."
+          },
+          {
+            "name" : "list",
+            "type" : "array",
+            "optional" : false,
+            "description" : "The list, structures containing name, type, access and description of all member attributes."
+          }
+        ]
+      },
+      {
+        "name" : "api/list/attributes/participant",
+        "description" : "Get participant (car) attribute list",
+        "access" : "public",
+        "responsetype" : "json",
+        "parameters" : [],
+        "response" : [
+          {
+            "name" : "description",
+            "type" : "string",
+            "optional" : false,
+            "description" : "The list's description."
+          },
+          {
+            "name" : "list",
+            "type" : "array",
+            "optional" : false,
+            "description" : "The list, structures containing name, type, access and description of all participant attributes."
+          }
+        ]
+      },
+      {
+        "name" : "api/list/events",
+        "description" : "Get event list",
+        "access" : "public",
+        "responsetype" : "json",
+        "parameters" : [],
+        "response" : [
+          {
+            "name" : "description",
+            "type" : "string",
+            "optional" : false,
+            "description" : "The list's description."
+          },
+          {
+            "name" : "list",
+            "type" : "array",
+            "optional" : false,
+            "description" : "The list, each element is a structure with: name, type, description and attributes. Attributes is an array with the event's attributes, each with name, type and description."
+          }
+        ]
+      },
+      {
+        "name" : "api/list/vehicle_classes",
+        "description" : "Get vehicle class list, used by per-class multiplayer restrictions",
+        "access" : "public",
+        "responsetype" : "json",
+        "parameters" : [],
+        "response" : [
+          {
+            "name" : "description",
+            "type" : "string",
+            "optional" : false,
+            "description" : "The list's description."
+          },
+          {
+            "name" : "list",
+            "type" : "array",
+            "optional" : false,
+            "description" : "The list, structures containing id and name for all vehicle classes known to the server."
+          }
+        ]
+      },
+      {
+        "name" : "api/list/vehicles",
+        "description" : "Get vehicle list",
+        "access" : "public",
+        "responsetype" : "json",
+        "parameters" : [],
+        "response" : [
+          {
+            "name" : "description",
+            "type" : "string",
+            "optional" : false,
+            "description" : "The list's description."
+          },
+          {
+            "name" : "list",
+            "type" : "array",
+            "optional" : false,
+            "description" : "The list, structures containing id, name and classes for all vehicles known to the server."
+          }
+        ]
+      },
+      {
+        "name" : "api/list/liveries",
+        "description" : "Get vehicle list, with all liveries included for each vehicle",
+        "access" : "public",
+        "responsetype" : "json",
+        "parameters" : [],
+        "response" : [
+          {
+            "name" : "description",
+            "type" : "string",
+            "optional" : false,
+            "description" : "The list's description."
+          },
+          {
+            "name" : "list",
+            "type" : "array",
+            "optional" : false,
+            "description" : "The list, structures containing id, name, classes and liveries for all vehicles known to the server. Each livery contains id and name."
+          }
+        ]
+      },
+      {
+        "name" : "api/list/tracks",
+        "description" : "Get track list",
+        "access" : "public",
+        "responsetype" : "json",
+        "parameters" : [],
+        "response" : [
+          {
+            "name" : "description",
+            "type" : "string",
+            "optional" : false,
+            "description" : "The list's description."
+          },
+          {
+            "name" : "list",
+            "type" : "array",
+            "optional" : false,
+            "description" : "The list, structures containing id and name for all tracks  known to the server."
+          }
+        ]
+      },
+      {
+        "name" : "api/list/enums",
+        "description" : "Get all enum types referenced by various attributes",
+        "access" : "public",
+        "responsetype" : "json",
+        "parameters" : [],
+        "response" : [
+          {
+            "name" : "lists",
+            "type" : "map",
+            "optional" : false,
+            "description" : "All known enum types. Map from list names to structures with two fields, description and the list (enum) itself."
+          }
+        ]
+      },
+      {
+        "name" : "api/list/enums/damage",
+        "description" : "Get damage enum values",
+        "access" : "public",
+        "responsetype" : "json",
+        "parameters" : [],
+        "response" : [
+          {
+            "name" : "description",
+            "type" : "string",
+            "optional" : false,
+            "description" : "The list's description."
+          },
+          {
+            "name" : "list",
+            "type" : "array",
+            "optional" : false,
+            "description" : "The list of all values belonging to the Damage enum."
+          }
+        ]
+      },
+      {
+        "name" : "api/list/enums/tire_wear",
+        "description" : "Get tire wear enum values",
+        "access" : "public",
+        "responsetype" : "json",
+        "parameters" : [],
+        "response" : [
+          {
+            "name" : "description",
+            "type" : "string",
+            "optional" : false,
+            "description" : "The list's description."
+          },
+          {
+            "name" : "list",
+            "type" : "array",
+            "optional" : false,
+            "description" : "The list of all values belonging to the TireWear enum."
+          }
+        ]
+      },
+      {
+        "name" : "api/list/enums/fuel_usage",
+        "description" : "Get fuel usage enum values",
+        "access" : "public",
+        "responsetype" : "json",
+        "parameters" : [],
+        "response" : [
+          {
+            "name" : "description",
+            "type" : "string",
+            "optional" : false,
+            "description" : "The list's description."
+          },
+          {
+            "name" : "list",
+            "type" : "array",
+            "optional" : false,
+            "description" : "The list of all values belonging to the FuelUsage enum."
+          }
+        ]
+      },
+      {
+        "name" : "api/list/enums/penalties",
+        "description" : "Get penalties enum values",
+        "access" : "public",
+        "responsetype" : "json",
+        "parameters" : [],
+        "response" : [
+          {
+            "name" : "description",
+            "type" : "string",
+            "optional" : false,
+            "description" : "The list's description."
+          },
+          {
+            "name" : "list",
+            "type" : "array",
+            "optional" : false,
+            "description" : "The list of all values belonging to the Penalties enum."
+          }
+        ]
+      },
+      {
+        "name" : "api/list/enums/game_mode",
+        "description" : "Get game mode enum values",
+        "access" : "public",
+        "responsetype" : "json",
+        "parameters" : [],
+        "response" : [
+          {
+            "name" : "description",
+            "type" : "string",
+            "optional" : false,
+            "description" : "The list's description."
+          },
+          {
+            "name" : "list",
+            "type" : "array",
+            "optional" : false,
+            "description" : "The list of all values belonging to the GameMode enum."
+          }
+        ]
+      },
+      {
+        "name" : "api/list/enums/allowed_view",
+        "description" : "Get allowed view enum values",
+        "access" : "public",
+        "responsetype" : "json",
+        "parameters" : [],
+        "response" : [
+          {
+            "name" : "description",
+            "type" : "string",
+            "optional" : false,
+            "description" : "The list's description."
+          },
+          {
+            "name" : "list",
+            "type" : "array",
+            "optional" : false,
+            "description" : "The list of all values belonging to the AllowedView enum."
+          }
+        ]
+      },
+      {
+        "name" : "api/list/enums/weather",
+        "description" : "Get weather enum values",
+        "access" : "public",
+        "responsetype" : "json",
+        "parameters" : [],
+        "response" : [
+          {
+            "name" : "description",
+            "type" : "string",
+            "optional" : false,
+            "description" : "The list's description."
+          },
+          {
+            "name" : "list",
+            "type" : "array",
+            "optional" : false,
+            "description" : "The list of all values belonging to the Weather enum."
+          }
+        ]
+      },
+      {
+        "name" : "api/list/flags",
+        "description" : "Get all flag types referenced by various attributes",
+        "access" : "public",
+        "responsetype" : "json",
+        "parameters" : [],
+        "response" : [
+          {
+            "name" : "lists",
+            "type" : "map",
+            "optional" : false,
+            "description" : "All known flag types. Map from list names to structures with two fields, description and the list (flags) itself."
+          }
+        ]
+      },
+      {
+        "name" : "api/list/flags/session",
+        "description" : "Get session flags values (Flags is session attributes)",
+        "access" : "public",
+        "responsetype" : "json",
+        "parameters" : [],
+        "response" : [
+          {
+            "name" : "description",
+            "type" : "string",
+            "optional" : false,
+            "description" : "The list's description."
+          },
+          {
+            "name" : "list",
+            "type" : "array",
+            "optional" : false,
+            "description" : "The list of all values belonging to the Session flags."
+          }
+        ]
+      },
+      {
+        "name" : "api/list/flags/player",
+        "description" : "Get player flags values (RaceStatFlags in player attributes)",
+        "access" : "public",
+        "responsetype" : "json",
+        "parameters" : [],
+        "response" : [
+          {
+            "name" : "description",
+            "type" : "string",
+            "optional" : false,
+            "description" : "The list's description."
+          },
+          {
+            "name" : "list",
+            "type" : "array",
+            "optional" : false,
+            "description" : "The list of all values belonging to the Player flags."
+          }
+        ]
+      },
+      {
+        "name" : "api/log/overview",
+        "description" : "Get information about the number of events available in the log",
+        "access" : "private",
+        "responsetype" : "json",
+        "parameters" : [],
+        "response" : [
+          {
+            "name" : "first",
+            "type" : "int",
+            "optional" : false,
+            "description" : "Index of the oldest event in the log."
+          },
+          {
+            "name" : "count",
+            "type" : "int",
+            "optional" : false,
+            "description" : "Number of events in the log."
+          },
+          {
+            "name" : "now",
+            "type" : "int",
+            "optional" : false,
+            "description" : "Current unix timestamp."
+          }
+        ]
+      },
+      {
+        "name" : "api/log/range",
+        "description" : "Get range of events from the log. Less events than requested might be returned, but event outside of the requested range will never be returned.",
+        "access" : "private",
+        "responsetype" : "json",
+        "parameters" : [
+          {
+            "name" : "offset",
+            "type" : "int",
+            "optional" : false,
+            "description" : "Index of the oldest event to return. If negative, count from the number of available events. So use first=-10 and count=10 to get 10 latest events, for example."
+          },
+          {
+            "name" : "count",
+            "type" : "int",
+            "optional" : false,
+            "description" : "Number of events to return."
+          }
+        ],
+        "response" : [
+          {
+            "name" : "first",
+            "type" : "int",
+            "optional" : false,
+            "description" : "Index of the oldest event in the log (not of the oldest returned event)."
+          },
+          {
+            "name" : "count",
+            "type" : "int",
+            "optional" : false,
+            "description" : "Number of events in the log (not number of events returned)."
+          },
+          {
+            "name" : "now",
+            "type" : "int",
+            "optional" : false,
+            "description" : "Current unix timestamp."
+          },
+          {
+            "name" : "events",
+            "type" : "array",
+            "optional" : false,
+            "description" : "The events. Each contains these fields: index,time,name,refid,participantid,attributes, where attributes are a map from attribute names to values. See /api/list/events for the list of all available events and their attributes."
+          }
+        ]
+      },
+      {
+        "name" : "api/session/kick",
+        "description" : "Kick and optionally temporary-ban specified session member",
+        "access" : "admin",
+        "responsetype" : "json",
+        "parameters" : [
+          {
+            "name" : "refid",
+            "type" : "int",
+            "optional" : false,
+            "description" : "RefId of the member to kick"
+          },
+          {
+            "name" : "ban",
+            "type" : "int",
+            "optional" : true,
+            "description" : "Time of temporary ban from the server, in seconds"
+          }
+        ],
+        "response" : []
+      },
+      {
+        "name" : "api/session/set_attributes",
+        "description" : "Request change of attributes from the game",
+        "access" : "admin",
+        "responsetype" : "json",
+        "parameters" : [
+          {
+            "name" : "copy_to_next",
+            "type" : "bool",
+            "optional" : true,
+            "description" : "If true, any changes to session attributes will be also applied to the 'next attributes' list."
+          },
+          {
+            "name" : "refid",
+            "type" : "int",
+            "optional" : true,
+            "description" : "RefId of player to change. Used only when player attributes are included. Note that you need to run multiple calls to modify multiple players"
+          },
+          {
+            "name" : "participantid",
+            "type" : "int",
+            "optional" : true,
+            "description" : "Id of participant to change. Used only when participant attributes are included. Note that you need to run multiple calls to modify multiple players"
+          },
+          {
+            "name" : "session_NAME",
+            "type" : "string",
+            "optional" : true,
+            "description" : "Session attribute to set. See /api/list/attributes/session for the list of all valid attribute names and types. Only writable attributes can be set"
+          },
+          {
+            "name" : "player_NAME",
+            "type" : "string",
+            "optional" : true,
+            "description" : "Player attribute to set. Remember to also set 'refid'. See /api/list/attributes/player for the list of all valid attribute names and types. Only writable attributes can be set"
+          },
+          {
+            "name" : "participant_NAME",
+            "type" : "string",
+            "optional" : true,
+            "description" : "Participant attribute to set. Remember to also set 'participantid'. See /api/list/attributes/participant for the list of all valid attribute names and types. Only writable attributes can be set"
+          }
+        ],
+        "response" : []
+      },
+      {
+        "name" : "api/session/set_next_attributes",
+        "description" : "Update session attributes to be applied to next new session or next lobby when current session loads back into the lobby",
+        "access" : "admin",
+        "responsetype" : "json",
+        "parameters" : [
+          {
+            "name" : "session_NAME",
+            "type" : "string",
+            "optional" : true,
+            "description" : "Session attribute to set. See /api/list/attributes/session for the list of all valid attribute names and types. Only writable attributes can be set"
+          }
+        ],
+        "response" : []
+      },
+      {
+        "name" : "api/session/send_chat",
+        "description" : "Send chat message to the game",
+        "access" : "admin",
+        "responsetype" : "json",
+        "parameters" : [
+          {
+            "name" : "message",
+            "type" : "string",
+            "optional" : false,
+            "description" : "The message to send"
+          },
+          {
+            "name" : "refid",
+            "type" : "int",
+            "optional" : true,
+            "description" : "RefId of the recipient of the message. If not set the message will be sent to all"
+          }
+        ],
+        "response" : []
+      },
+      {
+        "name" : "api/session/status",
+        "description" : "Return basic session status",
+        "access" : "private",
+        "responsetype" : "json",
+        "parameters" : [
+          {
+            "name" : "attributes",
+            "type" : "bool",
+            "optional" : true,
+            "description" : "Include session/player/participant attributes in the response?"
+          },
+          {
+            "name" : "members",
+            "type" : "bool",
+            "optional" : true,
+            "description" : "Include session members (players) in the response?"
+          },
+          {
+            "name" : "participants",
+            "type" : "bool",
+            "optional" : true,
+            "description" : "Include session participants (cars) in the response?"
+          }
+        ],
+        "response" : [
+          {
+            "name" : "state",
+            "type" : "string",
+            "optional" : false,
+            "description" : "Session state (Idle/Allocating/Running)"
+          },
+          {
+            "name" : "name",
+            "type" : "string",
+            "optional" : false,
+            "description" : "Session name"
+          },
+          {
+            "name" : "lobbyid",
+            "type" : "bigint",
+            "optional" : false,
+            "description" : "Steam ID of the lobby associated with the session"
+          },
+          {
+            "name" : "joinable",
+            "type" : "bool",
+            "optional" : false,
+            "description" : "Is the session joinable?"
+          },
+          {
+            "name" : "max_member_count",
+            "type" : "int",
+            "optional" : false,
+            "description" : "Maximum session size"
+          },
+          {
+            "name" : "now",
+            "type" : "int",
+            "optional" : false,
+            "description" : "Current server timestamp (unix time)"
+          },
+          {
+            "name" : "attributes",
+            "type" : "map",
+            "optional" : false,
+            "description" : "Session attributes. For the list see /api/list/attributes/session"
+          },
+          {
+            "name" : "members",
+            "type" : "array",
+            "optional" : false,
+            "description" : "Array of members (players) joined in the session. Each with index,refid,steamid,state,name,jointime,host fields, and optionally attributes as listed at /api/list/attributes/member"
+          },
+          {
+            "name" : "participants",
+            "type" : "array",
+            "optional" : false,
+            "description" : "Array of participants (cars) joined in the session. Each with id, and optionally attributes as listed at /api/list/attributes/participant"
+          }
+        ]
+      }
+    ]
+  }
+}

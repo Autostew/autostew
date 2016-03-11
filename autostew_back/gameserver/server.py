@@ -1,6 +1,8 @@
 import logging
-from datetime import timedelta
+
+from enum import Enum
 from time import time, sleep
+from datetime import timedelta
 
 from autostew_back.gameserver.api import ApiCaller
 from autostew_back.gameserver.event import event_factory
@@ -19,11 +21,15 @@ def log_time(f):
     return new_f
 
 
+class ServerState(Enum):
+    running = "Running"
+    idle = "Idle"
+
 class BreakPluginLoadingException(Exception):
     pass
 
 
-class UnmetPluginDependencyException(Exception):
+class UnmetPluginDependency(Exception):
     pass
 
 
@@ -38,7 +44,7 @@ class LogTime(object):
 
 
 class Server:
-    def __init__(self, env_init):
+    def __init__(self, settings, env_init):
         self.last_status_update_time = None
         self._setup_index = None
         self.state = None
@@ -46,7 +52,7 @@ class Server:
         self.joinable = None
         self.max_member_count = None
 
-        self.settings = Settings()
+        self.settings = settings
         self.api = ApiCaller(self)
         self.lists = ListGenerator(self.api).generate_all()
         self.session = Session(self.lists[ListName.session_attributes], self.lists, self.api)
@@ -58,7 +64,7 @@ class Server:
 
     def fetch_status(self):
         status = self.api.get_status()
-        self.state = status['state']
+        self.state = ServerState(status['state'])
         self.lobby_id = status['lobbyid']
         self.joinable = status['joinable']
         self.max_member_count = status['max_member_count']
@@ -73,7 +79,12 @@ class Server:
             for index, plugin in enumerate(self.settings.plugins):
                 self.env_init_plugins(env_init, plugin)
                 logging.info("Loading plugin {}.".format(plugin.name))
-                self.init_plugins(index, plugin)
+                if 'dependencies' in dir(plugin):
+                    for dependency in plugin.dependencies:
+                        if dependency not in self.settings.plugins[:index]:
+                            raise UnmetPluginDependency
+                if 'init' in dir(plugin):
+                    plugin.init(self)
         except BreakPluginLoadingException:
             pass
 
@@ -83,14 +94,6 @@ class Server:
             logging.info("Initializing environment for plugin {}.".format(plugin.name))
             if 'env_init' in dir(plugin):
                 plugin.env_init(self)
-
-    def init_plugins(self, index, plugin):
-        if 'dependencies' in dir(plugin):
-            for dependency in plugin.dependencies:
-                if dependency not in self.settings.plugins[:index]:
-                    raise UnmetPluginDependencyException
-        if 'init' in dir(plugin):
-            plugin.init(self)
 
     def load_next_setup(self, index=None):
         if index is None:
@@ -106,7 +109,7 @@ class Server:
     def get_current_setup_name(self):
         return self.settings.setup_rotation[self._setup_index].name
 
-    def event_loop(self, event_offset=None):
+    def poll_loop(self, event_offset=None, only_one_run=False):
         if event_offset is None:
             self.api.reset_event_offset()
         else:
@@ -141,3 +144,6 @@ class Server:
             sleep_time = self.settings.event_poll_period - (time() - tick_start)
             if sleep_time > 0:
                 sleep(sleep_time)
+
+            if only_one_run:
+                return

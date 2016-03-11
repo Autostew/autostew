@@ -1,11 +1,13 @@
 import json
 import logging
 
-from autostew_back.gameserver.event import EventType
+from autostew_back.gameserver.event import EventType, LeavingReason
 from autostew_back.gameserver.lists import ListName
-from autostew_back.gameserver.member import MemberFlags
-from autostew_back.gameserver.session import SessionFlags, Privacy
+from autostew_back.gameserver.member import MemberFlags, MemberLoadState, MemberState
+from autostew_back.gameserver.participant import ParticipantState
+from autostew_back.gameserver.session import SessionFlags, Privacy, SessionState, SessionStage, SessionPhase
 from autostew_back.plugins import db
+from autostew_web_enums import models
 from autostew_web_session.models import Server, Track, VehicleClass, Vehicle, Livery, SessionSetup, Session, \
     SessionSnapshot, Member, Participant, MemberSnapshot, ParticipantSnapshot
 from autostew_web_enums.models import EventDefinition, GameModeDefinition, TireWearDefinition, PenaltyDefinition, \
@@ -18,7 +20,19 @@ dependencies = [db]
 
 enum_tables = [Track, EventDefinition, SessionFlagDefinition, DamageDefinition, WeatherDefinition,
                PlayerFlagDefinition, AllowedViewsDefinition, FuelUsageDefinition,
-               GameModeDefinition, VehicleClass, PenaltyDefinition, Vehicle, Livery, TireWearDefinition]
+               GameModeDefinition, VehicleClass, PenaltyDefinition, Vehicle, Livery, TireWearDefinition,
+               ParticipantAttributeDefinition, MemberAttributeDefinition, SessionAttributeDefinition]
+
+true_enums = [
+    (EventType, models.EventType),
+    (LeavingReason, models.LeavingReason),
+    (MemberLoadState, models.MemberLoadState),
+    (MemberState, models.MemberState),
+    (ParticipantState, models.ParticipantState),
+    (SessionState, models.SessionState),
+    (SessionStage, models.SessionStage),
+    (SessionPhase, models.SessionPhase),
+]
 
 
 def env_init(server):
@@ -46,6 +60,13 @@ def _create_enums(server):
         for i in server.lists[listname].list:
             model(name=i.name, type=i.type, access=i.access, description=i.description).save(True)
 
+    def _create_true_enum(enum, orm):
+        for i in enum:
+            orm(name=i.value).save(True)
+
+    for enum, orm in true_enums:
+        _create_true_enum(enum, orm)
+
     _create_name_value(VehicleClass, ListName.vehicle_classes)
     _create_name_value(GameModeDefinition, ListName.game_modes)
     _create_name_value(TireWearDefinition, ListName.tire_wears)
@@ -69,18 +90,25 @@ def _create_enums(server):
     logging.info("Creating Tracks")
     for track in server.lists[ListName.tracks].list:
         Track(ingame_id=track.id, name=track.name, grid_size=track.gridsize).save(True)
+    logging.info("{} tracks".format(len(server.lists[ListName.tracks].list)))
 
     logging.info("Creating Events")
     for event in server.lists[ListName.events].list:
         EventDefinition(name=event.name, type=event.type, description=event.type, attributes=json.dumps(event.attributes)).save(True)
 
     logging.info("Creating Vehicles")
-    for vehicle in server.lists[ListName.vehicles].list:
-        Vehicle(ingame_id=vehicle.id, name=vehicle.name, vehicle_class=VehicleClass.objects.get(name=vehicle.class_name)).save(True)
-
-    logging.info("Creating Liveries")
-    for i, livery_vehicle in enumerate(server.lists[ListName.liveries].list):
+    for i, vehicle in enumerate(server.lists[ListName.vehicles].list):
         if i % 10 == 0 and i > 0:
-            logging.info("Created liveries for {} out of {} vehicles".format(i, len(server.lists[ListName.liveries].list)))
-        for livery in livery_vehicle.liveries:
-            Livery(name=livery['name'], id_for_vehicle=livery['id'], vehicle=Vehicle.objects.get(ingame_id=livery_vehicle.id)).save(True)
+            logging.info("Created {} out of {} vehicles".format(i, len(server.lists[ListName.vehicles].list)))
+        vehicle_in_db = Vehicle(
+            ingame_id=vehicle.id,
+            name=vehicle.name,
+            vehicle_class=VehicleClass.objects.get(name=vehicle.vehicle_class.name)
+        )
+        vehicle_in_db.save(True)
+        for livery in vehicle.liveries.list:
+            Livery(
+                name=livery.name,
+                id_for_vehicle=livery.id,
+                vehicle=vehicle_in_db
+            ).save(True)

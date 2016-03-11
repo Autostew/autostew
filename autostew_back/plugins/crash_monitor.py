@@ -1,5 +1,6 @@
 # Monitor crashed
-from autostew_back.gameserver.event import EventType
+from autostew_back.gameserver.event import EventType, BaseEvent
+from autostew_back.gameserver.server import Server as DedicatedServer
 
 name = 'crash monitor'
 
@@ -7,7 +8,7 @@ crash_points_limit = 4000
 crash_points = {}
 
 
-def event(server, event):
+def event(server: DedicatedServer, event: BaseEvent):
     global crash_points
     global crash_points_limit
 
