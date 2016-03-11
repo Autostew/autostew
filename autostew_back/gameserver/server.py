@@ -5,12 +5,14 @@ from decorator import decorator
 from enum import Enum
 from time import time, sleep
 
+
 from autostew_back.gameserver.api import ApiCaller
 from autostew_back.gameserver.event import event_factory
 from autostew_back.gameserver.lists import ListGenerator, ListName
 from autostew_back.gameserver.member import MemberList
 from autostew_back.gameserver.participant import ParticipantList
 from autostew_back.gameserver.session import Session
+
 
 @decorator
 def log_time(f, *args, **kwargs):

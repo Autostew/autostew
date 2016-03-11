@@ -1,6 +1,7 @@
 import logging
 
-from autostew_back.plugins import laptimes, crash_monitor, motd, db, db_reader, db_writer, db_enum_writer
+from autostew_back.plugins import db, laptimes, crash_monitor, motd, db_reader, db_writer, db_enum_writer
+
 
 logging.getLogger().setLevel(logging.DEBUG)
 logging.getLogger('django.db.backends').setLevel(logging.INFO)
