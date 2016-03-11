@@ -3,33 +3,89 @@
 
 {% block content %}
     <div class="row">
-        <div class="col-xs-8 col-sm-8 placeholder">
-            <h2>Race</h2>
-            <p>{{ sessionsnapshot.timestamp|date }} {{ sessionsnapshot.timestamp|time }}</p>
-        </div>
         <div class="col-xs-4 col-sm-4 placeholder">
-            <h2>{{ sessionsnapshot.session_stage.name|upper }}</h2>
+            <h2>
+                Race
+                {% if session.planned %}(planned){% endif %}
+                {% if session.running %}in progress{% endif %}
+            </h2>
+            <h4>{% if session.setup.force_identical_vehicles %}
+                Vehicle: {{ session.setup.vehicle.name }}
+            {% elif session.setup.force_same_vehicle_class %}
+                Class: {{ session.setup.vehicle_class.name }}
+            {% else %}
+                No vehicle or class restriction
+            {% endif %}</h4>
 
-        </div>
-    </div>
+            {% if session.setup.server_controls_setup %}Server-controlled{% else %}Player-controlled{% endif %}<br>
+            Snapshot at {{ sessionsnapshot.timestamp|date }} {{ sessionsnapshot.timestamp|time }}<br>
 
-    <div class="row">
-        <div class="col-xs-4 col-sm-4 placeholder">
-            <h3>Track</h3>
-            {{sessionsnapshot.session.setup.track.name}}
+
+            In-game race start time:
+            {{ session.setup.date_year }}-{{ session.setup.date_month }}-{{ session.setup.date_day }}
+            {{ session.setup.date_hour }}:{{ session.setup.date_minute }} (x{{ session.setup.date_progression }})<br>
+            In-game current time:
+            {{ sessionsnapshot.current_year }}-{{ sessionsnapshot.current_month }}-{{ sessionsnapshot.current_day }}
+            {{ sessionsnapshot.current_hour }}:{{ sessionsnapshot.current_minute }}
         </div>
         <div class="col-xs-4 col-sm-4 placeholder">
-            <h3>Setup</h3>
-            <p>{% if session.setup.server_controls_setup %}Server-controlled{% else %}Player-controlled{% endif %}</p>
+            <h1>{{ sessionsnapshot.session_stage.name|upper }}</h1>
+            {% if session.setup.practice1_length %}{{ session.setup.practice1_length }} minutes practice<br>{% endif %}
+            {% if session.setup.practice2_length %}{{ session.setup.practice2_length }} minutes practice<br>{% endif %}
+            {% if session.setup.qualify_length %}{{ session.setup.qualify_length }} minutes qualifying<br>{% endif %}
+            {% if session.setup.warmup_length %}{{ session.setup.warmup_length }} minutes warmup<br>{% endif %}
+            <b>{{ session.setup.race1_length }} {% if session.setup.timed_race %}minutes{% else %}laps{% endif %} race</b><br>
+            {% if session.setup.enforced_pitstop %}Mandatory pitstop{% endif %}
         </div>
         <div class="col-xs-4 col-sm-4 placeholder">
-            <h3>Snapshots</h3>
+            <h3>Navigate</h3>
             {% for snapshot in session.sessionsnapshot_set.all %}
                 <a href="{% url 'session:snapshot' snapshot.id %}">{{ snapshot.id }}</a> --
             {% endfor %}
         </div>
     </div>
 
+    <div class="row">
+        <div class="col-xs-4 col-sm-4 placeholder">
+            <h2>{{sessionsnapshot.session.setup.track.name}}</h2>
+            Weather (x{{ session.setup.weather_progression }}):
+            {% if session.setup.weather_slots > 0 %}{{ session.setup.weather_1.name }}{% endif %}
+            {% if session.setup.weather_slots > 1 %}{{ session.setup.weather_2.name }}{% endif %}
+            {% if session.setup.weather_slots > 2 %}{{ session.setup.weather_3.name }}{% endif %}
+            {% if session.setup.weather_slots > 3 %}{{ session.setup.weather_4.name }}{% endif %}
+            <br>
+            Ambient: {{ sessionsnapshot.temperature_ambient|temp }}ºC {{ sessionsnapshot.air_pressure|pressure }}hPa<br>
+            Track: {{ sessionsnapshot.temperature_track|temp }}ºC<br>
+            Wetness: {{ sessionsnapshot.wetness_avg|percent }}%
+        </div>
+        <div class="col-xs-4 col-sm-4 placeholder">
+            <h3>Aids</h3>
+            {% if not session.setup.allow_custom_vehicle_setup %}<p>Default setup only</p>{% endif %}
+            Driving aids:
+            {% if session.setup.force_realistic_driving_aids %}
+                REALISTIC
+            {% else %}
+                Aids:
+                {% if session.setup.abs_allowed %}ABS{% endif %}
+                {% if session.setup.sc_allowed %}SC{% endif %}
+                {% if session.setup.tcs_allowed %}TCS{% endif %}
+            {% endif %}
+            {% if session.setup.force_manual %}manual{% else %}automatic{% endif %}
+            {% if session.setup.mechanical_failures %}failures{% else %}no-failures{% endif %}
+            {% if session.setup.auto_start_engine %}autoenginestart{% else %}manualenginestart{% endif %}
+            {% if session.setup.ghost_griefers %}ghostgriefers{% else %}noghost{% endif %}
+        </div>
+        <div class="col-xs-4 col-sm-4 placeholder">
+            <h2></h2>
+            {% if session.setup.rolling_starts %}Rolling start<br>{% endif %}
+            {{ session.setup.damage.name|title }} damage<br>
+            {{ session.setup.tire_wear.name|title }} tire wear<br>
+            {{ session.setup.fuel_usage.name|title }} fuel usage<br>
+            {{ session.setup.penalties.name|title }} penalties<br>
+            {{ session.setup.allowed_views.name|title }} view
+        </div>
+    </div>
+    <hr>
     <div class="table-responsive">
         <table class="table table-striped table-hover table-condensed">
             <thead>
@@ -47,7 +103,7 @@
                             P{{ participant.race_position }}
                         </div>
                         <b>{{ participant.participant.name }}</b>
-                        {% if participant.participant.is_ai %}<b>(AI)</b>{% endif %}
+                        {% if participant.participant.is_ai %}<b>(AI{{ session.setup.opponent_difficulty }})</b>{% endif %}
                         <br>
                         {{ participant.participant.vehicle.name }}
                     </td>
