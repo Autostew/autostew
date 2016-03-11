@@ -5,6 +5,10 @@ from .models import Session, SessionSnapshot, Track
 from .forms import SessionSetupForm
 
 
+class Home(generic.TemplateView):
+    template_name = 'autostew_web_session/home.html'
+
+
 class ListTracks(generic.ListView):
     template_name = 'autostew_web_session/tracks.html'
     context_object_name = 'track_list'

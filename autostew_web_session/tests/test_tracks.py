@@ -22,7 +22,7 @@ class TrackIndexViewTests(TestCase):
         """
         If no tracks exist, an appropriate message should be displayed.
         """
-        response = self.client.get(reverse('tracks'))
+        response = self.client.get(reverse('session:tracks'))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "No tracks are available")
         self.assertQuerysetEqual(response.context['track_list'], [])
@@ -32,7 +32,7 @@ class TrackIndexViewTests(TestCase):
         Should list that track
         """
         track = create_track()
-        response = self.client.get(reverse('tracks', args=()))
+        response = self.client.get(reverse('session:tracks', args=()))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, track.name)
         self.assertQuerysetEqual(response.context['track_list'], ['<Track: testtrack>'])
@@ -44,7 +44,7 @@ class TrackDetailViewTests(TestCase):
         Should list the details of that track
         """
         track = create_track()
-        response = self.client.get(reverse('track', args=(track.id,)))
+        response = self.client.get(reverse('session:track', args=(track.id,)))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, track.name)
         self.assertContains(response, track.grid_size)
