@@ -1,6 +1,8 @@
 import json
 import logging
 
+from django.db import transaction
+
 from autostew_back.gameserver.event import EventType, LeavingReason
 from autostew_back.gameserver.lists import ListName
 from autostew_back.gameserver.member import MemberFlags, MemberLoadState, MemberState
@@ -39,6 +41,7 @@ def env_init(server):
     _recreate_enums(server)
 
 
+@transaction.atomic
 def _recreate_enums(server):
     _clear_enums()
     _create_enums(server)
