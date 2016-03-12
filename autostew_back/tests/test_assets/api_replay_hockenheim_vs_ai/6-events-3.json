@@ -1,0 +1,39 @@
+{
+    "now": 1457739652,
+    "first": 2086,
+    "count": 1000,
+    "events": [
+        {
+            "name": "SessionCreated",
+            "attributes": {},
+            "index": 3082,
+            "time": 1457739649
+        },
+        {
+            "name": "PlayerJoined",
+            "attributes": {
+                "Name": "blak",
+                "SteamId": "76561197969382874"
+            },
+            "refid": 23616,
+            "index": 3083,
+            "time": 1457739649
+        },
+        {
+            "name": "Authenticated",
+            "attributes": {},
+            "refid": 23616,
+            "index": 3084,
+            "time": 1457739650
+        },
+        {
+            "name": "StateChanged",
+            "attributes": {
+                "PreviousState": "None",
+                "NewState": "Lobby"
+            },
+            "index": 3085,
+            "time": 1457739650
+        }
+    ]
+}

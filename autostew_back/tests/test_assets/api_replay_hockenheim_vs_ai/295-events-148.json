@@ -1,0 +1,37 @@
+{
+    "now": 1457741103,
+    "first": 3135,
+    "count": 1000,
+    "events": [
+        {
+            "participantid": 62,
+            "index": 4133,
+            "name": "Sector",
+            "attributes": {
+                "CountThisLap": 1,
+                "Lap": 2,
+                "CountThisLapTimes": 1,
+                "Sector": 1,
+                "TotalTime": 482656,
+                "SectorTime": 22381
+            },
+            "refid": 23616,
+            "time": 1457741095
+        },
+        {
+            "participantid": 56,
+            "index": 4134,
+            "name": "Sector",
+            "attributes": {
+                "CountThisLap": 1,
+                "Lap": 3,
+                "CountThisLapTimes": 1,
+                "Sector": 2,
+                "TotalTime": 486784,
+                "SectorTime": 46297
+            },
+            "refid": 23616,
+            "time": 1457741099
+        }
+    ]
+}

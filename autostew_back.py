@@ -3,6 +3,11 @@
 import argparse
 import logging
 import sys
+
+import requests
+from sqlalchemy.testing import mock
+
+from autostew_back.gameserver.mocked_api import ApiReplay
 from autostew_back.gameserver.server import Server
 from autostew_back.settings import Settings
 
@@ -11,9 +16,29 @@ epilog = """Don't use --env-init on productive servers!"""
 
 
 def main(args):
+    def start():
+        server = Server(settings, args.env_init, args.api_record)
+        server.poll_loop(args.event_offset)
+
     logging.info("Starting autostew")
-    server = Server(Settings(), args.env_init, args.api_record)
-    server.poll_loop(args.event_offset)
+
+    settings = Settings()
+    try:
+        if args.api_replay:
+            logging.warning("Mocking gameserver API with {}".format(args.api_replay))
+            api = ApiReplay(args.api_replay)
+            settings.event_poll_period = 0
+            settings.full_update_period = 0
+            with mock.patch.object(requests, 'get', api.fake_request):
+                start()
+        else:
+            start()
+    except KeyboardInterrupt:
+        pass
+    except ApiReplay.RecordFinished:
+        logging.info("API record ended")
+
+    logging.info("Autostew finished properly")
     return 0
 
 
@@ -23,6 +48,7 @@ if __name__ == "__main__":
                         help="Initialize environment")
     parser.add_argument('--api-record', nargs='?', const=True, default=False,
                         help="Record API calls")
+    parser.add_argument('--api-replay', default=False, help="Replay API calls from this directory")
     parser.add_argument('--event-offset', help="Set initial event offset")
     args = parser.parse_args()
     if args.env_init:

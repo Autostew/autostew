@@ -45,11 +45,20 @@ class ListSessions(generic.ListView):
 
 class SessionView(generic.DetailView):
     model = Session
-    template_name = 'autostew_web_session/session.html'
+    template_name = 'autostew_web_session/snapshot.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(SessionView, self).get_context_data(**kwargs)
+        # TODO get this as optional parameter, then delete SnapshotView
+        context['sessionsnapshot'] = context['object'].current_snapshot
+        return context
 
 
 class SnapshotView(generic.DetailView):
     model = SessionSnapshot
     template_name = 'autostew_web_session/snapshot.html'
 
-
+    def get_context_data(self, **kwargs):
+        context = super(SnapshotView, self).get_context_data(**kwargs)
+        context['session'] = context['object'].session
+        return context

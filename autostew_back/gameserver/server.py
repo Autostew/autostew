@@ -104,6 +104,7 @@ class Server:
         return self.settings.setup_rotation[self._setup_index].name
 
     def poll_loop(self, event_offset=None, only_one_run=False):
+        logging.info("Entering event loop")
         if event_offset is None:
             self.api.reset_event_offset()
         else:

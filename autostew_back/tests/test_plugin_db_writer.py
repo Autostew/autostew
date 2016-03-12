@@ -1,18 +1,17 @@
-import json
 from unittest import mock
 
 import requests
 from django.test import TestCase
 
 from autostew_back.gameserver.member import MemberLoadState, MemberState
+from autostew_back.gameserver.mocked_api import FakeApi
 from autostew_back.gameserver.participant import ParticipantState
 from autostew_back.gameserver.server import Server as DServer, UnmetPluginDependency
 from autostew_back.plugins import db_enum_writer, db, db_writer
-from autostew_back.tests.mocks import FakeApi
 from autostew_back.tests.test_assets.settings_no_plugins import SettingsWithoutPlugins
+from autostew_web_session import models
 from autostew_web_session.models import Session, SessionSetup, Participant, SessionSnapshot, Member, MemberSnapshot, \
     ParticipantSnapshot
-from autostew_web_session import models
 
 
 class TestDBWriter(TestCase):
@@ -296,7 +295,7 @@ class TestDBWriter(TestCase):
         self.assertEqual(m_snap.member, member)
         self.assertEqual(m_snap.snapshot, session_snapshot)
         self.assertEqual(m_snap.still_connected, True)
-        self.assertEqual(m_snap.load_state.name, MemberLoadState.started_race.value)
+        self.assertEqual(m_snap.load_state.name, MemberLoadState.admin_started_race.value)
         self.assertEqual(m_snap.ping, 14)
         self.assertEqual(m_snap.index, 0)
         self.assertEqual(m_snap.state.name, MemberState.connected.value)
@@ -333,7 +332,7 @@ class TestDBWriter(TestCase):
         self.assertEqual(m_snap.member, member)
         self.assertEqual(m_snap.snapshot, session_snapshot)
         self.assertEqual(m_snap.still_connected, True)
-        self.assertEqual(m_snap.load_state.name, MemberLoadState.ready.value)
+        self.assertEqual(m_snap.load_state.name, MemberLoadState.client_ready.value)
         self.assertEqual(m_snap.ping, 73)
         self.assertEqual(m_snap.index, 1)
         self.assertEqual(m_snap.state.name, MemberState.connected.value)

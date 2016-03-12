@@ -5,9 +5,10 @@ from unittest import mock
 
 import requests
 from django.test import TestCase
+
 from autostew_back import setups
+from autostew_back.gameserver.mocked_api import FakeApi
 from autostew_back.gameserver.server import Server
-from autostew_back.tests.mocks import FakeApi
 from autostew_back.tests.test_assets.settings_no_plugins import SettingsWithoutPlugins
 
 

@@ -4,13 +4,13 @@ from unittest import mock
 import requests
 from django.test import TestCase
 
+from autostew_back.gameserver.mocked_api import FakeApi
 from autostew_back.gameserver.server import Server, UnmetPluginDependency
 from autostew_back.plugins import db_enum_writer, db
-from autostew_back.tests.mocks import FakeApi
 from autostew_back.tests.test_assets.settings_no_plugins import SettingsWithoutPlugins
 from autostew_web_enums.models import FuelUsageDefinition, SessionAttributeDefinition, MemberAttributeDefinition, \
     ParticipantAttributeDefinition
-from autostew_web_session.models import VehicleClass, Vehicle, Livery, Track
+from autostew_web_session.models import VehicleClass, Vehicle, Track
 
 
 class TestEnumWriter(TestCase):

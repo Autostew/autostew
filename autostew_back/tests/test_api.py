@@ -1,11 +1,10 @@
-import json
 from unittest import mock
 
 import requests
 from django.test import TestCase
 
 from autostew_back.gameserver.api import ApiCaller
-from autostew_back.tests.mocks import MockedServer, FakeApi
+from autostew_back.gameserver.mocked_api import MockedServer, FakeApi
 
 
 class TestApi(TestCase):

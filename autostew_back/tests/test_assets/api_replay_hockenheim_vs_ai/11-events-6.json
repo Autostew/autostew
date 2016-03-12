@@ -1,0 +1,34 @@
+{
+    "now": 1457739682,
+    "first": 2090,
+    "count": 1000,
+    "events": [
+        {
+            "name": "StateChanged",
+            "attributes": {
+                "PreviousState": "Lobby",
+                "NewState": "Loading"
+            },
+            "index": 3088,
+            "time": 1457739679
+        },
+        {
+            "name": "SessionSetup",
+            "attributes": {
+                "Race1Length": 15,
+                "Practice2Length": 0,
+                "Flags": 6947865,
+                "Practice1Length": 15,
+                "QualifyLength": 15,
+                "TrackId": 1695182971,
+                "WarmupLength": 0,
+                "MaxPlayers": 8,
+                "Race2Length": 0,
+                "GameMode": -1958878043,
+                "GridSize": 24
+            },
+            "index": 3089,
+            "time": 1457739679
+        }
+    ]
+}
