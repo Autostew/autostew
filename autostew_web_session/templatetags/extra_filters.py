@@ -17,14 +17,20 @@ def milli_to_nicetime(value):
 
 @register.filter
 def temp(value):
+    if not value:
+        return 0
     return "{:.1f}".format(value/1000)
 
 
 @register.filter
 def pressure(value):
+    if not value:
+        return 0
     return "{:.0f}".format(value/100)
 
 
 @register.filter
 def percent(value):
+    if not value:
+        return 0
     return "{:.0f}".format(value/10)

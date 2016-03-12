@@ -10,11 +10,11 @@
                 {% if session.running %}in progress{% endif %}
             </h2>
             <h4>{% if session.setup.force_identical_vehicles %}
-                Vehicle: {{ session.setup.vehicle.name }}
+                {{ session.setup.vehicle.name }}
             {% elif session.setup.force_same_vehicle_class %}
-                Class: {{ session.setup.vehicle_class.name }}
+                {{ session.setup.vehicle_class.name }}
             {% else %}
-                No vehicle or class restriction
+                No vehicle restriction
             {% endif %}</h4>
 
             {% if session.setup.server_controls_setup %}Server-controlled{% else %}Player-controlled{% endif %}<br>

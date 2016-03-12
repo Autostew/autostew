@@ -10,7 +10,7 @@ class ApiCaller:
     class ApiResultNotOk(Exception):
         pass
 
-    def __init__(self, server, test_connection=True, show_api_definition=True, record_destination=None):
+    def __init__(self, server, test_connection=True, show_api_definition=False, record_destination=None):
         self.server = server
         self.event_offset = 0
         self.record_destination = record_destination
