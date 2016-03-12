@@ -38,10 +38,12 @@ def init(server: DServer):
 def event(server: DServer, event: (BaseEvent, ParticipantEvent)):
     global current_session
 
+    # Creates snapshot and RaceLapSnapshot on each lap in the race by the leader
     if event.type == EventType.lap and event.race_position == 1 and server.session.session_stage.get_nice() == SessionStage.race1 and event.lap > 0:
         snapshot = _make_snapshot(server, current_session)
         RaceLapSnapshot(lap=event.lap, snapshot=snapshot, session=current_session).save(True)
 
+    # Stores each lap
     if event.type == EventType.lap and event.lap > 0:
         Lap(
             session=current_session,
@@ -57,6 +59,7 @@ def event(server: DServer, event: (BaseEvent, ParticipantEvent)):
             distance_travelled=event.distance_travelled,
         ).save(True)
 
+    # Stores each sector
     if event.type == EventType.sector and event.lap > 0:
         Sector(
             session=current_session,
@@ -68,18 +71,31 @@ def event(server: DServer, event: (BaseEvent, ParticipantEvent)):
             sector_time=td_to_milli(event.sector_time),
         ).save(True)
 
-    if event.type == EventType.participant_created:
-        _create_participant(current_session, event.participant)
+    if event.type == EventType.results:
+        pass  # TODO
 
+    # Creates or updates participant
+    # Creating the participants when the session starts is not enough, as at that point not all information may be there
+    if event.type == EventType.participant_created:
+        participant = _create_participant(current_session, event.participant)
+        participant.name = event.name
+        participant.is_ai = not event.is_player
+        participant.vehicle = Vehicle.objects.get(ingame_id=event.vehicle)
+        participant.livery = Livery.objects.get(id_for_vehicle=event.livery, vehicle__ingame_id=event.vehicle)
+        participant.save()
+
+    # Destroy a participant
     if event.type == EventType.participant_destroyed:
         participant = Participant.objects.get(ingame_id=event.participant.id.get(), session=current_session)
         participant.still_connected = False
         participant.save()
 
+    # Creates a member
     if event.type == EventType.authenticated:
         if current_session is not None:
             _create_member(current_session, event.member)
 
+    # Destroys a member
     if event.type == EventType.player_left:
         try:
             member = Member.objects.get(refid=event.refid, session=current_session)
@@ -88,9 +104,12 @@ def event(server: DServer, event: (BaseEvent, ParticipantEvent)):
         except Member.DoesNotExist:
             pass
 
+    # Destroys the session
     if event.type == EventType.session_destroyed:
         _close_current_session()
 
+    # When session enters lobby, destroys current session if any and creates a new one.
+    # When session enters track, makes snapshot
     if event.type == EventType.state_changed:
         if event.new_state == SessionState.lobby:
             if current_session is not None:
@@ -100,6 +119,7 @@ def event(server: DServer, event: (BaseEvent, ParticipantEvent)):
             current_session.starting_snapshot_to_track = _make_snapshot(server, current_session)
             current_session.save()
 
+    # Create stage starting snapshots
     if event.type == EventType.stage_changed:
         snapshot = _make_snapshot(server, current_session)
         if event.new_stage == SessionStage.practice1:
@@ -113,14 +133,6 @@ def event(server: DServer, event: (BaseEvent, ParticipantEvent)):
         if event.new_stage == SessionStage.race1:
             current_session.starting_snapshot_race = snapshot
         current_session.save()
-
-    if event.type == EventType.participant_created:
-        participant = Participant.objects.get(session=current_session, ingame_id=event.participant_id)
-        participant.name = event.name
-        participant.is_ai = not event.is_player
-        participant.vehicle = Vehicle.objects.get(ingame_id=event.vehicle)
-        participant.livery = Livery.objects.get(id_for_vehicle=event.livery, vehicle__ingame_id=event.vehicle)
-        participant.save()
 
 
 def _close_current_session():
