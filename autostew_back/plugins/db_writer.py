@@ -1,3 +1,5 @@
+import logging
+
 from autostew_back.gameserver.event import EventType, BaseEvent, ParticipantEvent
 from autostew_back.gameserver.member import MemberFlags, Member as SessionMember
 from autostew_back.gameserver.participant import Participant as SessionParticipant
@@ -94,6 +96,9 @@ def event(server: DServer, event: (BaseEvent, ParticipantEvent)):
             if current_session is not None:
                 _close_current_session()
             current_session = _create_session(server, server_in_db)
+        if event.new_state == SessionState.race:
+            current_session.starting_snapshot_to_track = _make_snapshot(server, current_session)
+            current_session.save()
 
     if event.type == EventType.stage_changed:
         snapshot = _make_snapshot(server, current_session)
@@ -108,6 +113,14 @@ def event(server: DServer, event: (BaseEvent, ParticipantEvent)):
         if event.new_stage == SessionStage.race1:
             current_session.starting_snapshot_race = snapshot
         current_session.save()
+
+    if event.type == EventType.participant_created:
+        participant = Participant.objects.get(session=current_session, ingame_id=event.participant_id)
+        participant.name = event.name
+        participant.is_ai = not event.is_player
+        participant.vehicle = Vehicle.objects.get(ingame_id=event.vehicle)
+        participant.livery = Livery.objects.get(id_for_vehicle=event.livery, vehicle__ingame_id=event.vehicle)
+        participant.save()
 
 
 def _close_current_session():
@@ -234,24 +247,29 @@ def _create_member(session: Session, member: SessionMember) -> Member:
 
 
 def _create_participant(session: Session, participant: SessionParticipant) -> Participant:
-    vehicle = Vehicle.objects.get(ingame_id=participant.vehicle.get()) if participant.vehicle.get() is not None else None
-    livery = Livery.objects.get(id_for_vehicle=participant.livery.get(), vehicle=vehicle) if participant.livery.get() is not None else None
-    participant = Participant(
-        member=Member.objects.get(refid=participant.refid.get(), session=session) if participant.is_player.get() else None,
-        session=session,
-        still_connected=True,
-        ingame_id=participant.id.get(),
-        refid=participant.refid.get(),
-        name=participant.name.get(),
-        is_ai=not participant.is_player.get(),
-        vehicle=vehicle,
-        livery=livery,
-    )
-    participant.save(True)
+    member = Member.objects.get(refid=participant.refid.get(), session=session) if participant.is_player.get() else None
+    try:
+        participant = Participant.objects.get(session=session, ingame_id=participant.id.get(), member=member)
+    except Participant.DoesNotExist:
+        vehicle = Vehicle.objects.get(ingame_id=participant.vehicle.get()) if participant.vehicle.get() is not None else None
+        livery = Livery.objects.get(id_for_vehicle=participant.livery.get(), vehicle=vehicle) if participant.livery.get() is not None else None
+        participant = Participant(
+            member=member,
+            session=session,
+            still_connected=True,
+            ingame_id=participant.id.get(),
+            refid=participant.refid.get(),
+            name=participant.name.get(),
+            is_ai=not participant.is_player.get(),
+            vehicle=vehicle,
+            livery=livery,
+        )
+        participant.save(True)
     return participant
 
 
 def _make_snapshot(server: DServer, session: Session) -> SessionSnapshot:
+    logging.info("Creating session snapshot")
     session_snapshot = SessionSnapshot(
         session=session,
         session_state=models.SessionState.objects.get(name=server.session.session_state.get() if server.session.session_state.get() else None),
@@ -297,10 +315,13 @@ def _create_participant_snapshot(
         session: Session,
         session_snapshot: SessionSnapshot
 ) -> ParticipantSnapshot:
-    if participant.is_player.get():
-        parent = Participant.objects.get(ingame_id=participant.id.get(), member__refid=participant.refid.get(), member__session=session)
-    else:
-        parent = Participant.objects.get(ingame_id=participant.id.get(), session=session)
+    try:
+        if participant.is_player.get():
+            parent = Participant.objects.get(ingame_id=participant.id.get(), member__refid=participant.refid.get(), member__session=session)
+        else:
+            parent = Participant.objects.get(ingame_id=participant.id.get(), session=session)
+    except Participant.DoesNotExist:
+        parent = _create_participant(session, participant)
     participant_snapshot = ParticipantSnapshot(
         snapshot=session_snapshot,
         participant=parent,
