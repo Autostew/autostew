@@ -4,11 +4,11 @@
 {% block content %}
     <div class="row">
         <div class="col-xs-4 col-sm-4 placeholder">
-            <h2>
+            <h3>
                 Race
                 {% if session.planned %}(planned){% endif %}
                 {% if session.running %}in progress{% endif %}
-            </h2>
+            </h3>
             <h4>{% if session.setup.force_identical_vehicles %}
                 {{ session.setup.vehicle.name }}
             {% elif session.setup.force_same_vehicle_class %}
@@ -29,7 +29,7 @@
             {{ sessionsnapshot.current_hour }}:{{ sessionsnapshot.current_minute }}
         </div>
         <div class="col-xs-4 col-sm-4 placeholder">
-            <h1>{{ sessionsnapshot.session_stage.name|upper }}</h1>
+            <h2>{{ sessionsnapshot.session_stage.name|upper }}</h2>
             {% if session.setup.practice1_length %}{{ session.setup.practice1_length }} minutes practice<br>{% endif %}
             {% if session.setup.practice2_length %}{{ session.setup.practice2_length }} minutes practice<br>{% endif %}
             {% if session.setup.qualify_length %}{{ session.setup.qualify_length }} minutes qualifying<br>{% endif %}
@@ -38,16 +38,52 @@
             {% if session.setup.enforced_pitstop %}Mandatory pitstop{% endif %}
         </div>
         <div class="col-xs-4 col-sm-4 placeholder">
-            <h3>Navigate</h3>
+            <h4></h4>
             {% for snapshot in session.sessionsnapshot_set.all %}
                 <a href="{% url 'session:snapshot' snapshot.id %}">{{ snapshot.id }}</a> --
             {% endfor %}
+            <br>
+            Go to lap:
+            {% for lap in session.racelapsnapshot_set.all %}
+                <a href="{% url 'session:snapshot' lap.snapshot.id %}">{{ lap.lap }}</a> --
+            {% endfor %}
+            <br>
+            {% if session.current_snapshot %}
+                <a href="{% url 'session:snapshot' session.current_snapshot.id %}">Latest</a><br>
+            {% endif %}
+            {% if session.first_snapshot %}
+                <a href="{% url 'session:snapshot' session.first_snapshot.id %}">First</a><br>
+            {% endif %}
+            {% if session.ending_snapshot_race %}
+                <a href="{% url 'session:snapshot' session.ending_snapshot_race.id %}">Race end</a><br>
+            {% endif %}
+            {% if session.starting_snapshot_race %}
+                <a href="{% url 'session:snapshot' session.starting_snapshot_race.id %}">Race start</a><br>
+            {% endif %}
+            {% if session.starting_snapshot_practice1 %}
+                <a href="{% url 'session:snapshot' session.starting_snapshot_practice1.id %}">Practice start</a><br>
+            {% endif %}
+            {% if session.starting_snapshot_practice2 %}
+                <a href="{% url 'session:snapshot' session.starting_snapshot_practice2.id %}">Practice 2 start</a><br>
+            {% endif %}
+            {% if session.starting_snapshot_qualifying %}
+                <a href="{% url 'session:snapshot' session.starting_snapshot_qualifying.id %}">Qualifying start</a><br>
+            {% endif %}
+            {% if session.starting_snapshot_lobby %}
+                <a href="{% url 'session:snapshot' session.starting_snapshot_qualifying.id %}">Lobby start</a><br>
+            {% endif %}
+            {% if session.starting_snapshot_warmup %}
+                <a href="{% url 'session:snapshot' session.starting_snapshot_warmup.id %}">Lobby start</a><br>
+            {% endif %}
+            {% if session.starting_snapshot_to_track %}
+                <a href="{% url 'session:snapshot' session.starting_snapshot_to_track.id %}">Day start</a><br>
+            {% endif %}
         </div>
     </div>
 
     <div class="row">
         <div class="col-xs-4 col-sm-4 placeholder">
-            <h2>{{sessionsnapshot.session.setup.track.name}}</h2>
+            <h3>{{sessionsnapshot.session.setup.track.name}}</h3>
             Weather (x{{ session.setup.weather_progression }}):
             {% if session.setup.weather_slots > 0 %}{{ session.setup.weather_1.name }}{% endif %}
             {% if session.setup.weather_slots > 1 %}{{ session.setup.weather_2.name }}{% endif %}
@@ -76,7 +112,7 @@
             {% if session.setup.ghost_griefers %}ghostgriefers{% else %}noghost{% endif %}
         </div>
         <div class="col-xs-4 col-sm-4 placeholder">
-            <h2></h2>
+            <h3></h3>
             {% if session.setup.rolling_starts %}Rolling start<br>{% endif %}
             {{ session.setup.damage.name|title }} damage<br>
             {{ session.setup.tire_wear.name|title }} tire wear<br>
