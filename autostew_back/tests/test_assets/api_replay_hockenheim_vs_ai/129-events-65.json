@@ -1,0 +1,114 @@
+{
+    "now": 1457740273,
+    "first": 2524,
+    "count": 1000,
+    "events": [
+        {
+            "participantid": 65,
+            "index": 3517,
+            "name": "Sector",
+            "attributes": {
+                "CountThisLap": 1,
+                "Lap": 4,
+                "CountThisLapTimes": 1,
+                "Sector": 1,
+                "TotalTime": 570932,
+                "SectorTime": 21915
+            },
+            "refid": 23616,
+            "time": 1457740263
+        },
+        {
+            "participantid": 68,
+            "index": 3518,
+            "name": "Sector",
+            "attributes": {
+                "CountThisLap": 1,
+                "Lap": 4,
+                "CountThisLapTimes": 1,
+                "Sector": 1,
+                "TotalTime": 571773,
+                "SectorTime": 21893
+            },
+            "refid": 23616,
+            "time": 1457740264
+        },
+        {
+            "participantid": 70,
+            "index": 3519,
+            "name": "Sector",
+            "attributes": {
+                "CountThisLap": 1,
+                "Lap": 4,
+                "CountThisLapTimes": 1,
+                "Sector": 1,
+                "TotalTime": 572585,
+                "SectorTime": 39966
+            },
+            "refid": 23616,
+            "time": 1457740264
+        },
+        {
+            "participantid": 64,
+            "index": 3520,
+            "name": "Sector",
+            "attributes": {
+                "CountThisLap": 1,
+                "Lap": 3,
+                "CountThisLapTimes": 1,
+                "Sector": 0,
+                "TotalTime": 574613,
+                "SectorTime": 31748
+            },
+            "refid": 23616,
+            "time": 1457740266
+        },
+        {
+            "participantid": 64,
+            "index": 3521,
+            "name": "Lap",
+            "attributes": {
+                "Sector1Time": 22138,
+                "Sector3Time": 31748,
+                "DistanceTravelled": 4532,
+                "Lap": 3,
+                "CountThisLapTimes": 1,
+                "RacePosition": 16,
+                "LapTime": 100503,
+                "Sector2Time": 46617
+            },
+            "refid": 23616,
+            "time": 1457740266
+        },
+        {
+            "participantid": 67,
+            "index": 3522,
+            "name": "Sector",
+            "attributes": {
+                "CountThisLap": 1,
+                "Lap": 4,
+                "CountThisLapTimes": 1,
+                "Sector": 2,
+                "TotalTime": 579591,
+                "SectorTime": 46576
+            },
+            "refid": 23616,
+            "time": 1457740271
+        },
+        {
+            "participantid": 58,
+            "index": 3523,
+            "name": "Sector",
+            "attributes": {
+                "CountThisLap": 1,
+                "Lap": 4,
+                "CountThisLapTimes": 1,
+                "Sector": 1,
+                "TotalTime": 580235,
+                "SectorTime": 39584
+            },
+            "refid": 23616,
+            "time": 1457740272
+        }
+    ]
+}

@@ -3,9 +3,9 @@ from unittest import mock
 import requests
 from django.test import TestCase
 
-from autostew_back.gameserver.lists import ListGenerator, ListName
 from autostew_back.gameserver.api import ApiCaller
-from autostew_back.tests.mocks import api_result_ok, MockedRequestsResult, MockedServer
+from autostew_back.gameserver.lists import ListGenerator, ListName
+from autostew_back.gameserver.mocked_api import api_result_ok, MockedRequestsResult, MockedServer
 
 
 class TestLists(TestCase):

@@ -4,12 +4,12 @@ import requests
 from django.test import TestCase
 
 from autostew_back.gameserver.member import MemberLoadState, MemberFlags, MemberState
+from autostew_back.gameserver.mocked_api import FakeApi
 from autostew_back.gameserver.participant import ParticipantState
 from autostew_back.gameserver.server import Server, ServerState
 from autostew_back.gameserver.session import SessionFlags, Privacy, SessionState, SessionStage, SessionPhase
-from autostew_back.tests.mocks import FakeApi
-from autostew_back.tests.test_assets.settings_no_plugins import SettingsWithoutPlugins
 from autostew_back.tests.test_assets import prl_s4_r2_zolder_casual, no_setup
+from autostew_back.tests.test_assets.settings_no_plugins import SettingsWithoutPlugins
 
 
 def status_empty(test_case, server):
@@ -270,7 +270,7 @@ def members_in_quali(test_case, server):
     test_case.assertEqual(member.host.get(), True)
     test_case.assertEqual(member.vehicle.get_nice(), "McLaren 12C GT3")
     test_case.assertEqual(member.vehicle.get(), -1166911988)
-    test_case.assertEqual(member.load_state.get_nice(), MemberLoadState.started_race)
+    test_case.assertEqual(member.load_state.get_nice(), MemberLoadState.admin_started_race)
     test_case.assertEqual(len(member.race_stat_flags.get_flags()), 11)
 
     flags = member.race_stat_flags.get_flags()
@@ -308,7 +308,7 @@ def members_in_quali(test_case, server):
     test_case.assertEqual(member.join_time.get(), 1457268515)
     test_case.assertEqual(member.host.get(), False)
     test_case.assertEqual(member.vehicle.get_nice(), "Aston Martin V12 Vantage GT3")
-    test_case.assertEqual(member.load_state.get_nice(), MemberLoadState.ready)
+    test_case.assertEqual(member.load_state.get_nice(), MemberLoadState.client_ready)
     test_case.assertEqual(len(member.race_stat_flags.get_flags()), 11)
 
     flags = member.race_stat_flags.get_flags()

@@ -83,7 +83,7 @@ class ApiCaller:
             params['refid'] = player_refid
         try:
             return self._call("session/send_chat", params)
-        except ApiResultNotOk:
+        except self.ApiResultNotOk:
             return None
 
     def api_help_parser(self):

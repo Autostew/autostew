@@ -1,0 +1,22 @@
+{
+    "now": 1457741653,
+    "first": 3537,
+    "count": 1000,
+    "events": [
+        {
+            "participantid": 55,
+            "index": 4536,
+            "name": "Sector",
+            "attributes": {
+                "CountThisLap": 1,
+                "Lap": 0,
+                "CountThisLapTimes": 0,
+                "Sector": 2,
+                "TotalTime": 84478,
+                "SectorTime": 47873
+            },
+            "refid": 23616,
+            "time": 1457741646
+        }
+    ]
+}

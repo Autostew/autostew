@@ -39,7 +39,7 @@ def tick(server):
 def event(server: DServer, event: (BaseEvent, ParticipantEvent)):
     global current_session
 
-    if event.type == EventType.lap and event.race_position == 1 and server.session.session_stage == SessionStage.race1 and event.lap > 0:
+    if event.type == EventType.lap and event.race_position == 1 and server.session.session_stage.get_nice() == SessionStage.race1 and event.lap > 0:
         snapshot = _make_snapshot(server, current_session)
         RaceLapSnapshot(lap=event.lap, snapshot=snapshot, session=current_session).save(True)
 
@@ -78,7 +78,8 @@ def event(server: DServer, event: (BaseEvent, ParticipantEvent)):
         participant.save()
 
     if event.type == EventType.authenticated:
-        _create_member(current_session, event.member)
+        if current_session is not None:
+            _create_member(current_session, event.member)
 
     if event.type == EventType.player_left:
         try:
@@ -87,9 +88,6 @@ def event(server: DServer, event: (BaseEvent, ParticipantEvent)):
             member.save()
         except Member.DoesNotExist:
             pass
-
-    if event.type == EventType.session_created:
-        current_session = _create_session(server, server_in_db)
 
     if event.type == EventType.session_destroyed:
         _close_current_session()
