@@ -71,8 +71,27 @@ def event(server: DServer, event: (BaseEvent, ParticipantEvent)):
             sector_time=td_to_milli(event.sector_time),
         ).save(True)
 
+    # Writes results as a new snapshot
     if event.type == EventType.results:
-        pass  # TODO
+        try:
+            result_snapshot = SessionSnapshot.objects.get(
+                is_result=True,
+                session_stage__name=server.session.session_stage.get_nice()
+            )
+        except SessionSnapshot.DoesNotExist:
+            result_snapshot = _make_snapshot(server, current_session)
+            result_snapshot.is_result = True
+
+        participant = ParticipantSnapshot.objects.get(
+            snapshot=result_snapshot,
+            participant__ingame_id=event.participant_id
+        )
+        participant.fastest_lap_time = event.fastest_lap_time
+        participant.lap = event.lap
+        participant.state = ParticipantState.objects.get(name=event.state.value)
+        participant.race_position = event.race_position
+        participant.total_time = event.total_time
+
 
     # Creates or updates participant
     # Creating the participants when the session starts is not enough, as at that point not all information may be there
@@ -284,6 +303,7 @@ def _make_snapshot(server: DServer, session: Session) -> SessionSnapshot:
     logging.info("Creating session snapshot")
     session_snapshot = SessionSnapshot(
         session=session,
+        is_result=False,
         session_state=models.SessionState.objects.get(name=server.session.session_state.get() if server.session.session_state.get() else None),
         session_stage=models.SessionStage.objects.get(name=server.session.session_stage.get()) if server.session.session_stage.get() else None,
         session_phase=models.SessionPhase.objects.get(name=server.session.session_phase.get()) if server.session.session_phase.get() else None,
@@ -357,6 +377,7 @@ def _create_participant_snapshot(
         position_y=participant.position_y.get(),
         position_z=participant.position_z.get(),
         orientation=participant.orientation.get(),
+       total_time=0,
     )
     participant_snapshot.save(True)
     return participant_snapshot

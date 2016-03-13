@@ -3,7 +3,7 @@
 
 {% block content %}
     <div class="row">
-        <div class="col-xs-4 col-sm-4 placeholder">
+        <div class="col-xs-12 col-sm-4 placeholder">
             <h3>
                 Race
                 {% if session.planned %}(planned){% endif %}
@@ -28,7 +28,7 @@
             {{ sessionsnapshot.current_year }}-{{ sessionsnapshot.current_month }}-{{ sessionsnapshot.current_day }}
             {{ sessionsnapshot.current_hour }}:{{ sessionsnapshot.current_minute }}
         </div>
-        <div class="col-xs-4 col-sm-4 placeholder">
+        <div class="col-xs-12 col-sm-4 placeholder" style="text-align: center">
             <h2>{{ sessionsnapshot.session_stage.name|upper }}</h2>
             {% if session.setup.practice1_length %}{{ session.setup.practice1_length }} minutes practice<br>{% endif %}
             {% if session.setup.practice2_length %}{{ session.setup.practice2_length }} minutes practice<br>{% endif %}
@@ -37,8 +37,37 @@
             <b>{{ session.setup.race1_length }} {% if session.setup.timed_race %}minutes{% else %}laps{% endif %} race</b><br>
             {% if session.setup.enforced_pitstop %}Mandatory pitstop{% endif %}
         </div>
-        <div class="col-xs-4 col-sm-4 placeholder">
-            <h4></h4>
+        <div class="col-xs-12 col-sm-4 placeholder" style="text-align: center">
+            <h3>
+                <a class="btn btn-default"><span class="glyphicon glyphicon-triangle-left" aria-hidden="true"></span></a>
+                Navigate
+                <a class="btn btn-default"><span class="glyphicon glyphicon-triangle-right" aria-hidden="true"></span></a>
+            </h3>
+            <p>
+                <a class="btn btn-default">Practice</a>
+                <a class="btn btn-default">Practice 2</a>
+                <a class="btn btn-default">Qualifying</a>
+                <a class="btn btn-default">Warmup</a>
+                <a class="btn btn-primary">Race</a>
+            </p>
+
+            <p>
+                <div class="btn-group">
+                  <button type="button" class="btn btn-default">Lap</button>
+                  <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <span class="caret"></span>
+                    <span class="sr-only">Toggle Dropdown</span>
+                  </button>
+                  <ul class="dropdown-menu">
+                    {% for lap in session.racelapsnapshot_set.all %}
+                        <li><a href="{% url 'session:snapshot' lap.snapshot.id %}">{{ lap.lap }}</a></li>
+                    {% endfor %}
+                  </ul>
+                </div>
+                <a class="btn btn-default">Latest</a>
+            </p>
+
+{% comment %}
             {% for snapshot in session.sessionsnapshot_set.all %}
                 <a href="{% url 'session:snapshot' snapshot.id %}">{{ snapshot.id }}</a> --
             {% endfor %}
@@ -78,11 +107,12 @@
             {% if session.starting_snapshot_to_track %}
                 <a href="{% url 'session:snapshot' session.starting_snapshot_to_track.id %}">Day start</a><br>
             {% endif %}
+{% endcomment %}
         </div>
     </div>
 
     <div class="row">
-        <div class="col-xs-4 col-sm-4 placeholder">
+        <div class="col-xs-12 col-sm-4 placeholder">
             <h3>{{sessionsnapshot.session.setup.track.name}}</h3>
             Weather (x{{ session.setup.weather_progression }}):
             {% if session.setup.weather_slots > 0 %}{{ session.setup.weather_1.name }}{% endif %}
@@ -94,7 +124,7 @@
             Track: {{ sessionsnapshot.temperature_track|temp }}ºC<br>
             Wetness: {{ sessionsnapshot.wetness_avg|percent }}%
         </div>
-        <div class="col-xs-4 col-sm-4 placeholder">
+        <div class="col-xs-12 col-sm-4 placeholder">
             <h3>Aids</h3>
             {% if not session.setup.allow_custom_vehicle_setup %}<p>Default setup only</p>{% endif %}
             Driving aids:
@@ -111,7 +141,7 @@
             {% if session.setup.auto_start_engine %}autoenginestart{% else %}manualenginestart{% endif %}
             {% if session.setup.ghost_griefers %}ghostgriefers{% else %}noghost{% endif %}
         </div>
-        <div class="col-xs-4 col-sm-4 placeholder">
+        <div class="col-xs-12 col-sm-4 placeholder">
             <h3></h3>
             {% if session.setup.rolling_starts %}Rolling start<br>{% endif %}
             {{ session.setup.damage.name|title }} damage<br>
@@ -138,8 +168,11 @@
                         <div style="font-size: 220%; float: left; clear: left; padding-right: 15px">
                             P{{ participant.race_position }}
                         </div>
-                        <b>{{ participant.participant.name }}</b>
-                        {% if participant.participant.is_ai %}<b>(AI{{ session.setup.opponent_difficulty }})</b>{% endif %}
+                        <b>{{ participant.participant.name }}
+                        {% if participant.participant.is_ai %}
+                            <span class="glyphicon glyphicon-cog" aria-hidden="true"></span>{{ session.setup.opponent_difficulty }}
+                        {% endif %}
+                        </b>
                         <br>
                         {{ participant.participant.vehicle.name }}
                     </td>

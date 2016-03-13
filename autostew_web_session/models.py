@@ -148,6 +148,7 @@ class SessionSnapshot(models.Model):
     class Meta:
         ordering = ['timestamp']
     session = models.ForeignKey(Session)
+    is_result = models.BooleanField()
     timestamp = models.DateTimeField(auto_now_add=True)
     session_state = models.ForeignKey("autostew_web_enums.SessionState")
     session_stage = models.ForeignKey("autostew_web_enums.SessionStage")
@@ -255,6 +256,7 @@ class ParticipantSnapshot(models.Model):
     position_y = models.IntegerField()
     position_z = models.IntegerField()
     orientation = models.IntegerField()
+    total_time = models.IntegerField()
 
     def gap(self):
         laps = Lap.objects.filter(participant=self.participant, lap__lte=self.current_lap)
