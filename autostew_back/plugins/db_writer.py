@@ -1,3 +1,4 @@
+import autostew_web_session
 from autostew_back.gameserver.event import EventType, BaseEvent, ParticipantEvent
 from autostew_back.gameserver.member import MemberFlags
 from autostew_back.gameserver.server import ServerState, Server as DServer
@@ -16,6 +17,7 @@ dependencies = [db, db_enum_writer]
 
 current_session = None
 server_in_db = None
+DEFAULT_SESSION_SETUP_NAME = 'default setup'
 
 
 def init(server):
@@ -122,11 +124,9 @@ def _close_current_session():
 
 def _create_session(server, server_in_db):
     flags = server.session.flags.get_flags()
-    setup = None
-    for session_setup in SessionSetup.objects.all():
-        if session_setup.name == 'default setup':
-            setup = _update_session_setup(session_setup, flags, server)
-    if setup is None:
+    try:
+        setup = SessionSetup.objects.get(name=DEFAULT_SESSION_SETUP_NAME)
+    except SessionSetup.DoesNotExist:
         setup = _create_session_setup(flags, server)
     setup.save()
 
@@ -224,9 +224,10 @@ def _update_session_setup(setup: SessionSetup, flags, server):
     setup.track_altitude = server.session.track_altitude.get()
     return setup
 
+
 def _create_session_setup(flags, server):
     return SessionSetup(
-            name='default setup',
+            name=DEFAULT_SESSION_SETUP_NAME,
             server_controls_setup=server.session.server_controls_setup.get(),
             server_controls_track=server.session.server_controls_track.get(),
             server_controls_vehicle_class=server.session.server_controls_vehicle_class.get(),
