@@ -6,6 +6,7 @@ from autostew_back.gameserver.lists import ListName, AttributeItem
 
 
 class ParticipantState(Enum):
+    none = ''
     racing = 'Racing'
     finished = 'Finished'
     dnf = 'DNF'

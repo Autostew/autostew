@@ -1,6 +1,9 @@
 import autostew_web_session
+import logging
+
 from autostew_back.gameserver.event import EventType, BaseEvent, ParticipantEvent
-from autostew_back.gameserver.member import MemberFlags
+from autostew_back.gameserver.member import MemberFlags, Member as SessionMember
+from autostew_back.gameserver.participant import Participant as SessionParticipant
 from autostew_back.gameserver.server import ServerState, Server as DServer
 from autostew_back.gameserver.session import SessionFlags, Privacy, SessionState, SessionStage
 from autostew_back.plugins import db, db_enum_writer
@@ -20,7 +23,7 @@ server_in_db = None
 DEFAULT_SESSION_SETUP_NAME = 'default setup'
 
 
-def init(server):
+def init(server: DServer):
     global current_session
     global server_in_db
     try:
@@ -34,17 +37,15 @@ def init(server):
         current_session = _create_session(server, server_in_db)  # TODO should be _find_current_or_create_session()
 
 
-def tick(server):
-    pass
-
-
 def event(server: DServer, event: (BaseEvent, ParticipantEvent)):
     global current_session
 
+    # Creates snapshot and RaceLapSnapshot on each lap in the race by the leader
     if event.type == EventType.lap and event.race_position == 1 and server.session.session_stage.get_nice() == SessionStage.race1 and event.lap > 0:
         snapshot = _make_snapshot(server, current_session)
         RaceLapSnapshot(lap=event.lap, snapshot=snapshot, session=current_session).save(True)
 
+    # Stores each lap
     if event.type == EventType.lap and event.lap > 0:
         Lap(
             session=current_session,
@@ -60,6 +61,7 @@ def event(server: DServer, event: (BaseEvent, ParticipantEvent)):
             distance_travelled=event.distance_travelled,
         ).save(True)
 
+    # Stores each sector
     if event.type == EventType.sector and event.lap > 0:
         Sector(
             session=current_session,
@@ -71,18 +73,50 @@ def event(server: DServer, event: (BaseEvent, ParticipantEvent)):
             sector_time=td_to_milli(event.sector_time),
         ).save(True)
 
-    if event.type == EventType.participant_created:
-        _create_participant(current_session, event.participant)
+    # Writes results as a new snapshot
+    if event.type == EventType.results:
+        try:
+            result_snapshot = SessionSnapshot.objects.get(
+                is_result=True,
+                session_stage__name=server.session.session_stage.get_nice()
+            )
+        except SessionSnapshot.DoesNotExist:
+            result_snapshot = _make_snapshot(server, current_session)
+            result_snapshot.is_result = True
 
+        participant = ParticipantSnapshot.objects.get(
+            snapshot=result_snapshot,
+            participant__ingame_id=event.participant_id
+        )
+        participant.fastest_lap_time = event.fastest_lap_time
+        participant.lap = event.lap
+        participant.state = ParticipantState.objects.get(name=event.state.value)
+        participant.race_position = event.race_position
+        participant.total_time = event.total_time
+
+
+    # Creates or updates participant
+    # Creating the participants when the session starts is not enough, as at that point not all information may be there
+    if event.type == EventType.participant_created:
+        participant = _create_participant(current_session, event.participant)
+        participant.name = event.name
+        participant.is_ai = not event.is_player
+        participant.vehicle = Vehicle.objects.get(ingame_id=event.vehicle)
+        participant.livery = Livery.objects.get(id_for_vehicle=event.livery, vehicle__ingame_id=event.vehicle)
+        participant.save()
+
+    # Destroy a participant
     if event.type == EventType.participant_destroyed:
         participant = Participant.objects.get(ingame_id=event.participant.id.get(), session=current_session)
         participant.still_connected = False
         participant.save()
 
+    # Creates a member
     if event.type == EventType.authenticated:
         if current_session is not None:
             _create_member(current_session, event.member)
 
+    # Destroys a member
     if event.type == EventType.player_left:
         try:
             member = Member.objects.get(refid=event.refid, session=current_session)
@@ -91,15 +125,22 @@ def event(server: DServer, event: (BaseEvent, ParticipantEvent)):
         except Member.DoesNotExist:
             pass
 
+    # Destroys the session
     if event.type == EventType.session_destroyed:
         _close_current_session()
 
+    # When session enters lobby, destroys current session if any and creates a new one.
+    # When session enters track, makes snapshot
     if event.type == EventType.state_changed:
         if event.new_state == SessionState.lobby:
             if current_session is not None:
                 _close_current_session()
             current_session = _create_session(server, server_in_db)
+        if event.new_state == SessionState.race:
+            current_session.starting_snapshot_to_track = _make_snapshot(server, current_session)
+            current_session.save()
 
+    # Create stage starting snapshots
     if event.type == EventType.stage_changed:
         snapshot = _make_snapshot(server, current_session)
         if event.new_stage == SessionStage.practice1:
@@ -116,13 +157,13 @@ def event(server: DServer, event: (BaseEvent, ParticipantEvent)):
 
 
 def _close_current_session():
-        global current_session
-        current_session.running = False
-        current_session.save()
-        current_session = None
+    global current_session
+    current_session.running = False
+    current_session.save()
+    current_session = None
 
 
-def _create_session(server, server_in_db):
+def _create_session(server: DServer, server_in_db: Server) -> Session:
     flags = server.session.flags.get_flags()
     try:
         setup = SessionSetup.objects.get(name=DEFAULT_SESSION_SETUP_NAME)
@@ -285,7 +326,7 @@ def _create_session_setup(flags, server):
         )
 
 
-def _create_member(session, member):
+def _create_member(session: Session, member: SessionMember) -> Member:
     member_flags = member.race_stat_flags.get_flags()
     vehicle = Vehicle.objects.get(ingame_id=member.vehicle.get()) if member.vehicle.get() is not None else None
     try:
@@ -318,26 +359,33 @@ def _create_member(session, member):
     return member_in_db
 
 
-def _create_participant(session, participant):
-    vehicle = Vehicle.objects.get(ingame_id=participant.vehicle.get()) if participant.vehicle.get() is not None else None
-    livery = Livery.objects.get(id_for_vehicle=participant.livery.get(), vehicle=vehicle) if participant.livery.get() is not None else None
-    participant = Participant(
-        member=Member.objects.get(refid=participant.refid.get(), session=session) if participant.is_player.get() else None,
-        session=session,
-        still_connected=True,
-        ingame_id=participant.id.get(),
-        refid=participant.refid.get(),
-        name=participant.name.get(),
-        is_ai=not participant.is_player.get(),
-        vehicle=vehicle,
-        livery=livery,
-    )
-    participant.save(True)
+def _create_participant(session: Session, participant: SessionParticipant) -> Participant:
+    member = Member.objects.get(refid=participant.refid.get(), session=session) if participant.is_player.get() else None
+    try:
+        participant = Participant.objects.get(session=session, ingame_id=participant.id.get(), member=member)
+    except Participant.DoesNotExist:
+        vehicle = Vehicle.objects.get(ingame_id=participant.vehicle.get()) if participant.vehicle.get() is not None else None
+        livery = Livery.objects.get(id_for_vehicle=participant.livery.get(), vehicle=vehicle) if participant.livery.get() is not None else None
+        participant = Participant(
+            member=member,
+            session=session,
+            still_connected=True,
+            ingame_id=participant.id.get(),
+            refid=participant.refid.get(),
+            name=participant.name.get(),
+            is_ai=not participant.is_player.get(),
+            vehicle=vehicle,
+            livery=livery,
+        )
+        participant.save(True)
+    return participant
 
 
-def _make_snapshot(server, session):
+def _make_snapshot(server: DServer, session: Session) -> SessionSnapshot:
+    logging.info("Creating session snapshot")
     session_snapshot = SessionSnapshot(
         session=session,
+        is_result=False,
         session_state=models.SessionState.objects.get(name=server.session.session_state.get() if server.session.session_state.get() else None),
         session_stage=models.SessionStage.objects.get(name=server.session.session_stage.get()) if server.session.session_stage.get() else None,
         session_phase=models.SessionPhase.objects.get(name=server.session.session_phase.get()) if server.session.session_phase.get() else None,
@@ -366,50 +414,72 @@ def _make_snapshot(server, session):
     session_snapshot.save(True)
 
     for it in server.members.elements:
-        member_snapshot = MemberSnapshot(
-            snapshot=session_snapshot,
-            member=Member.objects.get(refid=it.refid.get(), session=session),
-            still_connected=True,
-            load_state=MemberLoadState.objects.get(name=it.load_state.get()),
-            ping=it.ping.get(),
-            index=it.index.get(),
-            state=MemberState.objects.get(name=it.state.get()),
-            join_time=it.join_time.get(),
-            host=it.host.get(),
-        )
-        member_snapshot.save(True)
+        _create_member_snapshot(it, session, session_snapshot)
 
     for it in server.participants.elements:
-        if it.is_player.get():
-            parent = Participant.objects.get(ingame_id=it.id.get(), member__refid=it.refid.get(), member__session=session)
-        else:
-            parent = Participant.objects.get(ingame_id=it.id.get(), session=session)
-        participant_snapshot = ParticipantSnapshot(
-            snapshot=session_snapshot,
-            participant=parent,
-            still_connected=True,
-            grid_position=it.grid_position.get(),
-            race_position=it.race_position.get(),
-            current_lap=it.current_lap.get(),
-            current_sector=it.current_sector.get(),
-            sector1_time=it.sector1_time.get(),
-            sector2_time=it.sector2_time.get(),
-            sector3_time=it.sector3_time.get(),
-            last_lap_time=it.last_lap_time.get(),
-            fastest_lap_time=it.fastest_lap_time.get(),
-            state=ParticipantState.objects.get(name=it.state.get()),
-            headlights=it.headlights.get(),
-            wipers=it.wipers.get(),
-            speed=it.speed.get(),
-            gear=it.gear.get(),
-            rpm=it.rpm.get(),
-            position_x=it.position_x.get(),
-            position_y=it.position_y.get(),
-            position_z=it.position_z.get(),
-            orientation=it.orientation.get(),
-        )
-        participant_snapshot.save(True)
+        _create_participant_snapshot(it, session, session_snapshot)
 
     session.current_snapshot = session_snapshot
     session.save()
     return session_snapshot
+
+
+def _create_participant_snapshot(
+        participant: SessionParticipant,
+        session: Session,
+        session_snapshot: SessionSnapshot
+) -> ParticipantSnapshot:
+    try:
+        if participant.is_player.get():
+            parent = Participant.objects.get(ingame_id=participant.id.get(), member__refid=participant.refid.get(), member__session=session)
+        else:
+            parent = Participant.objects.get(ingame_id=participant.id.get(), session=session)
+    except Participant.DoesNotExist:
+        parent = _create_participant(session, participant)
+    participant_snapshot = ParticipantSnapshot(
+        snapshot=session_snapshot,
+        participant=parent,
+        still_connected=True,
+        grid_position=participant.grid_position.get(),
+        race_position=participant.race_position.get(),
+        current_lap=participant.current_lap.get(),
+        current_sector=participant.current_sector.get(),
+        sector1_time=participant.sector1_time.get(),
+        sector2_time=participant.sector2_time.get(),
+        sector3_time=participant.sector3_time.get(),
+        last_lap_time=participant.last_lap_time.get(),
+        fastest_lap_time=participant.fastest_lap_time.get(),
+        state=ParticipantState.objects.get(name=participant.state.get()),
+        headlights=participant.headlights.get(),
+        wipers=participant.wipers.get(),
+        speed=participant.speed.get(),
+        gear=participant.gear.get(),
+        rpm=participant.rpm.get(),
+        position_x=participant.position_x.get(),
+        position_y=participant.position_y.get(),
+        position_z=participant.position_z.get(),
+        orientation=participant.orientation.get(),
+       total_time=0,
+    )
+    participant_snapshot.save(True)
+    return participant_snapshot
+
+
+def _create_member_snapshot(
+        member: SessionParticipant,
+        session: Session,
+        session_snapshot: SessionSnapshot
+) -> MemberSnapshot:
+    member_snapshot = MemberSnapshot(
+        snapshot=session_snapshot,
+        member=Member.objects.get(refid=member.refid.get(), session=session),
+        still_connected=True,
+        load_state=MemberLoadState.objects.get(name=member.load_state.get()),
+        ping=member.ping.get(),
+        index=member.index.get(),
+        state=MemberState.objects.get(name=member.state.get()),
+        join_time=member.join_time.get(),
+        host=member.host.get(),
+    )
+    member_snapshot.save(True)
+    return member_snapshot

@@ -18,7 +18,7 @@ epilog = """Don't use --env-init on productive servers!"""
 def main(args):
     def start():
         server = Server(settings, args.env_init, args.api_record)
-        server.poll_loop(args.event_offset)
+        server.poll_loop(event_offset=args.event_offset, one_by_one=args.api_replay_manual)
 
     logging.info("Starting autostew")
 
@@ -49,6 +49,8 @@ if __name__ == "__main__":
     parser.add_argument('--api-record', nargs='?', const=True, default=False,
                         help="Record API calls")
     parser.add_argument('--api-replay', default=False, help="Replay API calls from this directory")
+    parser.add_argument('--api-replay-manual', default=False, action='store_true',
+                        help="On API replay, require keypress for each loop")
     parser.add_argument('--event-offset', help="Set initial event offset")
     args = parser.parse_args()
     if args.env_init:
