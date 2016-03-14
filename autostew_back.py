@@ -5,7 +5,7 @@ import logging
 import sys
 
 import requests
-from sqlalchemy.testing import mock
+from unittest import mock
 
 from autostew_back.gameserver.mocked_api import ApiReplay
 from autostew_back.gameserver.server import Server
