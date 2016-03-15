@@ -1,9 +1,12 @@
 import factory
 
+from autostew_web_session.models import SessionSetup
+from autostew_web_session.tests.factories.enum_factories import *
+
 
 class SessionSetupFactory(factory.django.DjangoModelFactory):
     class Meta:
-        model = 'autostew_web_session.SessionSetup'
+        model = SessionSetup
 
     server_controls_setup = False
     server_controls_track = False
@@ -38,14 +41,14 @@ class SessionSetupFactory(factory.django.DjangoModelFactory):
 
     public = False
     friends_can_join = False
-    damage = models.ForeignKey('autostew_web_enums.DamageDefinition', null=True)
-    tire_wear = models.ForeignKey('autostew_web_enums.TireWearDefinition', null=True)
-    fuel_usage = models.ForeignKey('autostew_web_enums.FuelUsageDefinition', null=True)
-    penalties = models.ForeignKey('autostew_web_enums.PenaltyDefinition', null=True)
-    allowed_views = models.ForeignKey('autostew_web_enums.AllowedViewsDefinition', null=True)
-    track = models.ForeignKey(Track, null=True)
-    vehicle_class = models.ForeignKey(VehicleClass, null=True)
-    vehicle = models.ForeignKey(Vehicle, null=True)
+    damage = factory.SubFactory(DamageFactory)
+    tire_wear = factory.SubFactory(TireWearFactory)
+    fuel_usage = factory.SubFactory(FuelUsageFactory)
+    penalties = factory.SubFactory(PenaltyFactory)
+    allowed_views = factory.SubFactory(AllowedViewsFactory)
+    track = None
+    vehicle_class = None
+    vehicle = None
     date_year = 0
     date_month = 0
     date_day = 0
@@ -54,11 +57,11 @@ class SessionSetupFactory(factory.django.DjangoModelFactory):
     date_progression = 0
     weather_progression = 0
     weather_slots = 0
-    weather_1 = models.ForeignKey('autostew_web_enums.WeatherDefinition', related_name='+', null=True)
-    weather_2 = models.ForeignKey('autostew_web_enums.WeatherDefinition', related_name='+', null=True)
-    weather_3 = models.ForeignKey('autostew_web_enums.WeatherDefinition', related_name='+', null=True)
-    weather_4 = models.ForeignKey('autostew_web_enums.WeatherDefinition', related_name='+', null=True)
-    game_mode = models.ForeignKey('autostew_web_enums.GameModeDefinition', related_name='+', null=True)
+    weather_1 = factory.SubFactory(WeatherFactory)
+    weather_2 = factory.SubFactory(WeatherFactory)
+    weather_3 = factory.SubFactory(WeatherFactory)
+    weather_4 = factory.SubFactory(WeatherFactory)
+    game_mode = factory.SubFactory(WeatherFactory)
     track_latitude = 0
     track_longitude = 0
     track_altitude = 0
