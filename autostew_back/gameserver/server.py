@@ -26,6 +26,7 @@ class ServerState(Enum):
     allocating = "Allocating"
     idle = "Idle"
 
+
 class BreakPluginLoadingException(Exception):
     pass
 
