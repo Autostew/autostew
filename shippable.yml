@@ -5,4 +5,6 @@ python:
   - 3.5
 language: python
 script:
+  - python manage.py makemigrations autostew_web_session autostew_web_enums 
+  - python manage.py migrate
   - python manage.py test
