@@ -1,0 +1,15 @@
+build_image: drydock/u14pytpls:prod
+
+language: python
+
+python:
+  - 3.4
+  - 3.5
+
+before_script: mkdir -p shippable/testresults
+
+script:
+  - python manage.py makemigrations autostew_web_session autostew_web_enums 
+  - python manage.py migrate
+  - nosetests --with-xunit --xunit-file=shippable/testresults/nosetests.xml
+#  - python manage.py test
