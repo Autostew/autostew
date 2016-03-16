@@ -6,7 +6,7 @@ python:
 	- 3.2
 	- 3.3
 	- 3.4
-    - 3.5
+	- 3.5
 	- pypy3
 
 #specify which services you need. This is only valid if you use the default Shippable image for your build
