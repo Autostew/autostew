@@ -1,0 +1,19 @@
+#set your language below
+language: python
+
+#set language version. This is only required if you use the default Shippable image for your build
+python:
+	- 3.2
+	- 3.3
+	- 3.4
+    - 3.5
+	- pypy3
+
+#specify which services you need. This is only valid if you use the default Shippable image for your build
+services:
+
+install:
+	- sudo pip install -r requirements.txt
+
+script:
+	- ./manage.py test
