@@ -95,7 +95,6 @@ def event(server: DServer, event: (BaseEvent, ParticipantEvent)):
         current_stage.result_snapshot = result_snapshot
         current_stage.save()
 
-
     # Creates or updates participant
     # Creating the participants when the session starts is not enough, as at that point not all information may be there
     if event.type == EventType.participant_created:
