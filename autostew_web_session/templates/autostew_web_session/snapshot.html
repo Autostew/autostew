@@ -39,11 +39,28 @@
         </div>
         <div class="col-xs-12 col-sm-4 placeholder" style="text-align: center">
             <h3>
-                <a class="btn btn-default"><span class="glyphicon glyphicon-triangle-left" aria-hidden="true"></span></a>
+                {% if sessionsnapshot.previous_in_session %}
+                    <a class="btn btn-default" href="{% url 'session:snapshot' sessionsnapshot.previous_in_session.id %}">
+                        <span class="glyphicon glyphicon-triangle-left" aria-hidden="true"></span>
+                    </a>
+                {% else %}
+                    <a class="btn btn-default disabled" href="#">
+                        <span class="glyphicon glyphicon-triangle-left" aria-hidden="true"></span>
+                    </a>
+                {% endif %}
                 Navigate
-                <a class="btn btn-default"><span class="glyphicon glyphicon-triangle-right" aria-hidden="true"></span></a>
+                {% if sessionsnapshot.next_in_session %}
+                    <a class="btn btn-default" href="{% url 'session:snapshot' sessionsnapshot.next_in_session.id %}">
+                        <span class="glyphicon glyphicon-triangle-right" aria-hidden="true"></span>
+                    </a>
+                {% else %}
+                    <a class="btn btn-default disabled" href="#">
+                        <span class="glyphicon glyphicon-triangle-right" aria-hidden="true"></span>
+                    </a>
+                {% endif %}
             </h3>
             <p>
+
                 <a class="btn btn-default">Practice</a>
                 <a class="btn btn-default">Practice 2</a>
                 <a class="btn btn-default">Qualifying</a>
@@ -64,50 +81,11 @@
                     {% endfor %}
                   </ul>
                 </div>
-                <a class="btn btn-default">Latest</a>
+                <a class="btn btn-{% if sessionsnapshot == session.current_snapshot %}primary{% else %}default{% endif %}"
+                   href="{% url 'session:session' session.id %}">
+                    Latest
+                </a>
             </p>
-
-{% comment %}
-            {% for snapshot in session.sessionsnapshot_set.all %}
-                <a href="{% url 'session:snapshot' snapshot.id %}">{{ snapshot.id }}</a> --
-            {% endfor %}
-            <br>
-            Go to lap:
-            {% for lap in session.racelapsnapshot_set.all %}
-                <a href="{% url 'session:snapshot' lap.snapshot.id %}">{{ lap.lap }}</a> --
-            {% endfor %}
-            <br>
-            {% if session.current_snapshot %}
-                <a href="{% url 'session:snapshot' session.current_snapshot.id %}">Latest</a><br>
-            {% endif %}
-            {% if session.first_snapshot %}
-                <a href="{% url 'session:snapshot' session.first_snapshot.id %}">First</a><br>
-            {% endif %}
-            {% if session.ending_snapshot_race %}
-                <a href="{% url 'session:snapshot' session.ending_snapshot_race.id %}">Race end</a><br>
-            {% endif %}
-            {% if session.starting_snapshot_race %}
-                <a href="{% url 'session:snapshot' session.starting_snapshot_race.id %}">Race start</a><br>
-            {% endif %}
-            {% if session.starting_snapshot_practice1 %}
-                <a href="{% url 'session:snapshot' session.starting_snapshot_practice1.id %}">Practice start</a><br>
-            {% endif %}
-            {% if session.starting_snapshot_practice2 %}
-                <a href="{% url 'session:snapshot' session.starting_snapshot_practice2.id %}">Practice 2 start</a><br>
-            {% endif %}
-            {% if session.starting_snapshot_qualifying %}
-                <a href="{% url 'session:snapshot' session.starting_snapshot_qualifying.id %}">Qualifying start</a><br>
-            {% endif %}
-            {% if session.starting_snapshot_lobby %}
-                <a href="{% url 'session:snapshot' session.starting_snapshot_qualifying.id %}">Lobby start</a><br>
-            {% endif %}
-            {% if session.starting_snapshot_warmup %}
-                <a href="{% url 'session:snapshot' session.starting_snapshot_warmup.id %}">Lobby start</a><br>
-            {% endif %}
-            {% if session.starting_snapshot_to_track %}
-                <a href="{% url 'session:snapshot' session.starting_snapshot_to_track.id %}">Day start</a><br>
-            {% endif %}
-{% endcomment %}
         </div>
     </div>
 

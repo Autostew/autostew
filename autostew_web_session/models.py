@@ -1,7 +1,7 @@
 from django.db import models
-from django.db.models.aggregates import Sum
+from django.db.models.aggregates import Sum, Max, Min
 
-from autostew_web_enums.models import MemberLoadState, MemberState, ParticipantState, SessionStage
+from autostew_web_enums import models as enum_models
 
 
 class Track(models.Model):
@@ -141,12 +141,6 @@ class Session(models.Model):
     current_snapshot = models.ForeignKey("SessionSnapshot", null=True, related_name='+')
     starting_snapshot_lobby = models.ForeignKey("SessionSnapshot", null=True, related_name='+')
     starting_snapshot_to_track = models.ForeignKey("SessionSnapshot", null=True, related_name='+')
-    starting_snapshot_practice1 = models.ForeignKey("SessionSnapshot", null=True, related_name='+')
-    starting_snapshot_practice2 = models.ForeignKey("SessionSnapshot", null=True, related_name='+')
-    starting_snapshot_qualifying = models.ForeignKey("SessionSnapshot", null=True, related_name='+')
-    starting_snapshot_warmup = models.ForeignKey("SessionSnapshot", null=True, related_name='+')
-    starting_snapshot_race = models.ForeignKey("SessionSnapshot", null=True, related_name='+')
-    ending_snapshot_race = models.ForeignKey("SessionSnapshot", null=True, related_name='+')
 
 
 class SessionSnapshot(models.Model):
@@ -179,6 +173,41 @@ class SessionSnapshot(models.Model):
     temperature_ambient = models.IntegerField()
     temperature_track = models.IntegerField()
     air_pressure = models.IntegerField()
+
+    @property
+    def previous_in_session(self):
+        try:
+            previous_timestamp = SessionSnapshot.objects.filter(
+                timestamp__lt=self.timestamp,
+                session=self.session,
+            ).aggregate(Max('timestamp'))['timestamp__max']
+            return SessionSnapshot.objects.get(
+                timestamp=previous_timestamp,
+                session=self.session
+            )
+        except self.DoesNotExist:
+            return None
+
+    @property
+    def next_in_session(self):
+        try:
+            next_timestamp = SessionSnapshot.objects.filter(
+                timestamp__gt=self.timestamp,
+                session=self.session,
+            ).aggregate(Min('timestamp'))['timestamp__min']
+            return SessionSnapshot.objects.get(
+                timestamp=next_timestamp,
+                session=self.session
+            )
+        except self.DoesNotExist:
+            return None
+
+
+class SessionStage(models.Model):
+    session = models.ForeignKey(Session)
+    stage = models.ForeignKey(enum_models.SessionStage)
+    starting_snapshot = models.ForeignKey(SessionSnapshot, related_name='starting_of')
+    result_snapshot = models.ForeignKey(SessionSnapshot, related_name='result_of', null=True)
 
 
 class Member(models.Model):
@@ -214,10 +243,10 @@ class MemberSnapshot(models.Model):
     member = models.ForeignKey(Member)
     snapshot = models.ForeignKey(SessionSnapshot)
     still_connected = models.BooleanField()
-    load_state = models.ForeignKey(MemberLoadState)
+    load_state = models.ForeignKey(enum_models.MemberLoadState)
     ping = models.IntegerField()
     index = models.IntegerField()
-    state = models.ForeignKey(MemberState)
+    state = models.ForeignKey(enum_models.MemberState)
     join_time = models.IntegerField()
     host = models.BooleanField()
 
@@ -251,7 +280,7 @@ class ParticipantSnapshot(models.Model):
     sector3_time = models.IntegerField()
     last_lap_time = models.IntegerField()
     fastest_lap_time = models.IntegerField()
-    state = models.ForeignKey(ParticipantState)
+    state = models.ForeignKey(enum_models.ParticipantState)
     headlights = models.BooleanField()
     wipers = models.BooleanField()
     speed = models.IntegerField()
@@ -297,7 +326,7 @@ class Lap(models.Model):
     class Meta:
         ordering = ['lap']
     session = models.ForeignKey(Session)
-    session_stage = models.ForeignKey(SessionStage)
+    session_stage = models.ForeignKey(enum_models.SessionStage)
     participant = models.ForeignKey(Participant)
     lap = models.IntegerField()
     count_this_lap = models.BooleanField()
@@ -313,7 +342,7 @@ class Sector(models.Model):
     class Meta:
         ordering = ['lap', 'sector']
     session = models.ForeignKey(Session)
-    session_stage = models.ForeignKey(SessionStage)
+    session_stage = models.ForeignKey(enum_models.SessionStage)
     participant = models.ForeignKey(Participant)
     lap = models.IntegerField()
     count_this_lap = models.BooleanField()
