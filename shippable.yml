@@ -11,7 +11,7 @@ before_script: mkdir -p shippable/testresults
 script:
   - python manage.py makemigrations autostew_web_session autostew_web_enums 
   - python manage.py migrate
-  - coverage run `python manage.py test`
+  - coverage run ./manage.py test
   - coverage xml -o shippable/codecoverage/coverage.xml
 
 notifications:
