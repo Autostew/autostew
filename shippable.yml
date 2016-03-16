@@ -1,19 +1,10 @@
-#set your language below
-language: python
-
-#set language version. This is only required if you use the default Shippable image for your build
+build_image: drydock/u12pytpls:prod
 python:
-	- 3.2
-	- 3.3
-	- 3.4
-	- 3.5
-	- pypy3
-
-#specify which services you need. This is only valid if you use the default Shippable image for your build
-services:
-
-install:
-	- sudo pip install -r requirements.txt
-
+  - 3.2
+  - 3.3
+  - 3.4
+  - 3.5
+  - pypy3
+language: python
 script:
-	- ./manage.py test
+  - python manage.py test
