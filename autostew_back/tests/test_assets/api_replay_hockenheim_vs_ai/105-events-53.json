@@ -1,0 +1,69 @@
+{
+    "now": 1457740152,
+    "first": 2426,
+    "count": 1000,
+    "events": [
+        {
+            "participantid": 58,
+            "index": 3422,
+            "name": "Sector",
+            "attributes": {
+                "CountThisLap": 1,
+                "Lap": 3,
+                "CountThisLapTimes": 1,
+                "Sector": 1,
+                "TotalTime": 456762,
+                "SectorTime": 22167
+            },
+            "refid": 23616,
+            "time": 1457740149
+        },
+        {
+            "participantid": 60,
+            "index": 3423,
+            "name": "Sector",
+            "attributes": {
+                "CountThisLap": 1,
+                "Lap": 2,
+                "CountThisLapTimes": 1,
+                "Sector": 0,
+                "TotalTime": 459088,
+                "SectorTime": 31728
+            },
+            "refid": 23616,
+            "time": 1457740151
+        },
+        {
+            "participantid": 60,
+            "index": 3424,
+            "name": "Lap",
+            "attributes": {
+                "Sector1Time": 39172,
+                "Sector3Time": 31728,
+                "DistanceTravelled": 4512,
+                "Lap": 2,
+                "CountThisLapTimes": 1,
+                "RacePosition": 12,
+                "LapTime": 117255,
+                "Sector2Time": 46356
+            },
+            "refid": 23616,
+            "time": 1457740151
+        },
+        {
+            "participantid": 69,
+            "index": 3425,
+            "name": "Sector",
+            "attributes": {
+                "CountThisLap": 1,
+                "Lap": 3,
+                "CountThisLapTimes": 1,
+                "Sector": 1,
+                "TotalTime": 459251,
+                "SectorTime": 22066
+            },
+            "refid": 23616,
+            "time": 1457740151
+        }
+    ]
+}

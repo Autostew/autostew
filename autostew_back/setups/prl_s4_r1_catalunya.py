@@ -1,6 +1,6 @@
 from autostew_back.gameserver.session import Privacy, SessionFlags
 
-name = 'Precision Racing League Season 4 Round 1 - Catalunya'
+name = 'Precision Racing League Season 4 Round 1 - Catalunya GP'
 
 def make_setup(server):
     server.session.privacy.set_to_game(Privacy.public)

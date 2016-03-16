@@ -1,0 +1,82 @@
+{
+    "now": 1457740793,
+    "first": 2908,
+    "count": 1000,
+    "events": [
+        {
+            "participantid": 67,
+            "index": 3903,
+            "name": "Sector",
+            "attributes": {
+                "CountThisLap": 1,
+                "Lap": 0,
+                "CountThisLapTimes": 1,
+                "Sector": 1,
+                "TotalTime": 172557,
+                "SectorTime": 22281
+            },
+            "refid": 23616,
+            "time": 1457740784
+        },
+        {
+            "participantid": 69,
+            "index": 3904,
+            "name": "Sector",
+            "attributes": {
+                "CountThisLap": 1,
+                "Lap": 0,
+                "CountThisLapTimes": 1,
+                "Sector": 1,
+                "TotalTime": 174073,
+                "SectorTime": 22084
+            },
+            "refid": 23616,
+            "time": 1457740786
+        },
+        {
+            "participantid": 68,
+            "index": 3905,
+            "name": "Sector",
+            "attributes": {
+                "CountThisLap": 1,
+                "Lap": 0,
+                "CountThisLapTimes": 1,
+                "Sector": 2,
+                "TotalTime": 174615,
+                "SectorTime": 45932
+            },
+            "refid": 23616,
+            "time": 1457740786
+        },
+        {
+            "participantid": 57,
+            "index": 3906,
+            "name": "Sector",
+            "attributes": {
+                "CountThisLap": 1,
+                "Lap": 0,
+                "CountThisLapTimes": 1,
+                "Sector": 2,
+                "TotalTime": 177119,
+                "SectorTime": 46260
+            },
+            "refid": 23616,
+            "time": 1457740789
+        },
+        {
+            "participantid": 71,
+            "index": 3907,
+            "name": "Sector",
+            "attributes": {
+                "CountThisLap": 1,
+                "Lap": 0,
+                "CountThisLapTimes": 1,
+                "Sector": 2,
+                "TotalTime": 179492,
+                "SectorTime": 46298
+            },
+            "refid": 23616,
+            "time": 1457740791
+        }
+    ]
+}

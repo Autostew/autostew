@@ -23,6 +23,7 @@ def log_time(f):
 
 class ServerState(Enum):
     running = "Running"
+    allocating = "Allocating"
     idle = "Idle"
 
 class BreakPluginLoadingException(Exception):
@@ -44,7 +45,7 @@ class LogTime(object):
 
 
 class Server:
-    def __init__(self, settings, env_init):
+    def __init__(self, settings, env_init=False, api_record=False):
         self.last_status_update_time = None
         self._setup_index = None
         self.state = None
@@ -53,7 +54,10 @@ class Server:
         self.max_member_count = None
 
         self.settings = settings
-        self.api = ApiCaller(self)
+        self.api = ApiCaller(
+            self,
+            record_destination=settings.api_record_destination if api_record is True else api_record
+        )
         self.lists = ListGenerator(self.api).generate_all()
         self.session = Session(self.lists[ListName.session_attributes], self.lists, self.api)
         self.members = MemberList(self.lists[ListName.member_attributes], self.lists, self.api)
@@ -109,7 +113,8 @@ class Server:
     def get_current_setup_name(self):
         return self.settings.setup_rotation[self._setup_index].name
 
-    def poll_loop(self, event_offset=None, only_one_run=False):
+    def poll_loop(self, event_offset=None, only_one_run=False, one_by_one=False):
+        logging.info("Entering event loop")
         if event_offset is None:
             self.api.reset_event_offset()
         else:
@@ -126,6 +131,9 @@ class Server:
                 print(raw_event)
                 event = event_factory(raw_event, self)
 
+                if one_by_one:
+                    input("Event (enter)")
+
                 if not updated_status_in_this_tick and event.reload_full_status:
                     self.fetch_status()
                     updated_status_in_this_tick = True
@@ -136,6 +144,9 @@ class Server:
 
             if time() - self.last_status_update_time > self.settings.full_update_period:
                 self.fetch_status()
+
+            if one_by_one:
+                input("Tick (enter)")
 
             for plugin in self.settings.plugins:
                 if 'tick' in dir(plugin):

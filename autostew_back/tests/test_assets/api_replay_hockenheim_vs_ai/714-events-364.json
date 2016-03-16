@@ -1,0 +1,23 @@
+{
+    "now": 1457743264,
+    "first": 4651,
+    "count": 1000,
+    "events": [
+        {
+            "name": "PlayerLeft",
+            "attributes": {
+                "GameReasonId": 1,
+                "Reason": "left"
+            },
+            "refid": 23616,
+            "index": 5649,
+            "time": 1457743255
+        },
+        {
+            "name": "SessionDestroyed",
+            "attributes": {},
+            "index": 5650,
+            "time": 1457743255
+        }
+    ]
+}

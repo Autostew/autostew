@@ -1,12 +1,184 @@
 {% extends "autostew_web_session/base.html" %}
+{% load extra_filters %}
 
 {% block content %}
-                <h3>Snapshot {{ sessionsnapshot.id }} in {{ sessionsnapshot.session.id }}</h3>
-                <p>Track: {{sessionsnapshot.session.setup.track.name}}</p>
-                <h4>Participants</h4>
-                <ol>
-                    {% for participant in sessionsnapshot.participantsnapshot_set.all %}
-                        <li>{{ participant.participant.name }} ({{ participant.participant.vehicle.name }})</li>
+    <div class="row">
+        <div class="col-xs-12 col-sm-4 placeholder">
+            <h3>
+                Race
+                {% if session.planned %}(planned){% endif %}
+                {% if session.running %}in progress{% endif %}
+            </h3>
+            <h4>{% if session.setup.force_identical_vehicles %}
+                {{ session.setup.vehicle.name }}
+            {% elif session.setup.force_same_vehicle_class %}
+                {{ session.setup.vehicle_class.name }}
+            {% else %}
+                No vehicle restriction
+            {% endif %}</h4>
+
+            {% if session.setup.server_controls_setup %}Server-controlled{% else %}Player-controlled{% endif %}<br>
+            Snapshot at {{ sessionsnapshot.timestamp|date }} {{ sessionsnapshot.timestamp|time }}<br>
+
+
+            In-game race start time:
+            {{ session.setup.date_year }}-{{ session.setup.date_month }}-{{ session.setup.date_day }}
+            {{ session.setup.date_hour }}:{{ session.setup.date_minute }} (x{{ session.setup.date_progression }})<br>
+            In-game current time:
+            {{ sessionsnapshot.current_year }}-{{ sessionsnapshot.current_month }}-{{ sessionsnapshot.current_day }}
+            {{ sessionsnapshot.current_hour }}:{{ sessionsnapshot.current_minute }}
+        </div>
+        <div class="col-xs-12 col-sm-4 placeholder" style="text-align: center">
+            <h2>{{ sessionsnapshot.session_stage.name|upper }}</h2>
+            {% if session.setup.practice1_length %}{{ session.setup.practice1_length }} minutes practice<br>{% endif %}
+            {% if session.setup.practice2_length %}{{ session.setup.practice2_length }} minutes practice<br>{% endif %}
+            {% if session.setup.qualify_length %}{{ session.setup.qualify_length }} minutes qualifying<br>{% endif %}
+            {% if session.setup.warmup_length %}{{ session.setup.warmup_length }} minutes warmup<br>{% endif %}
+            <b>{{ session.setup.race1_length }} {% if session.setup.timed_race %}minutes{% else %}laps{% endif %} race</b><br>
+            {% if session.setup.enforced_pitstop %}Mandatory pitstop{% endif %}
+        </div>
+        <div class="col-xs-12 col-sm-4 placeholder" style="text-align: center">
+            <h3>
+                {% if sessionsnapshot.previous_in_session %}
+                    <a class="btn btn-default" href="{% url 'session:snapshot' sessionsnapshot.previous_in_session.id %}">
+                        <span class="glyphicon glyphicon-triangle-left" aria-hidden="true"></span>
+                    </a>
+                {% else %}
+                    <a class="btn btn-default disabled" href="#">
+                        <span class="glyphicon glyphicon-triangle-left" aria-hidden="true"></span>
+                    </a>
+                {% endif %}
+                Navigate
+                {% if sessionsnapshot.next_in_session %}
+                    <a class="btn btn-default" href="{% url 'session:snapshot' sessionsnapshot.next_in_session.id %}">
+                        <span class="glyphicon glyphicon-triangle-right" aria-hidden="true"></span>
+                    </a>
+                {% else %}
+                    <a class="btn btn-default disabled" href="#">
+                        <span class="glyphicon glyphicon-triangle-right" aria-hidden="true"></span>
+                    </a>
+                {% endif %}
+            </h3>
+            <p>
+
+                <a class="btn btn-default">Practice</a>
+                <a class="btn btn-default">Practice 2</a>
+                <a class="btn btn-default">Qualifying</a>
+                <a class="btn btn-default">Warmup</a>
+                <a class="btn btn-primary">Race</a>
+            </p>
+
+            <p>
+                <div class="btn-group">
+                  <button type="button" class="btn btn-default">Lap</button>
+                  <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <span class="caret"></span>
+                    <span class="sr-only">Toggle Dropdown</span>
+                  </button>
+                  <ul class="dropdown-menu">
+                    {% for lap in session.racelapsnapshot_set.all %}
+                        <li><a href="{% url 'session:snapshot' lap.snapshot.id %}">{{ lap.lap }}</a></li>
                     {% endfor %}
-                </ol>
+                  </ul>
+                </div>
+                <a class="btn btn-{% if sessionsnapshot == session.current_snapshot %}primary{% else %}default{% endif %}"
+                   href="{% url 'session:session' session.id %}">
+                    Latest
+                </a>
+            </p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xs-12 col-sm-4 placeholder">
+            <h3>{{sessionsnapshot.session.setup.track.name}}</h3>
+            Weather (x{{ session.setup.weather_progression }}):
+            {% if session.setup.weather_slots > 0 %}{{ session.setup.weather_1.name }}{% endif %}
+            {% if session.setup.weather_slots > 1 %}{{ session.setup.weather_2.name }}{% endif %}
+            {% if session.setup.weather_slots > 2 %}{{ session.setup.weather_3.name }}{% endif %}
+            {% if session.setup.weather_slots > 3 %}{{ session.setup.weather_4.name }}{% endif %}
+            <br>
+            Ambient: {{ sessionsnapshot.temperature_ambient|temp }}ºC {{ sessionsnapshot.air_pressure|pressure }}hPa<br>
+            Track: {{ sessionsnapshot.temperature_track|temp }}ºC<br>
+            Wetness: {{ sessionsnapshot.wetness_avg|percent }}%
+        </div>
+        <div class="col-xs-12 col-sm-4 placeholder">
+            <h3>Aids</h3>
+            {% if not session.setup.allow_custom_vehicle_setup %}<p>Default setup only</p>{% endif %}
+            Driving aids:
+            {% if session.setup.force_realistic_driving_aids %}
+                REALISTIC
+            {% else %}
+                Aids:
+                {% if session.setup.abs_allowed %}ABS{% endif %}
+                {% if session.setup.sc_allowed %}SC{% endif %}
+                {% if session.setup.tcs_allowed %}TCS{% endif %}
+            {% endif %}
+            {% if session.setup.force_manual %}manual{% else %}automatic{% endif %}
+            {% if session.setup.mechanical_failures %}failures{% else %}no-failures{% endif %}
+            {% if session.setup.auto_start_engine %}autoenginestart{% else %}manualenginestart{% endif %}
+            {% if session.setup.ghost_griefers %}ghostgriefers{% else %}noghost{% endif %}
+        </div>
+        <div class="col-xs-12 col-sm-4 placeholder">
+            <h3></h3>
+            {% if session.setup.rolling_starts %}Rolling start<br>{% endif %}
+            {{ session.setup.damage.name|title }} damage<br>
+            {{ session.setup.tire_wear.name|title }} tire wear<br>
+            {{ session.setup.fuel_usage.name|title }} fuel usage<br>
+            {{ session.setup.penalties.name|title }} penalties<br>
+            {{ session.setup.allowed_views.name|title }} view
+        </div>
+    </div>
+    <hr>
+    <div class="table-responsive">
+        <table class="table table-striped table-hover table-condensed">
+            <thead>
+                <td>Name</td>
+                <td>Lap</td>
+                <td>Last lap</td>
+                <td>Best lap</td>
+                <td>Gap</td>
+                <td>Status</td>
+            </thead>
+            {% for participant in sessionsnapshot.participantsnapshot_set.all %}
+                <tr>
+                    <td>
+                        <div style="font-size: 220%; float: left; clear: left; padding-right: 15px">
+                            P{{ participant.race_position }}
+                        </div>
+                        <b>{{ participant.participant.name }}
+                        {% if participant.participant.is_ai %}
+                            <span class="glyphicon glyphicon-cog" aria-hidden="true"></span>{{ session.setup.opponent_difficulty }}
+                        {% endif %}
+                        </b>
+                        <br>
+                        {{ participant.participant.vehicle.name }}
+                    </td>
+                    <td>
+                        {{ participant.current_lap }}
+                    </td>
+                    <td>
+                        {% if participant.last_lap_time %}
+                            {{ participant.last_lap_time|milli_to_nicetime }}
+                        {% else %}
+                            ---
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if participant.fastest_lap_time %}
+                            {{ participant.fastest_lap_time|milli_to_nicetime }}
+                        {% else %}
+                            ---
+                        {% endif %}
+                    </td>
+                    <td>
+                        {{ participant.gap|milli_to_nicetime }}
+                    </td>
+                    <td>
+                        {{ participant.state.name }}
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
 {% endblock %}

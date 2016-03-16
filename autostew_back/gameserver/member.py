@@ -29,8 +29,10 @@ class MemberFlags(Enum):
 
 
 class MemberLoadState(Enum):
-    started_race = 'ADMIN_STARTED_RACE'
-    ready = 'CLIENT_READY'
+    admin_started_race = 'ADMIN_STARTED_RACE'
+    admin_loading_race = 'ADMIN_LOADING_RACE'
+    client_loading_race = 'CLIENT_LOADING_RACE'
+    client_ready = 'CLIENT_READY'
     unknown = 'UNKNOWN'
 
 

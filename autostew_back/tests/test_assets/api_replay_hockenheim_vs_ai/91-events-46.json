@@ -1,0 +1,67 @@
+{
+    "now": 1457740082,
+    "first": 2371,
+    "count": 1000,
+    "events": [
+        {
+            "participantid": 60,
+            "index": 3367,
+            "name": "Sector",
+            "attributes": {
+                "CountThisLap": 1,
+                "Lap": 2,
+                "CountThisLapTimes": 1,
+                "Sector": 1,
+                "TotalTime": 381004,
+                "SectorTime": 39172
+            },
+            "refid": 23616,
+            "time": 1457740073
+        },
+        {
+            "participantid": 61,
+            "index": 3368,
+            "name": "Sector",
+            "attributes": {
+                "CountThisLap": 1,
+                "Lap": 2,
+                "CountThisLapTimes": 1,
+                "Sector": 2,
+                "TotalTime": 382878,
+                "SectorTime": 46315
+            },
+            "refid": 23616,
+            "time": 1457740075
+        },
+        {
+            "participantid": 59,
+            "index": 3369,
+            "name": "Sector",
+            "attributes": {
+                "CountThisLap": 1,
+                "Lap": 2,
+                "CountThisLapTimes": 1,
+                "Sector": 2,
+                "TotalTime": 384306,
+                "SectorTime": 45937
+            },
+            "refid": 23616,
+            "time": 1457740076
+        },
+        {
+            "participantid": 57,
+            "index": 3370,
+            "name": "Sector",
+            "attributes": {
+                "CountThisLap": 1,
+                "Lap": 2,
+                "CountThisLapTimes": 1,
+                "Sector": 2,
+                "TotalTime": 389490,
+                "SectorTime": 46278
+            },
+            "refid": 23616,
+            "time": 1457740081
+        }
+    ]
+}

@@ -9,7 +9,7 @@
 
                         {% if track_list %}
                             {% for track in track_list %}
-                                <h5><a href="{% url 'track' track.id %}">{{ track.name }}</a></h5>
+                                <h5><a href="{% url 'session:track' track.id %}">{{ track.name }}</a></h5>
                             {% endfor %}
                         {% else %}
                             <h5>No tracks are available!</h5>

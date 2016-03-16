@@ -56,7 +56,7 @@ class ParticipantEvent(MemberEvent):
         MemberEvent.__init__(self, raw, server)
         self.participant = self.server.participants.get_by_id(raw['participantid'])
         self.refid = raw['refid']
-        self.participant_id = raw['id']
+        self.participant_id = raw['participantid']
 
 
 class PlayerLeftEvent(MemberEvent):

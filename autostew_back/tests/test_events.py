@@ -5,10 +5,10 @@ import requests
 from django.test import TestCase
 
 from autostew_back.gameserver.event import event_factory, BaseEvent, EventType, PlayerJoinedEvent, MemberEvent, \
-    StageChangedEvent, StateChangedEvent
+    StateChangedEvent
+from autostew_back.gameserver.mocked_api import FakeApi
 from autostew_back.gameserver.server import Server
 from autostew_back.gameserver.session import SessionState
-from autostew_back.tests.mocks import FakeApi
 from autostew_back.tests.test_assets.settings_no_plugins import SettingsWithoutPlugins
 
 
