@@ -1,10 +1,8 @@
 build_image: drydock/u12pytpls:prod
 python:
-  - 3.2
   - 3.3
   - 3.4
   - 3.5
-  - pypy3
 language: python
 script:
   - python manage.py test
