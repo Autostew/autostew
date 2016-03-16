@@ -288,19 +288,22 @@ class ParticipantSnapshot(models.Model):
     total_time = models.IntegerField()
 
     def gap(self):
-        laps = Lap.objects.filter(participant=self.participant, lap__lte=self.current_lap)
         if self.race_position == 1:
             return 0
-        if laps.count() < self.current_lap:
-            return None
-        leader_time = Lap.objects.filter(
-            participant=ParticipantSnapshot.objects.get(snapshot=self.snapshot, race_position=1).participant,
-            lap__lte=self.current_lap
-        ).aggregate(Sum('lap_time'))['lap_time__sum']
-        own_time = laps.aggregate(Sum('lap_time'))['lap_time__sum']
-        if own_time is None or leader_time is None:
-            return None
-        return leader_time - own_time
+        if self.total_time:
+            return self.total_time - ParticipantSnapshot.objects.get(snapshot=self.snapshot, race_position=1).total_time
+        else:
+            laps = Lap.objects.filter(participant=self.participant, lap__lte=self.current_lap)
+            if laps.count() < self.current_lap:
+                return None
+            leader_time = Lap.objects.filter(
+                participant=ParticipantSnapshot.objects.get(snapshot=self.snapshot, race_position=1).participant,
+                lap__lte=self.current_lap
+            ).aggregate(Sum('lap_time'))['lap_time__sum']
+            own_time = laps.aggregate(Sum('lap_time'))['lap_time__sum']
+            if own_time is None or leader_time is None:
+                return None
+            return own_time - leader_time
 
 
 class Event(models.Model):  # TODO add timestamp and index

@@ -1,5 +1,7 @@
 import logging
 
+from django.db import transaction
+
 from autostew_back.gameserver.event import EventType, BaseEvent, ParticipantEvent
 from autostew_back.gameserver.member import MemberFlags, Member as SessionMember
 from autostew_back.gameserver.participant import Participant as SessionParticipant
@@ -17,6 +19,7 @@ current_session = None
 server_in_db = None
 
 
+@transaction.atomic
 def init(server: DServer):
     global current_session
     global server_in_db
@@ -31,6 +34,7 @@ def init(server: DServer):
         current_session = _create_session(server, server_in_db)  # TODO should be _find_current_or_create_session()
 
 
+@transaction.atomic
 def event(server: DServer, event: (BaseEvent, ParticipantEvent)):
     global current_session
 
@@ -71,8 +75,9 @@ def event(server: DServer, event: (BaseEvent, ParticipantEvent)):
     if event.type == EventType.results:
         try:
             result_snapshot = session_models.SessionSnapshot.objects.get(
+                session=current_session,
                 is_result=True,
-                session_stage__name=server.session.session_stage.get_nice()
+                session_stage__name=server.session.session_stage.get_nice().value
             )
         except session_models.SessionSnapshot.DoesNotExist:
             result_snapshot = _make_snapshot(server, current_session)
@@ -83,11 +88,12 @@ def event(server: DServer, event: (BaseEvent, ParticipantEvent)):
             snapshot=result_snapshot,
             participant__ingame_id=event.participant_id
         )
-        participant.fastest_lap_time = event.fastest_lap_time
+        participant.fastest_lap_time = td_to_milli(event.fastest_lap_time)
         participant.lap = event.lap
         participant.state = enum_models.ParticipantState.objects.get(name=event.state.value)
         participant.race_position = event.race_position
-        participant.total_time = event.total_time
+        participant.total_time = td_to_milli(event.total_time)
+        participant.save()
         current_stage = session_models.SessionStage.objects.get(
             session=current_session,
             stage__name=current_session.current_snapshot.session_stage,
