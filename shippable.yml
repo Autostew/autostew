@@ -12,6 +12,7 @@ script:
   - python manage.py makemigrations autostew_web_session autostew_web_enums 
   - python manage.py migrate
 #  - nosetests --with-xunit --xunit-file=shippable/testresults/nosetests.xml
+  - coverage xml -o shippable/codecoverage/coverage.xml python manage.py test
   - python manage.py test
 
 notifications:
