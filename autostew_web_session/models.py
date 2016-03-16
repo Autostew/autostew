@@ -1,5 +1,5 @@
 from django.db import models
-from django.db.models.aggregates import Sum
+from django.db.models.aggregates import Sum, Max, Min
 
 from autostew_web_enums import models as enum_models
 
@@ -168,6 +168,34 @@ class SessionSnapshot(models.Model):
     temperature_ambient = models.IntegerField()
     temperature_track = models.IntegerField()
     air_pressure = models.IntegerField()
+
+    @property
+    def previous_in_session(self):
+        try:
+            previous_timestamp = SessionSnapshot.objects.filter(
+                timestamp__lt=self.timestamp,
+                session=self.session,
+            ).aggregate(Max('timestamp'))['timestamp__max']
+            return SessionSnapshot.objects.get(
+                timestamp=previous_timestamp,
+                session=self.session
+            )
+        except self.DoesNotExist:
+            return None
+
+    @property
+    def next_in_session(self):
+        try:
+            next_timestamp = SessionSnapshot.objects.filter(
+                timestamp__gt=self.timestamp,
+                session=self.session,
+            ).aggregate(Min('timestamp'))['timestamp__min']
+            return SessionSnapshot.objects.get(
+                timestamp=next_timestamp,
+                session=self.session
+            )
+        except self.DoesNotExist:
+            return None
 
 
 class SessionStage(models.Model):

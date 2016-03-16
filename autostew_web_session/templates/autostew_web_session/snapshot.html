@@ -39,9 +39,25 @@
         </div>
         <div class="col-xs-12 col-sm-4 placeholder" style="text-align: center">
             <h3>
-                <a class="btn btn-default"><span class="glyphicon glyphicon-triangle-left" aria-hidden="true"></span></a>
+                {% if sessionsnapshot.previous_in_session %}
+                    <a class="btn btn-default" href="{% url 'session:snapshot' sessionsnapshot.previous_in_session.id %}">
+                        <span class="glyphicon glyphicon-triangle-left" aria-hidden="true"></span>
+                    </a>
+                {% else %}
+                    <a class="btn btn-default disabled" href="#">
+                        <span class="glyphicon glyphicon-triangle-left" aria-hidden="true"></span>
+                    </a>
+                {% endif %}
                 Navigate
-                <a class="btn btn-default"><span class="glyphicon glyphicon-triangle-right" aria-hidden="true"></span></a>
+                {% if sessionsnapshot.next_in_session %}
+                    <a class="btn btn-default" href="{% url 'session:snapshot' sessionsnapshot.next_in_session.id %}">
+                        <span class="glyphicon glyphicon-triangle-right" aria-hidden="true"></span>
+                    </a>
+                {% else %}
+                    <a class="btn btn-default disabled" href="#">
+                        <span class="glyphicon glyphicon-triangle-right" aria-hidden="true"></span>
+                    </a>
+                {% endif %}
             </h3>
             <p>
 
