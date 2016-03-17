@@ -54,8 +54,8 @@ class Server:
         self.members = MemberList(self.lists[ListName.member_attributes], self.lists, self.api)
         self.participants = ParticipantList(self.lists[ListName.participant_attributes], self.lists, self.api)
         self.fetch_status()
-        self._init_plugins(env_init)
         self.load_next_setup(0)
+        self._init_plugins(env_init)
 
     def fetch_status(self):
         status = self.api.get_status()
