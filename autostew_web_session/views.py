@@ -3,6 +3,7 @@ import logging
 from django.views import generic
 from django.views.generic import FormView
 
+from autostew_web_enums.models import SessionStage
 from .models import Session, SessionSnapshot, Track
 from .forms import SessionSetupForm
 
@@ -61,4 +62,5 @@ class SnapshotView(generic.DetailView):
     def get_context_data(self, **kwargs):
         context = super(SnapshotView, self).get_context_data(**kwargs)
         context['session'] = context['object'].session
+        context['stages'] = [stage.name for stage in SessionStage.objects.all()]
         return context

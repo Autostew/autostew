@@ -295,20 +295,14 @@ class ParticipantSnapshot(models.Model):
     def gap(self):
         if self.race_position == 1:
             return 0
-        if self.total_time:
+        if self.snapshot.session_stage.name.startswith("Race"):
+            if not self.total_time:
+                return None
             return self.total_time - ParticipantSnapshot.objects.get(snapshot=self.snapshot, race_position=1).total_time
         else:
-            laps = Lap.objects.filter(participant=self.participant, lap__lte=self.current_lap)
-            if laps.count() < self.current_lap:
+            if not self.fastest_lap_time:
                 return None
-            leader_time = Lap.objects.filter(
-                participant=ParticipantSnapshot.objects.get(snapshot=self.snapshot, race_position=1).participant,
-                lap__lte=self.current_lap
-            ).aggregate(Sum('lap_time'))['lap_time__sum']
-            own_time = laps.aggregate(Sum('lap_time'))['lap_time__sum']
-            if own_time is None or leader_time is None:
-                return None
-            return own_time - leader_time
+            return self.fastest_lap_time - ParticipantSnapshot.objects.get(snapshot=self.snapshot, race_position=1).fastest_lap_time
 
 
 class Event(models.Model):  # TODO add timestamp and index

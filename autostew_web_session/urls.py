@@ -11,4 +11,5 @@ urlpatterns = [
     url(r'^create/?$', views.CreateSessionView.as_view(), name='create_session'),
     url(r'^session/(?P<pk>[0-9]+)/?$', views.SessionView.as_view(), name='session'),
     url(r'^session/snapshot/(?P<pk>[0-9]+)/?$', views.SnapshotView.as_view(), name='snapshot'),
+    url(r'^session/snapshot/(?P<pk>[0-9]+)/?$', views.SnapshotView.as_view(), name='snapshot'),
 ]

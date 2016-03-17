@@ -178,7 +178,7 @@ def _close_current_session():
 
 def _create_session(server: DServer, server_in_db: session_models.Server) -> session_models.Session:
     try:
-        setup = session_models.SessionSetup.objects.get(name=DEFAULT_SESSION_SETUP_NAME)
+        setup = session_models.SessionSetup.objects.get(name=server.get_current_setup_name())
     except session_models.SessionSetup.DoesNotExist:
         setup = _create_session_setup(server)
     setup.save()
@@ -281,7 +281,7 @@ def _update_session_setup(setup: session_models.SessionSetup, flags, server):
 def _create_session_setup(server):
     flags = server.session.flags.get_flags()
     return session_models.SessionSetup(
-        name=DEFAULT_SESSION_SETUP_NAME,
+        name=server.get_current_setup_name(),
         server_controls_setup=server.session.server_controls_setup.get(),
         server_controls_track=server.session.server_controls_track.get(),
         server_controls_vehicle_class=server.session.server_controls_vehicle_class.get(),
@@ -449,9 +449,11 @@ def _make_snapshot(server: DServer, session: session_models.Session) -> session_
     session_snapshot.save(True)
 
     for it in server.members.elements:
+        _create_member(session, it)
         _create_member_snapshot(it, session, session_snapshot)
 
     for it in server.participants.elements:
+        _create_participant(session, it)
         _create_participant_snapshot(it, session, session_snapshot)
 
     session.current_snapshot = session_snapshot

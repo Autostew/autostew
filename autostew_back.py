@@ -48,10 +48,12 @@ if __name__ == "__main__":
                         help="Initialize environment")
     parser.add_argument('--api-record', nargs='?', const=True, default=False,
                         help="Record API calls")
-    parser.add_argument('--api-replay', default=False, help="Replay API calls from this directory")
+    parser.add_argument('--api-replay', default=False,
+                        help="Replay API calls from this directory")
     parser.add_argument('--api-replay-manual', default=False, action='store_true',
                         help="On API replay, require keypress for each loop")
-    parser.add_argument('--event-offset', help="Set initial event offset")
+    parser.add_argument('--event-offset',
+                        help="Set initial event offset")
     args = parser.parse_args()
     if args.env_init:
         input("You are about to run env-init. Are you sure? (Enter to continue, ctrl+c to cancel)")

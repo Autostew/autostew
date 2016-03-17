@@ -166,7 +166,7 @@ class ResultsEvent(ParticipantEvent):
         self.state = ParticipantState(raw['attributes']['State'])
         self.total_time = datetime.timedelta(milliseconds=raw['attributes']['TotalTime'])
         self.vehicle = raw['attributes']['VehicleId']  # TODO parse this
-        self.fastest_lap_time = datetime.timedelta(raw['attributes']['FastestLapTime'])
+        self.fastest_lap_time = datetime.timedelta(milliseconds=raw['attributes']['FastestLapTime'])
         self.race_position = raw['attributes']['RacePosition']
         self.lap = raw['attributes']['Lap']
 

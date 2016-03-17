@@ -17,14 +17,13 @@
                 No vehicle restriction
             {% endif %}</h4>
 
-            {% if session.setup.server_controls_setup %}Server-controlled{% else %}Player-controlled{% endif %}<br>
-            Snapshot at {{ sessionsnapshot.timestamp|date }} {{ sessionsnapshot.timestamp|time }}<br>
+            <h4>
+                {{ session.setup.name }}
+                {% if session.setup.server_controls_setup %}(server setup){% else %}(client setup){% endif %}
+            </h4>
 
-
-            In-game race start time:
-            {{ session.setup.date_year }}-{{ session.setup.date_month }}-{{ session.setup.date_day }}
-            {{ session.setup.date_hour }}:{{ session.setup.date_minute }} (x{{ session.setup.date_progression }})<br>
-            In-game current time:
+            Real time: {{ sessionsnapshot.timestamp|date }} {{ sessionsnapshot.timestamp|time }}<br>
+            In-game time (x{{ session.setup.date_progression }}):
             {{ sessionsnapshot.current_year }}-{{ sessionsnapshot.current_month }}-{{ sessionsnapshot.current_day }}
             {{ sessionsnapshot.current_hour }}:{{ sessionsnapshot.current_minute }}
         </div>
@@ -60,15 +59,19 @@
                 {% endif %}
             </h3>
             <p>
-                {% if sessionsnapshot.result_of and sessionsnapshot.result_of.session_stage.name == "Practice1" %}
-                    <a class="btn btn-primary">Practice</a>
-                {% elif sessionsnapshot.session_stage.name == "Practice1" and sessionsnapshot == session.current_snapshot %}
-                    <a class="btn btn-danger">Practice</a>
-                {% elif sessionsnapshot.session_stage.name == "Practice1" %}
-                    <a class="btn btn-info">Practice</a>
-                {% else %}
-                    <a class="btn btn-default">Practice</a>
-                {% endif %}
+                {% for stage in stages %}
+                    <a class="btn
+                        {% if sessionsnapshot.result_of and sessionsnapshot.result_of.session_stage.name == "{{ stage }}" %}
+                            btn-primary
+                        {% elif sessionsnapshot.session_stage.name == stage and sessionsnapshot == session.current_snapshot %}
+                            btn-danger
+                        {% elif sessionsnapshot.session_stage.name == stage %}
+                            btn-info
+                        {% else %}
+                            btn-default
+                        {% endif %}
+                    " href="{% url 'session:snapshot' stage  %}">{{ stage }}</a>
+                {% endfor %}
 
                 {% if sessionsnapshot.result_of and sessionsnapshot.result_of.session_stage.name == "Practice2" %}
                     <a class="btn btn-primary">Practice 2</a>
@@ -143,8 +146,10 @@
             {% if session.setup.weather_slots > 2 %}{{ session.setup.weather_3.name }}{% endif %}
             {% if session.setup.weather_slots > 3 %}{{ session.setup.weather_4.name }}{% endif %}
             <br>
-            Ambient: {{ sessionsnapshot.temperature_ambient|temp }}ºC {{ sessionsnapshot.air_pressure|pressure }}hPa<br>
-            Track: {{ sessionsnapshot.temperature_track|temp }}ºC<br>
+            {{ sessionsnapshot.temperature_ambient|temp }} ºC |
+            {{ sessionsnapshot.temperature_track|temp }} ºC |
+            {{ sessionsnapshot.air_pressure|pressure }} hPa
+            <br>
             Wetness: {{ sessionsnapshot.wetness_avg|percent }}%
         </div>
         <div class="col-xs-12 col-sm-4 placeholder">

@@ -1,7 +1,7 @@
 import logging
 
 from autostew_back.plugins import db, laptimes, crash_monitor, motd, db_reader, db_writer, db_enum_writer, clock
-from autostew_back.setups import default_setup
+from autostew_back.setups import default_setup, short_race_for_recording
 
 logging.getLogger().setLevel(logging.INFO)
 logging.getLogger('django.db.backends').setLevel(logging.INFO)
@@ -17,11 +17,10 @@ class Settings:
     event_poll_period = 10
     full_update_period = 10
 
-    setup_rotation = [default_setup]
+    setup_rotation = [short_race_for_recording]
 
     plugins = [
         db,
-        db_reader,
         db_enum_writer,
         db_writer,
         clock,

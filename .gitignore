@@ -4,7 +4,7 @@ db.sqlite3-journal
 !/.idea/
 !/.idea/runConfigurations/
 */migrations/*
-autostew_back/api_record/*.json
+api_record/*.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
