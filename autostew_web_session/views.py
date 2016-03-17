@@ -1,9 +1,11 @@
 import logging
 
+from django.shortcuts import get_object_or_404
 from django.views import generic
 from django.views.generic import FormView
 
 from autostew_web_enums.models import SessionStage
+from autostew_web_session import models
 from .models import Session, SessionSnapshot, Track
 from .forms import SessionSetupForm
 
@@ -44,6 +46,19 @@ class ListSessions(generic.ListView):
         return Session.objects.all()
 
 
+def session_stage(request, pk, stage_name):
+    session = get_object_or_404(Session, pk=pk)
+    if session.current_snapshot.session_stage.name == stage_name:
+        target_snapshot = session.current_snapshot
+    else:
+        stage = get_object_or_404(models.SessionStage, session=session, stage__name=stage_name)
+        if stage.result_snapshot:
+            target_snapshot = stage.result_snapshot
+        else:
+            target_snapshot = stage.starting_snapshot  # TODO should be get_latest_snapshot_in_stage
+    return SnapshotView.as_view()(request, pk=target_snapshot.id)
+
+
 class SessionView(generic.DetailView):
     model = Session
     template_name = 'autostew_web_session/snapshot.html'
@@ -51,7 +66,11 @@ class SessionView(generic.DetailView):
     def get_context_data(self, **kwargs):
         context = super(SessionView, self).get_context_data(**kwargs)
         # TODO get this as optional parameter, then delete SnapshotView
+        if 'stage_name' in context.keys():
+            print (context['stage_name'])
+        print(context)
         context['sessionsnapshot'] = context['object'].current_snapshot
+        context['stages'] = [stage.name for stage in SessionStage.objects.all()]
         return context
 
 

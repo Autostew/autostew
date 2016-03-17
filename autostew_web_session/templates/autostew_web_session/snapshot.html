@@ -70,50 +70,8 @@
                         {% else %}
                             btn-default
                         {% endif %}
-                    " href="{% url 'session:snapshot' stage  %}">{{ stage }}</a>
+                    " href="{% url 'session:session_stage' session.id stage %}">{{ stage }}</a>
                 {% endfor %}
-
-                {% if sessionsnapshot.result_of and sessionsnapshot.result_of.session_stage.name == "Practice2" %}
-                    <a class="btn btn-primary">Practice 2</a>
-                {% elif sessionsnapshot.session_stage.name == "Practice2" and sessionsnapshot == session.current_snapshot %}
-                    <a class="btn btn-danger">Practice 2</a>
-                {% elif sessionsnapshot.session_stage.name == "Practice2" %}
-                    <a class="btn btn-info">Practice 2</a>
-                {% else %}
-                    <a class="btn btn-default">Practice 2</a>
-                {% endif %}
-
-                {% if sessionsnapshot.result_of and sessionsnapshot.result_of.session_stage.name == "Qualifying" %}
-                    <a class="btn btn-primary">Qualifying</a>
-                {% elif sessionsnapshot.session_stage.name == "Qualifying" and sessionsnapshot == session.current_snapshot %}
-                    <a class="btn btn-danger">Qualifying</a>
-                {% elif sessionsnapshot.session_stage.name == "Qualifying" %}
-                    <a class="btn btn-info">Qualifying</a>
-                {% else %}
-                    <a class="btn btn-default">Qualifying</a>
-                {% endif %}
-
-                {% if sessionsnapshot.result_of and sessionsnapshot.result_of.session_stage.name == "Warmup" %}
-                    <a class="btn btn-primary">Warmup</a>
-                {% elif sessionsnapshot.session_stage.name == "Warmup" and sessionsnapshot == session.current_snapshot %}
-                    <a class="btn btn-danger">Warmup</a>
-                {% elif sessionsnapshot.session_stage.name == "Warmup" %}
-                    <a class="btn btn-info">Warmup</a>
-                {% else %}
-                    <a class="btn btn-default">Warmup</a>
-                {% endif %}
-
-
-                {% if sessionsnapshot.result_of and sessionsnapshot.result_of.session_stage.name == "Race1" %}
-                    <a class="btn btn-primary">Race</a>
-                {% elif sessionsnapshot.session_stage.name == "Race1" and sessionsnapshot == session.current_snapshot %}
-                    <a class="btn btn-danger">Race</a>
-                {% elif sessionsnapshot.session_stage.name == "Race1" %}
-                    <a class="btn btn-info">Race</a>
-                {% else %}
-                    <a class="btn btn-default">Race</a>
-                {% endif %}
-
             </p>
 
             <p>
