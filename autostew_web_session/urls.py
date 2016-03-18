@@ -9,7 +9,7 @@ urlpatterns = [
     url(r'^tracks/(?P<pk>[0-9]+)/?$', views.TrackView.as_view(), name='track'),
     url(r'^sessions/?$', views.ListSessions.as_view(), name='sessions'),
     url(r'^create/?$', views.CreateSessionView.as_view(), name='create_session'),
-    url(r'^session/(?P<pk>[0-9]+)/?$', views.SessionView.as_view(), name='session'),
+    url(r'^session/(?P<pk>[0-9]+)/?$', views.session, name='session'),
     url(r'^session/(?P<pk>[0-9]+)/(?P<stage_name>[A-Za-z0-9]+)/?$', views.session_stage, name='session_stage'),
     url(r'^session/snapshot/(?P<pk>[0-9]+)/?$', views.SnapshotView.as_view(), name='snapshot'),
 ]

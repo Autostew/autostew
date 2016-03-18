@@ -59,19 +59,9 @@ def session_stage(request, pk, stage_name):
     return SnapshotView.as_view()(request, pk=target_snapshot.id)
 
 
-class SessionView(generic.DetailView):
-    model = Session
-    template_name = 'autostew_web_session/snapshot.html'
-
-    def get_context_data(self, **kwargs):
-        context = super(SessionView, self).get_context_data(**kwargs)
-        # TODO get this as optional parameter, then delete SnapshotView
-        if 'stage_name' in context.keys():
-            print (context['stage_name'])
-        print(context)
-        context['sessionsnapshot'] = context['object'].current_snapshot
-        context['stages'] = [stage.name for stage in SessionStage.objects.all()]
-        return context
+def session(request, pk):
+    session = get_object_or_404(Session, pk=pk)
+    return SnapshotView.as_view()(request, pk=session.current_snapshot_id)
 
 
 class SnapshotView(generic.DetailView):
