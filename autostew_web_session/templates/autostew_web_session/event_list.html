@@ -1,0 +1,26 @@
+{% extends "autostew_web_session/base.html" %}
+
+{% block content %}
+    <div class="page-header">
+        <h1>Events in {{ session }}</h1>
+    </div>
+
+    {% if event_list %}
+        <div class="table-responsive">
+            <table class="table table-striped table-hover table-condensed">
+                <thead>
+                    <td>Type</td>
+                    <td>Raw</td>
+                </thead>
+                {% for event in event_list %}
+                    <tr>
+                        <td>{{ event.definition.name }}</td>
+                        <td>{{ event.raw }}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+    {% else %}
+        <h5>No events!</h5>
+    {% endif %}
+{% endblock %}

@@ -6,6 +6,8 @@ from autostew_web_enums import models as enum_models
 
 
 class Track(models.Model):
+    class Meta:
+        ordering = ['name']
     ingame_id = models.IntegerField(help_text='pCars internal ID')
     name = models.CharField(max_length=100)
     grid_size = models.SmallIntegerField()
@@ -318,10 +320,15 @@ class ParticipantSnapshot(models.Model):
             return self.fastest_lap_time - ParticipantSnapshot.objects.get(snapshot=self.snapshot, race_position=1).fastest_lap_time
 
 
-class Event(models.Model):  # TODO add timestamp and index
+class Event(models.Model):
+    class Meta:
+        ordering = ['ingame_index']
     snapshot = models.ForeignKey(SessionSnapshot, null=True, related_name='+')
     definition = models.ForeignKey('autostew_web_enums.EventDefinition', null=True, related_name='+')  # may be NULL and a custom event! eg. by a plugin
-    session = models.ForeignKey(SessionSnapshot)
+    session = models.ForeignKey(Session)
+    timestamp = models.DateTimeField()
+    ingame_index = models.IntegerField()
+    raw = models.TextField()
 
 
 class RaceLapSnapshot(models.Model):

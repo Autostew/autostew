@@ -1,6 +1,8 @@
+import json
 import logging
 
 from django.db import transaction
+from django.utils import timezone
 
 from autostew_back.gameserver.event import EventType, BaseEvent, ParticipantEvent
 from autostew_back.gameserver.member import MemberFlags, Member as SessionMember
@@ -45,14 +47,14 @@ def event(server: DServer, event: (BaseEvent, ParticipantEvent)):
         session_models.RaceLapSnapshot(lap=event.lap, snapshot=snapshot, session=current_session).save(True)
 
     # Stores each lap
-    if event.type == EventType.lap and event.lap > 0:
+    if event.type == EventType.lap:
         session_models.Lap(
             session=current_session,
             session_stage=enum_models.SessionStage.objects.get(name=server.session.session_stage.get()),
             participant=session_models.Participant.objects.get(ingame_id=event.participant.id.get(),
                                                                refid=event.participant.refid.get(),
                                                                session=current_session),
-            lap=event.lap,
+            lap=event.lap + 1,
             count_this_lap=event.count_this_lap_times,
             lap_time=td_to_milli(event.lap_time),
             position=event.race_position,
@@ -168,6 +170,17 @@ def event(server: DServer, event: (BaseEvent, ParticipantEvent)):
         ).save(True)
         current_session.save()
 
+    # Insert event
+    # some event can happen while there is no session
+    if current_session:
+        session_models.Event(
+            snapshot=None,
+            definition=enum_models.EventDefinition.objects.get(name=event.type.value),
+            session=current_session,
+            timestamp=timezone.make_aware(event.time),
+            ingame_index=event.index,
+            raw=json.dumps(event.raw),
+        ).save(True)
 
 def _close_current_session():
     global current_session
