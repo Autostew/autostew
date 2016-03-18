@@ -9,7 +9,7 @@
 
                         {% if session_list %}
                             {% for session in session_list %}
-                                <h5><a href="{% url 'session:session' session.id %}">Session {{ session.id }}
+                                <h5><a href="{{ session.get_absolute_url }}">Session {{ session.id }}
                                     at {{ session.setup.track.name }}</a></h5>
                             {% endfor %}
                         {% else %}

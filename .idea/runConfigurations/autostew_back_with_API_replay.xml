@@ -13,7 +13,7 @@
     <module name="autostew" />
     <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
     <option name="SCRIPT_NAME" value="$PROJECT_DIR$/autostew_back.py" />
-    <option name="PARAMETERS" value="--api-replay api_record" />
+    <option name="PARAMETERS" value="--api-replay autostew_back/tests/test_assets/api_replay_hockenheim_vs_ai" />
     <option name="SHOW_COMMAND_LINE" value="false" />
     <method />
   </configuration>

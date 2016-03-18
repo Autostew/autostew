@@ -81,5 +81,4 @@ class SnapshotView(generic.DetailView):
     def get_context_data(self, **kwargs):
         context = super(SnapshotView, self).get_context_data(**kwargs)
         context['session'] = context['object'].session
-        context['stages'] = [stage.name for stage in SessionStage.objects.all()]
         return context

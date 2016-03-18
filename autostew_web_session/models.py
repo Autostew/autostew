@@ -1,3 +1,4 @@
+from django.core.urlresolvers import reverse
 from django.db import models
 from django.db.models.aggregates import Sum, Max, Min
 
@@ -11,6 +12,9 @@ class Track(models.Model):
 
     def __str__(self):
         return self.name
+
+    def get_absolute_url(self):
+        return reverse('session:track', args=[str(self.id)])
 
 
 class VehicleClass(models.Model):
@@ -142,6 +146,9 @@ class Session(models.Model):
     starting_snapshot_lobby = models.ForeignKey("SessionSnapshot", null=True, related_name='+')
     starting_snapshot_to_track = models.ForeignKey("SessionSnapshot", null=True, related_name='+')
 
+    def get_absolute_url(self):
+        return reverse('session:session', args=[str(self.id)])
+
 
 class SessionSnapshot(models.Model):
     class Meta:
@@ -174,6 +181,9 @@ class SessionSnapshot(models.Model):
     temperature_track = models.IntegerField()
     air_pressure = models.IntegerField()
 
+    def get_absolute_url(self):
+        return reverse('session:snapshot', args=[str(self.id)])
+
     @property
     def previous_in_session(self):
         try:
@@ -204,10 +214,13 @@ class SessionSnapshot(models.Model):
 
 
 class SessionStage(models.Model):
-    session = models.ForeignKey(Session)
+    session = models.ForeignKey(Session, related_name='stages')
     stage = models.ForeignKey(enum_models.SessionStage)
     starting_snapshot = models.ForeignKey(SessionSnapshot, related_name='starting_of')
     result_snapshot = models.ForeignKey(SessionSnapshot, related_name='result_of', null=True)
+
+    def get_absolute_url(self):
+        return reverse('session:session_stage', args=[str(self.session.id), str(self.stage.name)])
 
 
 class Member(models.Model):
@@ -294,7 +307,7 @@ class ParticipantSnapshot(models.Model):
 
     def gap(self):
         if self.race_position == 1:
-            return 0
+            return None
         if self.snapshot.session_stage.name.startswith("Race"):
             if not self.total_time:
                 return None
@@ -317,6 +330,9 @@ class RaceLapSnapshot(models.Model):
     session = models.ForeignKey(Session)
     snapshot = models.ForeignKey(SessionSnapshot)
     lap = models.IntegerField()
+
+    def get_absolute_url(self):
+        return self.snapshot.get_absolute_url()
 
 
 class Lap(models.Model):
