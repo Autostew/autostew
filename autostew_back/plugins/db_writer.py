@@ -42,9 +42,9 @@ def event(server: DServer, event: (BaseEvent, ParticipantEvent)):
     global current_session
 
     # Creates snapshot and RaceLapSnapshot on each lap in the race by the leader
-    if event.type == EventType.lap and event.race_position == 1 and server.session.session_stage.get_nice() == SessionStage.race1 and event.lap > 0:
-        snapshot = _make_snapshot(server, current_session)
-        session_models.RaceLapSnapshot(lap=event.lap, snapshot=snapshot, session=current_session).save(True)
+    if event.type == EventType.lap and event.race_position == 1 and server.session.session_stage.get_nice() == SessionStage.race1:
+        snapshot = _create_session_snapshot(server, current_session)
+        session_models.RaceLapSnapshot(lap=event.lap + 1, snapshot=snapshot, session=current_session).save(True)
 
     # Stores each lap
     if event.type == EventType.lap:
@@ -87,7 +87,7 @@ def event(server: DServer, event: (BaseEvent, ParticipantEvent)):
                 session_stage__name=server.session.session_stage.get_nice().value
             )
         except session_models.SessionSnapshot.DoesNotExist:
-            result_snapshot = _make_snapshot(server, current_session)
+            result_snapshot = _create_session_snapshot(server, current_session)
             result_snapshot.is_result = True
             result_snapshot.save()
 
@@ -111,7 +111,7 @@ def event(server: DServer, event: (BaseEvent, ParticipantEvent)):
     # Creates or updates participant
     # Creating the participants when the session starts is not enough, as at that point not all information may be there
     if event.type == EventType.participant_created:
-        participant = _create_participant(current_session, event.participant)
+        participant = _get_or_create_participant(current_session, event.participant)
         participant.name = event.name
         participant.is_ai = not event.is_player
         participant.vehicle = session_models.Vehicle.objects.get(ingame_id=event.vehicle)
@@ -129,7 +129,7 @@ def event(server: DServer, event: (BaseEvent, ParticipantEvent)):
     # Creates a member
     if event.type == EventType.authenticated:
         if current_session is not None:
-            _create_member(current_session, event.member)
+            _get_or_create_member(current_session, event.member)
 
     # Destroys a member
     if event.type == EventType.player_left:
@@ -152,7 +152,7 @@ def event(server: DServer, event: (BaseEvent, ParticipantEvent)):
                 _close_current_session()
             current_session = _create_session(server, server_in_db)
         if event.new_state == SessionState.race:
-            current_session.starting_snapshot_to_track = _make_snapshot(server, current_session)
+            current_session.starting_snapshot_to_track = _create_session_snapshot(server, current_session)
             current_session.save()
             session_models.SessionStage(
                 session=current_session,
@@ -162,7 +162,7 @@ def event(server: DServer, event: (BaseEvent, ParticipantEvent)):
 
     # Create stage starting snapshots
     if event.type == EventType.stage_changed:
-        snapshot = _make_snapshot(server, current_session)
+        snapshot = _create_session_snapshot(server, current_session)
         session_models.SessionStage(
             session=current_session,
             stage=current_session.current_snapshot.session_stage,
@@ -208,12 +208,12 @@ def _create_session(server: DServer, server_in_db: session_models.Server) -> ses
     session.save(True)
 
     for member in server.members.elements:
-        _create_member(session, member)
+        _get_or_create_member(session, member)
 
     for participant in server.participants.elements:
-        _create_participant(session, participant)
+        _get_or_create_participant(session, participant)
 
-    snapshot = _make_snapshot(server, session)
+    snapshot = _create_session_snapshot(server, session)
     session.first_snapshot = snapshot
     session.save()
     return session
@@ -365,7 +365,7 @@ def _create_session_setup(server):
     )
 
 
-def _create_member(session: session_models.Session, member: SessionMember) -> session_models.Member:
+def _get_or_create_member(session: session_models.Session, member: SessionMember) -> session_models.Member:
     member_flags = member.race_stat_flags.get_flags()
     vehicle = session_models.Vehicle.objects.get(
         ingame_id=member.vehicle.get()) if member.vehicle.get() is not None else None
@@ -400,7 +400,7 @@ def _create_member(session: session_models.Session, member: SessionMember) -> se
     return member_in_db
 
 
-def _create_participant(session: session_models.Session, participant: SessionParticipant) -> session_models.Participant:
+def _get_or_create_participant(session: session_models.Session, participant: SessionParticipant) -> session_models.Participant:
     member = session_models.Member.objects.get(refid=participant.refid.get(),
                                                session=session) if participant.is_player.get() else None
     try:
@@ -426,7 +426,7 @@ def _create_participant(session: session_models.Session, participant: SessionPar
     return participant
 
 
-def _make_snapshot(server: DServer, session: session_models.Session) -> session_models.SessionSnapshot:
+def _create_session_snapshot(server: DServer, session: session_models.Session) -> session_models.SessionSnapshot:
     logging.info("Creating session snapshot")
     session_snapshot = session_models.SessionSnapshot(
         session=session,
@@ -462,11 +462,11 @@ def _make_snapshot(server: DServer, session: session_models.Session) -> session_
     session_snapshot.save(True)
 
     for it in server.members.elements:
-        _create_member(session, it)
+        _get_or_create_member(session, it)
         _create_member_snapshot(it, session, session_snapshot)
 
     for it in server.participants.elements:
-        _create_participant(session, it)
+        _get_or_create_participant(session, it)
         _create_participant_snapshot(it, session, session_snapshot)
 
     session.current_snapshot = session_snapshot
@@ -487,7 +487,7 @@ def _create_participant_snapshot(
         else:
             parent = session_models.Participant.objects.get(ingame_id=participant.id.get(), session=session)
     except session_models.Participant.DoesNotExist:
-        parent = _create_participant(session, participant)
+        parent = _get_or_create_participant(session, participant)
     participant_snapshot = session_models.ParticipantSnapshot(
         snapshot=session_snapshot,
         participant=parent,

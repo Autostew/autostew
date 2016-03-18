@@ -335,7 +335,7 @@ class RaceLapSnapshot(models.Model):
     class Meta:
         ordering = ['lap']
     session = models.ForeignKey(Session)
-    snapshot = models.ForeignKey(SessionSnapshot)
+    snapshot = models.ForeignKey(SessionSnapshot, unique=True)
     lap = models.IntegerField()
 
     def get_absolute_url(self):
