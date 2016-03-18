@@ -1,18 +1,20 @@
 {% extends "autostew_web_session/base.html" %}
 
 {% block content %}
-                        <div class="page-header">
-                            <h1>Sessions</h1>
-                        </div>
+    <div class="page-header">
+        <h1>Sessions</h1>
+    </div>
 
-                        <p>All sessions: </p>
+    <p>All sessions: </p>
 
-                        {% if session_list %}
-                            {% for session in session_list %}
-                                <h5><a href="{{ session.get_absolute_url }}">Session {{ session.id }}
-                                    at {{ session.setup.track.name }}</a></h5>
-                            {% endfor %}
-                        {% else %}
-                            <h5>No sessions!</h5>
-                        {% endif %}
+    {% if session_list %}
+        <ul>
+            {% for session in session_list %}
+                <li><a href="{{ session.get_absolute_url }}">Session {{ session.id }}
+                    at {{ session.setup.track.name }}</a></li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <h5>No sessions!</h5>
+    {% endif %}
 {% endblock %}

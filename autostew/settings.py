@@ -39,7 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'autostew_web_enums',
     'autostew_web_session',
-    #'autostew_web_users',
+    'autostew_web_users',
     'autostew_back'
 
 ]

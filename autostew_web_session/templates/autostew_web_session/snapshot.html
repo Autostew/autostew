@@ -145,7 +145,9 @@
     <div class="table-responsive">
         <table class="table table-striped table-hover table-condensed">
             <thead>
+                <td></td>
                 <td>Name</td>
+                <td></td>
                 <td>Laps</td>
                 <td>Last lap</td>
                 <td>Best lap</td>
@@ -158,13 +160,20 @@
                         <div style="font-size: 220%; float: left; clear: left; padding-right: 15px">
                             P{{ participant.race_position }}
                         </div>
-                        <b>{{ participant.participant.name }}
+                    </td>
+                    <td>
+                        <b>{{ participant.participant.name }}</b>
+                        <br>
+                        {{ participant.participant.vehicle.name }}
                         {% if participant.participant.is_ai %}
                             <span class="glyphicon glyphicon-cog" aria-hidden="true"></span>{{ session.setup.opponent_difficulty }}
                         {% endif %}
-                        </b>
-                        <br>
-                        {{ participant.participant.vehicle.name }}
+                    </td>
+                    <td>
+                        <span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+                        {% if not participant.participant.is_ai %}
+                            <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
+                        {% endif %}
                     </td>
                     <td>
                         {{ participant.current_lap }}

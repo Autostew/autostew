@@ -13,6 +13,7 @@ from autostew_back.plugins import db, db_enum_writer
 from autostew_back.utils import td_to_milli
 from autostew_web_enums import models as enum_models
 from autostew_web_session import models as session_models
+from autostew_web_users.models import SteamUser
 
 name = 'DB writer'
 dependencies = [db, db_enum_writer]
@@ -365,14 +366,28 @@ def _create_session_setup(server):
     )
 
 
+def _get_or_create_steam_user(member: SessionMember) -> SteamUser:
+    try:
+        steam_user = SteamUser.objects.get(steam_id=member.steam_id.get())
+    except SteamUser.DoesNotExist:
+        steam_user = SteamUser(
+            steam_id=member.steam_id.get(),
+            display_name=member.name.get()
+        )
+        steam_user.save(True)
+    return steam_user
+
+
 def _get_or_create_member(session: session_models.Session, member: SessionMember) -> session_models.Member:
     member_flags = member.race_stat_flags.get_flags()
     vehicle = session_models.Vehicle.objects.get(
         ingame_id=member.vehicle.get()) if member.vehicle.get() is not None else None
+    steam_user = _get_or_create_steam_user(member)
     try:
         member_in_db = session_models.Member.objects.get(session=session, steam_id=member.steam_id.get())
     except session_models.Member.DoesNotExist:
         member_in_db = session_models.Member(session=session, steam_id=member.steam_id.get())
+    member_in_db.steam_user = steam_user
     member_in_db.still_connected = True
     member_in_db.vehicle = vehicle
     member_in_db.livery = session_models.Livery.objects.get(id_for_vehicle=member.livery.get(),

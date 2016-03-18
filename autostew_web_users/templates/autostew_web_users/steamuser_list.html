@@ -1,0 +1,17 @@
+{% extends "autostew_web_session/base.html" %}
+
+{% block content %}
+    <div class="page-header">
+        <h1>Users</h1>
+    </div>
+
+    <p>All users: </p>
+
+    {% if steamuser_list %}
+        {% for user in steamuser_list %}
+            <h5><a href="{{ user.get_absolute_url }}">{{ user.display_name }}</a></h5>
+        {% endfor %}
+    {% else %}
+        <h5>No sessions!</h5>
+    {% endif %}
+{% endblock %}

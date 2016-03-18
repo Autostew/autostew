@@ -3,6 +3,7 @@ from django.db import models
 from django.db.models.aggregates import Sum, Max, Min
 
 from autostew_web_enums import models as enum_models
+from autostew_web_users.models import SteamUser
 
 
 class Track(models.Model):
@@ -226,13 +227,14 @@ class SessionStage(models.Model):
 
 
 class Member(models.Model):
+    steam_user = models.ForeignKey(SteamUser)
     session = models.ForeignKey(Session)
     still_connected = models.BooleanField()
 
     vehicle = models.ForeignKey(Vehicle)
     livery = models.ForeignKey(Livery)
     refid = models.IntegerField()
-    steam_id = models.CharField(max_length=200)
+    steam_id = models.CharField(max_length=200)  # TODO duplicate in SteamUser
     name = models.CharField(max_length=200)
 
     setup_used = models.BooleanField()
