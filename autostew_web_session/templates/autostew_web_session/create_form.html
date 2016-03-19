@@ -1,12 +1,13 @@
 {% extends "autostew_web_session/base.html" %}
 
 {% block content %}
-                <form class="form-group" action="/session/create/" method="post">
-                    {% csrf_token %}
-                    <p>
-                        {{ form.as_p }}
-                    </p>
+    <h1>New setup</h1>
+    <form class="form-group" action="/session/create/" method="post">
+        {% csrf_token %}
+        <p>
+            {{ form.as_p }}
+        </p>
 
-                    <input type="submit" name="submit" class="btn btn-primary form-control" value="Create session setup" >
-                </form>
+        <input type="submit" name="submit" class="btn btn-primary form-control" value="Create session setup" >
+    </form>
 {% endblock %}
