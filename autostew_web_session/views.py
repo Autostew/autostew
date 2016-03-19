@@ -61,6 +61,17 @@ class SessionEvents(generic.ListView):
         return context
 
 
+class SessionList(generic.ListView):
+    model = Session
+
+    def get_context_data(self, **kwargs):
+        context = super(SessionList, self).get_context_data(**kwargs)
+        context['sessions_in_progress'] = Session.objects.filter(running=True, finished=False)
+        context['sessions_planned'] = Session.objects.filter(planned=True, finished=False)
+        context['sessions_history'] = Session.objects.filter(finished=True)
+        return context
+
+
 class ParticipantDetailView(generic.DetailView):
     model = Participant
 

@@ -5,16 +5,48 @@
         <h1>Sessions</h1>
     </div>
 
-    <p>All sessions: </p>
 
-    {% if session_list %}
-        <ul>
-            {% for session in session_list %}
-                <li><a href="{{ session.get_absolute_url }}">Session {{ session.id }}
-                    at {{ session.setup.track.name }}</a></li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <h5>No sessions!</h5>
-    {% endif %}
+    <div class="row">
+        <div class="col-xs-12 col-sm-4 placeholder">
+            <h2>In progress</h2>
+            {% if sessions_in_progress %}
+                <ul>
+                    {% for session in sessions_in_progress %}
+                        <li><a href="{{ session.get_absolute_url }}">Session {{ session.id }}
+                            at {{ session.setup.track.name }}</a></li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <h5>No sessions in progress</h5>
+            {% endif %}
+        </div>
+
+        <div class="col-xs-12 col-sm-4 placeholder">
+            <h2>Planned</h2>
+            {% if sessions_planned %}
+                <ul>
+                    {% for session in sessions_planned %}
+                        <li><a href="{{ session.get_absolute_url }}">Session {{ session.id }}
+                            at {{ session.setup.track.name }}</a></li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <h5>No sessions planned</h5>
+            {% endif %}
+        </div>
+
+        <div class="col-xs-12 col-sm-4 placeholder">
+            <h2>Recent sessions</h2>
+            {% if sessions_history %}
+                <ul>
+                    {% for session in sessions_history %}
+                        <li><a href="{{ session.get_absolute_url }}">Session {{ session.id }}
+                            at {{ session.setup.track.name }}</a></li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <h5>No session history</h5>
+            {% endif %}
+        </div>
+    </div>
 {% endblock %}
