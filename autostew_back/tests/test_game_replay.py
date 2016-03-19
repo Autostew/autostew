@@ -34,4 +34,5 @@ class TestGameReplay(TestCase):
                 pass
         # TODO add more tests here!
         self.assertEqual(Session.objects.count(), 2)
+        self.assertFalse(Session.objects.filter(running=True).exists())
         #self.assertEqual(RaceLapSnapshot.objects.count(), 15)

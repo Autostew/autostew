@@ -39,6 +39,15 @@ def init(server: DServer):
 
 
 @transaction.atomic
+def destroy(server: DServer):
+    global current_session
+    if current_session:
+        current_session.running = False
+        current_session.save()
+        current_session = None
+
+
+@transaction.atomic
 def event(server: DServer, event: (BaseEvent, ParticipantEvent)):
     global current_session
 
@@ -172,7 +181,7 @@ def event(server: DServer, event: (BaseEvent, ParticipantEvent)):
         current_session.save()
 
     # Insert event
-    # some event can happen while there is no session
+    # some events can happen while there is no session
     if current_session:
         session_models.Event(
             snapshot=None,
@@ -183,9 +192,11 @@ def event(server: DServer, event: (BaseEvent, ParticipantEvent)):
             raw=json.dumps(event.raw),
         ).save(True)
 
+
 def _close_current_session():
     global current_session
     current_session.running = False
+    current_session.finished = True
     current_session.save()
     current_session = None
 

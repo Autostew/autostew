@@ -16,7 +16,10 @@ epilog = """Don't use --env-init on productive servers!"""
 
 
 def main(args):
+    server = None
+
     def start():
+        nonlocal server
         server = Server(settings, args.env_init, args.api_record)
         server.poll_loop(event_offset=args.event_offset, one_by_one=args.api_replay_manual)
 
@@ -37,6 +40,8 @@ def main(args):
         pass
     except ApiReplay.RecordFinished:
         logging.info("API record ended")
+
+    server.destroy()
 
     logging.info("Autostew finished properly")
     return 0

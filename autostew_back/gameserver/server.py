@@ -149,3 +149,8 @@ class Server:
 
             if only_one_run:
                 return
+
+    def destroy(self):  # TODO consider using destructor
+        for plugin in self.settings.plugins:
+            if 'destroy' in dir(plugin):
+                plugin.destroy(self)

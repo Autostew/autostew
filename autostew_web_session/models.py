@@ -138,8 +138,8 @@ class Session(models.Model):
     start_timestamp = models.DateTimeField(auto_now_add=True)
     last_update_timestamp = models.DateTimeField(auto_now=True)
     planned = models.BooleanField()
-    running = models.BooleanField()  # TODO join these to one
-    finished = models.BooleanField()  # TODO join these to one
+    running = models.BooleanField()
+    finished = models.BooleanField()
 
     lobby_id = models.CharField(max_length=200)
     max_member_count = models.IntegerField()
