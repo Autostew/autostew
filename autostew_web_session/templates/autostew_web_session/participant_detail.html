@@ -1,0 +1,71 @@
+{% extends "autostew_web_session/base.html" %}
+{% load extra_filters %}
+
+{% block content %}
+    <div class="table-responsive">
+        <h1>Results for {{ participant.name }} in
+            <a href="{{ participant.session.get_absolute_url }}">session {{ participant.session.id }}</a>
+        </h1>
+
+        {% for stage in participant.session.stages.all %}
+            <h2>{{ stage.stage.name }}</h2>
+            <table class="table table-striped table-hover table-condensed">
+                <thead>
+                    <td>Lap</td>
+                    <td>Position</td>
+                    <td>Sector 1</td>
+                    <td>Sector 2</td>
+                    <td>Sector 3</td>
+                    <td><b>Time</b></td>
+                </thead>
+                {% for lap in participant.lap_set|in_stage:stage.stage.name %}
+                    <tr>
+                        <td>
+                            {{ lap.lap }}
+                            {% if not lap.count_this_lap %}
+                                <span class="label label-danger">Penalty</span>
+                            {% endif %}
+                        </td>
+                        <td>P{{ lap.position }}</td>
+                        <td>
+                            <span class="
+                                {% if lap.is_personal_sector1_race_best_in_stage %}
+                                label label-primary
+                                {% endif %}
+                            ">
+                                {{ lap.sector1_time|milli_to_nicetime }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="
+                                {% if lap.is_personal_sector2_race_best_in_stage %}
+                                label label-primary
+                                {% endif %}
+                            ">
+                                {{ lap.sector2_time|milli_to_nicetime }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="
+                                {% if lap.is_personal_sector3_race_best_in_stage %}
+                                label label-primary
+                                {% endif %}
+                            ">
+                                {{ lap.sector3_time|milli_to_nicetime }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="
+                                {% if lap.is_personal_race_best_in_stage %}
+                                label label-primary
+                                {% endif %}
+                            ">
+                                <b>{{ lap.lap_time|milli_to_nicetime }}</b>
+                            </span>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </table>
+        {% endfor %}
+    </div>
+{% endblock %}

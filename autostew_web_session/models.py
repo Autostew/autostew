@@ -280,6 +280,9 @@ class Participant(models.Model):
     vehicle = models.ForeignKey(Vehicle, null=True)  # NULL because AI owner change will do that
     livery = models.ForeignKey(Livery, null=True)  # NULL because AI owner change will do that
 
+    def get_absolute_url(self):
+        return reverse('session:participant', args=[str(self.session.id), str(self.ingame_id)])
+
 
 class ParticipantSnapshot(models.Model):
     class Meta:
@@ -368,6 +371,25 @@ class Lap(models.Model):
     sector3_time = models.IntegerField()
     distance_travelled = models.IntegerField()
 
+    def is_personal_sector1_race_best_in_stage(self):
+        return self._best_in_stage_evaluation('sector1_time')
+
+    def is_personal_sector2_race_best_in_stage(self):
+        return self._best_in_stage_evaluation('sector2_time')
+
+    def is_personal_sector3_race_best_in_stage(self):
+        return self._best_in_stage_evaluation('sector3_time')
+
+    def is_personal_race_best_in_stage(self):
+        return self._best_in_stage_evaluation('lap_time')
+
+    def _best_in_stage_evaluation(self, field_name):
+        return getattr(self, field_name) <= self.participant.lap_set.filter(
+            **{
+                '{}__gt'.format(field_name): 0,
+                'session_stage': self.session_stage
+            }
+        ).aggregate(Min(field_name))['{}__min'.format(field_name)]
 
 class Sector(models.Model):
     class Meta:

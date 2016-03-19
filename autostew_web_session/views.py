@@ -4,10 +4,9 @@ from django.shortcuts import get_object_or_404
 from django.views import generic
 from django.views.generic import FormView
 
-from autostew_web_enums.models import SessionStage
 from autostew_web_session import models
-from autostew_web_session.models import Event
-from .models import Session, SessionSnapshot, Track
+from autostew_web_session.models import Event, Participant
+from .models import Session, SessionSnapshot
 from .forms import SessionSetupForm
 
 
@@ -42,7 +41,6 @@ def session(request, pk):
 
 class SnapshotView(generic.DetailView):
     model = SessionSnapshot
-    template_name = 'autostew_web_session/snapshot.html'
 
     def get_context_data(self, **kwargs):
         context = super(SnapshotView, self).get_context_data(**kwargs)
@@ -61,3 +59,14 @@ class SessionEvents(generic.ListView):
         context = super(SessionEvents, self).get_context_data(**kwargs)
         context['session'] = self.session
         return context
+
+
+class ParticipantDetailView(generic.DetailView):
+    model = Participant
+
+    def get_object(self, queryset=None):
+        return get_object_or_404(
+            Participant,
+            session__id=self.kwargs['session_id'],
+            ingame_id=self.kwargs['participant_id']
+        )

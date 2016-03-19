@@ -173,7 +173,9 @@
                         {{ participant.participant.vehicle.name }}
                     </td>
                     <td>
-                        <span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+                        <a href="{{ participant.participant.get_absolute_url }}">
+                            <span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+                        </a>
                         {% if not participant.participant.is_ai %}
                             <a href="{{ participant.participant.member.steam_user.get_absolute_url }}">
                                 <span class="glyphicon glyphicon-user" aria-hidden="true"></span>

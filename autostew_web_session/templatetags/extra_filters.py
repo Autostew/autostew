@@ -37,3 +37,8 @@ def percent(value):
     if is_missing(value):
         return 0
     return "{:.0f}".format(value/10)
+
+
+@register.filter
+def in_stage(value, stage):
+    return value.filter(session_stage__name=stage)
