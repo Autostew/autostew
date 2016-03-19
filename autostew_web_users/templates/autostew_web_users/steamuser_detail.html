@@ -1,5 +1,12 @@
 {% extends "autostew_web_session/base.html" %}
 
 {% block content %}
-    <h3>{{ object.display_name }}: {{ steamuser.steam_id }}</h3>
+    <h1>{{ steamuser.display_name }}</h1>
+
+    <h2>Sessions</h2>
+    <ul>
+        {% for member in steamuser.member_set.all %}
+            <li><a href="{{ member.session.get_absolute_url }}">Session {{ member.session_id }}</a></li>
+        {% endfor %}
+    </ul>
 {% endblock %}
