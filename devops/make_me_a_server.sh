@@ -24,13 +24,19 @@ sudo -u steam ./steamcmd.sh +login anonymous +force_install_dir ./pcars_ds +app_
 popd
 
 # Set up DS
-sudo -u steam ln -sfn /home/steam/steamcmd/pcars_ds/server.cfg server.cfg
-# TODO service unit
+sudo -u steam ln -sfn /home/steam/steamcmd/pcars_ds/server.cfg $PWD/devops/server.cfg
+sudo cp devops/pcars-ds.service /usr/lib/systemd/system/
+sudo systemctl enable pcars-ds.service
+sudo systemctl start pcars-ds.service
 
 # Set up apache TODO
 
+
 # Deploy Django TODO
+
 
 # Set up autostew TODO
 
+
 # Let's go! TODO
+

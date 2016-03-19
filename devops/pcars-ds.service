@@ -1,0 +1,10 @@
+[Unit]
+Description=Project Cars Dedicated Serevr
+After=network.target
+
+[Service]
+User=steam
+ExecStart=/home/steam/steamcmd/pcars_ds/DedicatedServerCmd --config /home/steam/steamcmd/pcars_ds/server.cfg
+
+[Install]
+WantedBy=default.target
