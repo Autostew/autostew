@@ -309,6 +309,15 @@ class ParticipantSnapshot(models.Model):
     orientation = models.IntegerField()
     total_time = models.IntegerField()
 
+    def last_lap_is_fastest_in_shapshot(self):
+        return self.last_lap_time <= self.snapshot.participantsnapshot_set.filter(last_lap_time__gt=0).aggregate(Min('last_lap_time'))['last_lap_time__min']
+
+    def last_lap_is_fastest_in_race(self):
+        return self.last_lap_time <= self.snapshot.participantsnapshot_set.filter(fastest_lap_time__gt=0).aggregate(Min('fastest_lap_time'))['fastest_lap_time__min']
+
+    def fastest_lap_is_fastest_in_race(self):
+        return self.fastest_lap_time <= self.snapshot.participantsnapshot_set.filter(fastest_lap_time__gt=0).aggregate(Min('fastest_lap_time'))['fastest_lap_time__min']
+
     def gap(self):
         if self.race_position == 1:
             return None

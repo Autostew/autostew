@@ -164,15 +164,20 @@
                     <td>
                         <b>{{ participant.participant.name }}</b>
                         <br>
-                        {{ participant.participant.vehicle.name }}
                         {% if participant.participant.is_ai %}
-                            <span class="glyphicon glyphicon-cog" aria-hidden="true"></span>{{ session.setup.opponent_difficulty }}
+                            <span class="label label-default">
+                                <span class="glyphicon glyphicon-cog" aria-hidden="true"></span>{{ session.setup.opponent_difficulty }}
+                            </span>
                         {% endif %}
+                        &nbsp;
+                        {{ participant.participant.vehicle.name }}
                     </td>
                     <td>
                         <span class="glyphicon glyphicon-list" aria-hidden="true"></span>
                         {% if not participant.participant.is_ai %}
-                            <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
+                            <a href="{{ participant.participant.member.steam_user.get_absolute_url }}">
+                                <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
+                            </a>
                         {% endif %}
                     </td>
                     <td>
@@ -180,14 +185,25 @@
                     </td>
                     <td>
                         {% if participant.last_lap_time %}
-                            {{ participant.last_lap_time|milli_to_nicetime }}
+
+                            <span class="
+                                {% if participant.last_lap_is_fastest_in_race %}
+                                    label label-primary
+                                {% elif participant.last_lap_is_fastest_in_shapshot %}
+                                    label label-info
+                                {% endif %}
+                            ">{{ participant.last_lap_time|milli_to_nicetime }}</span>
                         {% else %}
                             ---
                         {% endif %}
                     </td>
                     <td>
                         {% if participant.fastest_lap_time %}
-                            {{ participant.fastest_lap_time|milli_to_nicetime }}
+                            <span class="
+                                {% if participant.fastest_lap_is_fastest_in_race %}
+                                    label label-primary
+                                {% endif %}
+                            ">{{ participant.fastest_lap_time|milli_to_nicetime }}</span>
                         {% else %}
                             ---
                         {% endif %}
@@ -196,7 +212,13 @@
                         {{ participant.gap|milli_to_nicetime }}
                     </td>
                     <td>
-                        {{ participant.state.name }}
+                        <span class="
+                            {% if participant.state.in_race %}
+                                label label-primary
+                            {% else %}
+                                label label-danger
+                            {% endif %}
+                        ">{{ participant.state.name }}</span>
                     </td>
                 </tr>
             {% endfor %}

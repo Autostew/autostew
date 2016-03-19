@@ -147,6 +147,9 @@ class ParticipantState(models.Model):
     def __str__(self):
         return self.name
 
+    def in_race(self):
+        return self.name not in ('DNF', 'Retired')
+
 
 class SessionState(models.Model):
     name = models.CharField(max_length=50)
