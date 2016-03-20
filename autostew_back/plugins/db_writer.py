@@ -154,7 +154,7 @@ def event(server: DServer, event: (BaseEvent, ParticipantEvent)):
 
     # Destroy a participant
     if event.type == EventType.participant_destroyed:
-        participant = session_models.Participant.objects.get(ingame_id=event.participant.id.get(),
+        participant = session_models.Participant.objects.get(ingame_id=event.raw['participantid'],
                                                              session=current_session)
         participant.still_connected = False
         participant.save()
