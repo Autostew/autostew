@@ -1,6 +1,8 @@
+import datetime
 import json
 import logging
 
+import time
 from django.db import transaction
 from django.utils import timezone
 
@@ -17,11 +19,12 @@ from autostew_web_users.models import SteamUser
 
 name = 'DB writer'
 dependencies = [db, db_enum_writer]
+ping_interval = 10
 
 current_session = None
 server_in_db = None
 DEFAULT_SESSION_SETUP_NAME = 'default setup'
-
+last_ping = None
 
 @transaction.atomic
 def init(server: DServer):
@@ -36,6 +39,23 @@ def init(server: DServer):
     server_in_db.save()
     if server.state == ServerState.running:
         current_session = _create_session(server, server_in_db)  # TODO should be _find_current_or_create_session()
+    _ping(server)
+
+
+def tick(server: DServer):
+    if time.time() - last_ping >= ping_interval:
+        _ping(server)
+
+
+def _ping(server: DServer):
+    global last_ping
+    server_in_db.last_ping = timezone.make_aware(datetime.datetime.now())
+    if len(server.members.elements) == 0:
+        server_in_db.average_player_latency = None
+    else:
+        server_in_db.average_player_latency = sum([member.ping.get() for member in server.members.elements]) / len(server.members.elements)
+    server_in_db.save()
+    last_ping = time.time()
 
 
 @transaction.atomic
@@ -45,6 +65,9 @@ def destroy(server: DServer):
         current_session.running = False
         current_session.save()
         current_session = None
+        server_in_db.current_session = None
+        server_in_db.running = False
+        server_in_db.save()
 
 
 @transaction.atomic
@@ -199,6 +222,8 @@ def _close_current_session():
     current_session.finished = True
     current_session.save()
     current_session = None
+    server_in_db.current_session = None
+    server_in_db.save()
 
 
 def _create_session(server: DServer, server_in_db: session_models.Server) -> session_models.Session:
@@ -228,6 +253,8 @@ def _create_session(server: DServer, server_in_db: session_models.Server) -> ses
     snapshot = _create_session_snapshot(server, session)
     session.first_snapshot = snapshot
     session.save()
+    server_in_db.current_session = session
+    server_in_db.save()
     return session
 
 

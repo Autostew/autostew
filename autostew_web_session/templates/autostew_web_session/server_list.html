@@ -1,0 +1,38 @@
+{% extends "autostew_web_session/base.html" %}
+
+{% block content %}
+    <div class="page-header">
+        <h1>Server list</h1>
+    </div>
+
+    {% if server_list %}
+        <ul>
+            {% for server in server_list %}
+                <li>
+                    {% if server.running %}
+                        <span class="label label-success">Running</span>
+                    {% else %}
+                        <span class="label label-danger">Not running</span>
+                    {% endif %}
+                    <span class="label
+                        {% if server.average_player_latency < 50 %}label-success
+                        {% elif server.average_player_latency < 100 %}label-info
+                        {% elif server.average_player_latency > 250 %}label-danger
+                        {% elif server.average_player_latency > 150 %}label-warning
+                        {% else %}label-default
+                        {% endif %}
+                    ">{{ server.average_player_latency }} ms</span>
+                    <a href="{{ server.get_absolute_url }}">{{ server.name }}</a>
+                    {% if server.current_session %}
+                        <a href="{{ server.current_session.get_absolute_url }}">{{ server.current_session }}</a>
+                    {% endif %}
+                    {% if server.time_since_last_ping >= 30 %}
+                        <span class="label label-danger">last ping {{ server.time_since_last_ping }} seconds ago</span>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <h5>No servers are available!</h5>
+    {% endif %}
+{% endblock %}

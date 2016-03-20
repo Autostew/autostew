@@ -1,6 +1,9 @@
+import datetime
+
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.db.models.aggregates import Sum, Max, Min
+from django.utils import timezone
 
 from autostew_web_enums import models as enum_models
 from autostew_web_users.models import SteamUser
@@ -115,18 +118,29 @@ class SessionSetup(models.Model):
 
 
 class Server(models.Model):
-    name = models.CharField(max_length=50, unique=True)
+    class Meta:
+        ordering = ('name', )
+
+    name = models.CharField(max_length=50, unique=True,
+                            help_text='To successfully rename a server you will need to change it\'s settings too')
     session_setups = models.ManyToManyField(SessionSetup)
 
     running = models.BooleanField()
+    current_session = models.ForeignKey('Session', null=True, related_name='+')
+    last_ping = models.DateTimeField(null=True)
+    average_player_latency = models.IntegerField(null=True)
     # TODO joinable = models.BooleanField()
     # TODO state = server.state!!
+
+    @property
+    def time_since_last_ping(self):
+        return int((timezone.now() - self.last_ping).total_seconds())
 
     def __str__(self):
         return self.name
 
-    class Meta:
-        ordering = ('name', )
+    def get_absolute_url(self):
+        return reverse('session:server', args=[str(self.name)])
 
 
 class Session(models.Model):
@@ -151,6 +165,9 @@ class Session(models.Model):
 
     def get_absolute_url(self):
         return reverse('session:session', args=[str(self.id)])
+
+    def __str__(self):
+        return "{} - {}".format(self.id, self.setup.name)
 
 
 class SessionSnapshot(models.Model):

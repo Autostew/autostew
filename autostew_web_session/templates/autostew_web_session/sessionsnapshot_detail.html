@@ -228,6 +228,7 @@
     </div>
 
     <p>
-        <a href="{% url 'session:events' session.id %}">Events</a>
+        <a href="{% url 'session:events' session.id %}">Events</a><br>
+        <a href="{{ session.server.get_absolute_url }}">{{ session.server }}</a>
     </p>
 {% endblock %}

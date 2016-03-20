@@ -12,8 +12,7 @@
             {% if sessions_in_progress %}
                 <ul>
                     {% for session in sessions_in_progress %}
-                        <li><a href="{{ session.get_absolute_url }}">Session {{ session.id }}
-                            at {{ session.setup.track.name }}</a></li>
+                        <li><a href="{{ session.get_absolute_url }}">{{ session }}</a></li>
                     {% endfor %}
                 </ul>
             {% else %}
@@ -26,8 +25,7 @@
             {% if sessions_planned %}
                 <ul>
                     {% for session in sessions_planned %}
-                        <li><a href="{{ session.get_absolute_url }}">Session {{ session.id }}
-                            at {{ session.setup.track.name }}</a></li>
+                        <li><a href="{{ session.get_absolute_url }}">{{ session }}</a></li>
                     {% endfor %}
                 </ul>
             {% else %}
@@ -40,8 +38,7 @@
             {% if sessions_history %}
                 <ul>
                     {% for session in sessions_history %}
-                        <li><a href="{{ session.get_absolute_url }}">Session {{ session.id }}
-                            at {{ session.setup.track.name }}</a></li>
+                        <li><a href="{{ session.get_absolute_url }}">{{ session }}</a></li>
                     {% endfor %}
                 </ul>
             {% else %}
