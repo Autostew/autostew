@@ -9,9 +9,9 @@ python:
 before_script: mkdir -p shippable/testresults
 
 script:
-  - python manage.py makemigrations autostew_web_session autostew_web_enums 
-  - python manage.py migrate
-  - coverage run ./manage.py test
+  - python manage.py makemigrations autostew_web_session autostew_web_enums --settings=autostew.settings.dev
+  - python manage.py migrate --settings=autostew.settings.dev
+  - coverage run ./manage.py test --settings=autostew.settings.dev
   - coverage xml --omit="**/migrations/*.py,**/__init__.py,**/tests.py,manage.py,**/test_*.py,/root/venv/**/*" -o shippable/codecoverage/coverage.xml
 
 notifications:
