@@ -1,20 +1,18 @@
 {% load staticfiles %}
 
 {% block content %}
-    <br>
-    <br>
-    <div class="well bs-sidebar" id="sidebar" style="background-color:#fff">
-        <center>
+    <center>
+        <a href="{% url 'home' %}">
             <img src="{% static 'autostew_web_session/img/uberspace_badge_white.png' %}"
-                 class="responsive-img" style='max-height:100px;' alt="face">
-        </center>
-        <br>
+             class="responsive-img" style='max-height:100px; margin: 30px 0 30px 0px' alt="face">
+        </a>
+    </center>
+    <div class="well bs-sidebar" id="sidebar" style="background-color:#fff">
         <ul class="nav nav-pills nav-stacked">
             <li><a href='{% url 'home' %}'>Home</a></li>
-            <li><a href='{% url 'session:servers' %}'>Servers</a></li>
-            <li><a href='{% url 'session:tracks' %}'>Tracks</a></li>
             <li><a href='{% url 'session:sessions' %}'>Sessions</a></li>
             <li><a href='{% url 'users:list' %}'>Drivers</a></li>
+            <li><a href='{% url 'session:servers' %}'>Servers</a></li>
             <li><a href='/admin/'>Admin</a></li>
         </ul>
     </div>
