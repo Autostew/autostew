@@ -1,11 +1,18 @@
 #!/bin/bash
 
+# Prerequisites:
+#sudo useradd -m autostew
+#
+
 # Makes a server (tested on ubuntu)
+# First parameter is hostname
 
 # Set hostname
 sudo sed "1s/.*/127.0.0.1 localhost $1/" /etc/hosts
 sudo hostname $1
 echo $1 | sudo tee /etc/hostname
+
+# Set up SSH access TODO
 
 # Install packages
 sudo apt-get update
@@ -32,8 +39,7 @@ sudo systemctl start pcars-ds.service
 # Set up apache TODO
 
 
-# Deploy Django TODO
-
+# Deploy autostew TODO
 
 # Set up autostew TODO
 
