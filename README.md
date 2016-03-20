@@ -1,4 +1,4 @@
-# autostew
+# autostew [![Run Status](https://api.shippable.com/projects/56e9b0ab9d043da07bdf4ff2/badge?branch=master)](https://app.shippable.com/projects/56e9b0ab9d043da07bdf4ff2)
 Autostew - project cars server monitoring and management
 
 # Documentation
