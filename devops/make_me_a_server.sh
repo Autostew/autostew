@@ -2,9 +2,10 @@
 
 # Prerequisites:
 #sudo useradd -m autostew
-#
+#git clone
 
 # Makes a server (tested on ubuntu)
+# RUN IT ON THE GIT REPO PATH
 # First parameter is hostname
 
 # Set hostname
@@ -18,8 +19,10 @@ echo $1 | sudo tee /etc/hostname
 sudo apt-get update
 sudo apt-get upgrade
 sudo apt-get install python3-pip
-sudo pip install django=1.9
 sudo apt-get install lib32gcc1
+sudo apt-get install libmysqlclient-dev
+sudo pip3 install mysqlclient
+sudo pip3 install -r requirements.txt
 
 # Set up steam
 sudo useradd -m steam
@@ -40,6 +43,7 @@ sudo systemctl start pcars-ds.service
 
 
 # Deploy autostew TODO
+
 
 # Set up autostew TODO
 
