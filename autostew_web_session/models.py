@@ -24,6 +24,9 @@ class Track(models.Model):
 
 
 class VehicleClass(models.Model):
+    class Meta:
+        ordering = ['name']
+
     name = models.CharField(max_length=50, unique=True)
     ingame_id = models.IntegerField(help_text='pCars internal ID')
 
@@ -32,6 +35,9 @@ class VehicleClass(models.Model):
 
 
 class Vehicle(models.Model):
+    class Meta:
+        ordering = ['name']
+
     name = models.CharField(max_length=50, unique=True)
     ingame_id = models.IntegerField(help_text='pCars internal ID')
     vehicle_class = models.ForeignKey(VehicleClass)
@@ -41,6 +47,9 @@ class Vehicle(models.Model):
 
 
 class Livery(models.Model):
+    class Meta:
+        ordering = ['vehicle__name', 'name']
+
     name = models.CharField(max_length=50)
     id_for_vehicle = models.IntegerField(help_text='pCars internal ID')
     vehicle = models.ForeignKey(Vehicle)
@@ -54,6 +63,9 @@ class ServerConfiguration(models.Model):
 
 
 class SessionSetup(models.Model):
+    class Meta:
+        ordering = ['name']
+
     name = models.CharField(max_length=50, unique=True)
     server_controls_setup = models.BooleanField()
     server_controls_track = models.BooleanField()
@@ -244,6 +256,9 @@ class SessionStage(models.Model):
 
 
 class Member(models.Model):
+    class Meta:
+        ordering = ['name']
+
     steam_user = models.ForeignKey(SteamUser)
     session = models.ForeignKey(Session)
     still_connected = models.BooleanField()
@@ -274,6 +289,8 @@ class Member(models.Model):
 
 
 class MemberSnapshot(models.Model):
+    class Meta:
+        ordering = ['member__name']
     member = models.ForeignKey(Member)
     snapshot = models.ForeignKey(SessionSnapshot)
     still_connected = models.BooleanField()
@@ -286,6 +303,9 @@ class MemberSnapshot(models.Model):
 
 
 class Participant(models.Model):
+    class Meta:
+        ordering = ['name']
+
     member = models.ForeignKey(Member, null=True)  # AI will be NULL
     session = models.ForeignKey(Session)
     still_connected = models.BooleanField()
@@ -304,6 +324,7 @@ class Participant(models.Model):
 class ParticipantSnapshot(models.Model):
     class Meta:
         ordering = ['race_position']
+
     snapshot = models.ForeignKey(SessionSnapshot)
     participant = models.ForeignKey(Participant)
     still_connected = models.BooleanField()
@@ -354,6 +375,7 @@ class ParticipantSnapshot(models.Model):
 class Event(models.Model):
     class Meta:
         ordering = ['ingame_index']
+
     snapshot = models.ForeignKey(SessionSnapshot, null=True, related_name='+')
     definition = models.ForeignKey('autostew_web_enums.EventDefinition', null=True, related_name='+')  # may be NULL and a custom event! eg. by a plugin
     session = models.ForeignKey(Session)
@@ -364,7 +386,8 @@ class Event(models.Model):
 
 class RaceLapSnapshot(models.Model):
     class Meta:
-        ordering = ['lap']
+        ordering = ['session_id', 'lap']
+
     session = models.ForeignKey(Session)
     snapshot = models.ForeignKey(SessionSnapshot, unique=True)
     lap = models.IntegerField()
@@ -375,7 +398,7 @@ class RaceLapSnapshot(models.Model):
 
 class Lap(models.Model):
     class Meta:
-        ordering = ['lap']
+        ordering = ['session_id', 'lap']
     session = models.ForeignKey(Session)
     session_stage = models.ForeignKey(enum_models.SessionStage)
     participant = models.ForeignKey(Participant)
@@ -410,7 +433,7 @@ class Lap(models.Model):
 
 class Sector(models.Model):
     class Meta:
-        ordering = ['lap', 'sector']
+        ordering = ['session_id', 'lap', 'sector']
     session = models.ForeignKey(Session)
     session_stage = models.ForeignKey(enum_models.SessionStage)
     participant = models.ForeignKey(Participant)
