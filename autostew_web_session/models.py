@@ -106,9 +106,9 @@ class SessionSetup(models.Model):
     fuel_usage = models.ForeignKey('autostew_web_enums.FuelUsageDefinition', null=True)
     penalties = models.ForeignKey('autostew_web_enums.PenaltyDefinition', null=True)
     allowed_views = models.ForeignKey('autostew_web_enums.AllowedViewsDefinition', null=True)
-    track = models.ForeignKey(Track, null=True)
-    vehicle_class = models.ForeignKey(VehicleClass, null=True)
-    vehicle = models.ForeignKey(Vehicle, null=True)
+    track = models.ForeignKey(Track, null=True, blank=True)
+    vehicle_class = models.ForeignKey(VehicleClass, null=True, blank=True)
+    vehicle = models.ForeignKey(Vehicle, null=True, blank=True)
     date_year = models.IntegerField()
     date_month = models.IntegerField()
     date_day = models.IntegerField()
@@ -117,11 +117,11 @@ class SessionSetup(models.Model):
     date_progression = models.IntegerField()
     weather_progression = models.IntegerField()
     weather_slots = models.IntegerField()
-    weather_1 = models.ForeignKey('autostew_web_enums.WeatherDefinition', related_name='+', null=True)
-    weather_2 = models.ForeignKey('autostew_web_enums.WeatherDefinition', related_name='+', null=True)
-    weather_3 = models.ForeignKey('autostew_web_enums.WeatherDefinition', related_name='+', null=True)
-    weather_4 = models.ForeignKey('autostew_web_enums.WeatherDefinition', related_name='+', null=True)
-    game_mode = models.ForeignKey('autostew_web_enums.GameModeDefinition', related_name='+', null=True)
+    weather_1 = models.ForeignKey('autostew_web_enums.WeatherDefinition', related_name='+', null=True, blank=True)
+    weather_2 = models.ForeignKey('autostew_web_enums.WeatherDefinition', related_name='+', null=True, blank=True)
+    weather_3 = models.ForeignKey('autostew_web_enums.WeatherDefinition', related_name='+', null=True, blank=True)
+    weather_4 = models.ForeignKey('autostew_web_enums.WeatherDefinition', related_name='+', null=True, blank=True)
+    game_mode = models.ForeignKey('autostew_web_enums.GameModeDefinition', related_name='+', null=True, blank=True)
     track_latitude = models.IntegerField()  # TODO this should be on track model
     track_longitude = models.IntegerField()  # TODO this should be on track model
     track_altitude = models.IntegerField()  # TODO this should be on track model
@@ -139,9 +139,9 @@ class Server(models.Model):
     session_setups = models.ManyToManyField(SessionSetup)
 
     running = models.BooleanField()
-    current_session = models.ForeignKey('Session', null=True, related_name='+')
-    last_ping = models.DateTimeField(null=True)
-    average_player_latency = models.IntegerField(null=True)
+    current_session = models.ForeignKey('Session', null=True, related_name='+', blank=True)
+    last_ping = models.DateTimeField(null=True, blank=True)
+    average_player_latency = models.IntegerField(null=True, blank=True)
     # TODO joinable = models.BooleanField()
     # TODO state = server.state!!
 
@@ -172,10 +172,10 @@ class Session(models.Model):
     lobby_id = models.CharField(max_length=200)
     max_member_count = models.IntegerField()
 
-    first_snapshot = models.ForeignKey("SessionSnapshot", null=True, related_name='+')
-    current_snapshot = models.ForeignKey("SessionSnapshot", null=True, related_name='+')
-    starting_snapshot_lobby = models.ForeignKey("SessionSnapshot", null=True, related_name='+')
-    starting_snapshot_to_track = models.ForeignKey("SessionSnapshot", null=True, related_name='+')
+    first_snapshot = models.ForeignKey("SessionSnapshot", null=True, blank=True, related_name='+')
+    current_snapshot = models.ForeignKey("SessionSnapshot", null=True, blank=True, related_name='+')
+    starting_snapshot_lobby = models.ForeignKey("SessionSnapshot", null=True, blank=True, related_name='+')
+    starting_snapshot_to_track = models.ForeignKey("SessionSnapshot", null=True, blank=True, related_name='+')
 
     def get_absolute_url(self):
         return reverse('session:session', args=[str(self.id)])
@@ -251,8 +251,8 @@ class SessionSnapshot(models.Model):
 class SessionStage(models.Model):
     session = models.ForeignKey(Session, related_name='stages')
     stage = models.ForeignKey(enum_models.SessionStage)
-    starting_snapshot = models.ForeignKey(SessionSnapshot, related_name='starting_of', null=True)
-    result_snapshot = models.ForeignKey(SessionSnapshot, related_name='result_of', null=True)
+    starting_snapshot = models.ForeignKey(SessionSnapshot, related_name='starting_of', null=True, blank=True)
+    result_snapshot = models.ForeignKey(SessionSnapshot, related_name='result_of', null=True, blank=True)
 
     def get_absolute_url(self):
         return reverse('session:session_stage', args=[str(self.session.id), str(self.stage.name)])
@@ -310,7 +310,7 @@ class Participant(models.Model):
     class Meta:
         ordering = ['name']
 
-    member = models.ForeignKey(Member, null=True)  # AI will be NULL
+    member = models.ForeignKey(Member, null=True, blank=True)  # AI will be NULL
     session = models.ForeignKey(Session)
     still_connected = models.BooleanField()
 
@@ -318,8 +318,8 @@ class Participant(models.Model):
     refid = models.IntegerField()
     name = models.CharField(max_length=200)
     is_ai = models.BooleanField()
-    vehicle = models.ForeignKey(Vehicle, null=True)  # NULL because AI owner change will do that
-    livery = models.ForeignKey(Livery, null=True)  # NULL because AI owner change will do that
+    vehicle = models.ForeignKey(Vehicle, null=True, blank=True)  # NULL because AI owner change will do that
+    livery = models.ForeignKey(Livery, null=True, blank=True)  # NULL because AI owner change will do that
 
     def get_absolute_url(self):
         return reverse('session:participant', args=[str(self.session.id), str(self.ingame_id)])
@@ -380,8 +380,8 @@ class Event(models.Model):
     class Meta:
         ordering = ['ingame_index']
 
-    snapshot = models.ForeignKey(SessionSnapshot, null=True, related_name='+')
-    definition = models.ForeignKey('autostew_web_enums.EventDefinition', null=True, related_name='+')  # may be NULL and a custom event! eg. by a plugin
+    snapshot = models.ForeignKey(SessionSnapshot, null=True, blank=True, related_name='+')
+    definition = models.ForeignKey('autostew_web_enums.EventDefinition', null=True, blank=True, related_name='+')  # may be NULL and a custom event! eg. by a plugin
     session = models.ForeignKey(Session)
     timestamp = models.DateTimeField()
     ingame_index = models.IntegerField()
