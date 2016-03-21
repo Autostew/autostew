@@ -18,6 +18,6 @@ notifications:
 email:
   recipients:
     - witmic1@gmail.com
-    - contact@joanardiaca.net
+    - joan.ardiaca@gmail.com
   on_success: change
   on_failure: always
