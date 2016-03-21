@@ -236,7 +236,7 @@ class SessionSnapshot(models.Model):
 class SessionStage(models.Model):
     session = models.ForeignKey(Session, related_name='stages')
     stage = models.ForeignKey(enum_models.SessionStage)
-    starting_snapshot = models.ForeignKey(SessionSnapshot, related_name='starting_of')
+    starting_snapshot = models.ForeignKey(SessionSnapshot, related_name='starting_of', null=True)
     result_snapshot = models.ForeignKey(SessionSnapshot, related_name='result_of', null=True)
 
     def get_absolute_url(self):

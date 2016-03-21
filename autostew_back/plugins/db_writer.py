@@ -134,10 +134,7 @@ def event(server: DServer, event: (BaseEvent, ParticipantEvent)):
         participant.race_position = event.race_position
         participant.total_time = td_to_milli(event.total_time)
         participant.save()
-        current_stage = session_models.SessionStage.objects.get(
-            session=current_session,
-            stage__name=current_session.current_snapshot.session_stage,
-        )
+        current_stage = _get_or_create_stage(server)
         current_stage.result_snapshot = result_snapshot
         current_stage.save()
 
@@ -187,24 +184,20 @@ def event(server: DServer, event: (BaseEvent, ParticipantEvent)):
         if event.new_state == SessionState.race:
             current_session.starting_snapshot_to_track = _create_session_snapshot(server, current_session)
             current_session.save()
-            session_models.SessionStage(
-                session=current_session,
-                stage=current_session.current_snapshot.session_stage,
-                starting_snapshot=current_session.starting_snapshot_to_track
-            ).save(True)
+            stage = _get_or_create_stage(server)
+            stage.starting_snapshot = current_session.starting_snapshot_to_track
+            stage.save()
 
     # Create stage starting snapshots
     if event.type == EventType.stage_changed:
         snapshot = _create_session_snapshot(server, current_session)
-        session_models.SessionStage(
-            session=current_session,
-            stage=current_session.current_snapshot.session_stage,
-            starting_snapshot=snapshot
-        ).save(True)
+        stage = _get_or_create_stage(server)
+        stage.starting_snapshot = snapshot
+        stage.save()
         current_session.save()
 
     # Insert event
-    # some events can happen while there is no session
+    # some events can happen while there is no session, we ignore them
     if current_session:
         session_models.Event(
             snapshot=None,
@@ -215,6 +208,20 @@ def event(server: DServer, event: (BaseEvent, ParticipantEvent)):
             raw=json.dumps(event.raw),
         ).save(True)
 
+
+def _get_or_create_stage(server):
+    try:
+        return session_models.SessionStage.objects.get(
+            session=current_session,
+            stage__name=server.session.session_stage.get()
+        )
+    except session_models.SessionStage.DoesNotExist:
+        stage = session_models.SessionStage(
+            session=current_session,
+            stage=enum_models.SessionStage.objects.get(name=server.session.session_stage.get())
+        )
+        stage.save(True)
+        return stage
 
 def _close_current_session():
     global current_session
