@@ -326,7 +326,7 @@ class TestDBWriter(TestCase):
         self.assertEqual(m_snap.state.name, MemberState.connected.value)
         self.assertEqual(m_snap.host, False)
 
-        participant = Participant.objects.all()[0]
+        participant = Participant.objects.get(name="blak")
         self.assertEqual(participant.member, Member.objects.all()[0])
         self.assertEqual(participant.session, session)
         self.assertEqual(participant.still_connected, True)
@@ -361,7 +361,7 @@ class TestDBWriter(TestCase):
         self.assertEqual(p_snapshot.position_z, 166000)
         self.assertEqual(p_snapshot.orientation, 182)
 
-        participant = Participant.objects.all()[2]
+        participant = Participant.objects.get(name="Carlos Eduardo de Araujo")
         self.assertEqual(participant.member, None)
         self.assertEqual(participant.session, session)
         self.assertEqual(participant.still_connected, True)

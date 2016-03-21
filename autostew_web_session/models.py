@@ -12,6 +12,7 @@ from autostew_web_users.models import SteamUser
 class Track(models.Model):
     class Meta:
         ordering = ['name']
+
     ingame_id = models.IntegerField(help_text='pCars internal ID')
     name = models.CharField(max_length=100)
     grid_size = models.SmallIntegerField()
@@ -158,6 +159,7 @@ class Server(models.Model):
 class Session(models.Model):
     class Meta:
         ordering = ['start_timestamp']
+
     server = models.ForeignKey(Server)
     setup = models.ForeignKey(SessionSetup)
 
@@ -185,6 +187,7 @@ class Session(models.Model):
 class SessionSnapshot(models.Model):
     class Meta:
         ordering = ['timestamp']
+
     session = models.ForeignKey(Session)
     is_result = models.BooleanField()
     timestamp = models.DateTimeField(auto_now_add=True)
@@ -291,6 +294,7 @@ class Member(models.Model):
 class MemberSnapshot(models.Model):
     class Meta:
         ordering = ['member__name']
+
     member = models.ForeignKey(Member)
     snapshot = models.ForeignKey(SessionSnapshot)
     still_connected = models.BooleanField()
@@ -399,6 +403,7 @@ class RaceLapSnapshot(models.Model):
 class Lap(models.Model):
     class Meta:
         ordering = ['session_id', 'lap']
+
     session = models.ForeignKey(Session)
     session_stage = models.ForeignKey(enum_models.SessionStage)
     participant = models.ForeignKey(Participant)
@@ -434,6 +439,7 @@ class Lap(models.Model):
 class Sector(models.Model):
     class Meta:
         ordering = ['session_id', 'lap', 'sector']
+
     session = models.ForeignKey(Session)
     session_stage = models.ForeignKey(enum_models.SessionStage)
     participant = models.ForeignKey(Participant)
