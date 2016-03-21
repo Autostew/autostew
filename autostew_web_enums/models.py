@@ -148,7 +148,7 @@ class ParticipantState(models.Model):
         return self.name
 
     def in_race(self):
-        return self.name not in ('DNF', 'Retired')
+        return self.name not in ('DNF', 'Retired', 'Disqualified')
 
 
 class SessionState(models.Model):
