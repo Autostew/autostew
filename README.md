@@ -3,6 +3,7 @@
 
 Autostew - project cars server monitoring and management
 
+[![Throughput Graph](https://graphs.waffle.io/Autostew/autostew/throughput.svg)](https://waffle.io/Autostew/autostew/metrics)
 
 # Documentation
 * [Project Cars Dedicated Server How-To](http://forum.projectcarsgame.com/showthread.php?22370-Dedicated-Server-HowTo-(Work-in-Progress))
