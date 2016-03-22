@@ -1,5 +1,4 @@
-# autostew
-[![Run Status](https://api.shippable.com/projects/56e9b0ab9d043da07bdf4ff2/badge?branch=master)](https://app.shippable.com/projects/56e9b0ab9d043da07bdf4ff2) [![Coverage Status](https://coveralls.io/repos/github/Autostew/autostew/badge.svg?branch=master)](https://coveralls.io/github/Autostew/autostew?branch=master)
+# autostew [![Build Status](https://travis-ci.org/Autostew/autostew.svg?branch=master)](https://travis-ci.org/Autostew/autostew) [![Coverage Status](https://coveralls.io/repos/github/Autostew/autostew/badge.svg?branch=master)](https://coveralls.io/github/Autostew/autostew?branch=master)
 
 Autostew - project cars server monitoring and management
 
