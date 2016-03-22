@@ -22,8 +22,8 @@ class Settings:
     plugins = [
         db,
         db_enum_writer,
-        db_writer,
         db_reader,
+        db_writer,
         clock,
         laptimes,
         crash_monitor,
