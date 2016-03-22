@@ -1,2 +1,9 @@
 language: python
-script: nosetests
+python:
+  - "3.5"
+install:
+  - pip install -r requirements.txt
+  - pip install coveralls
+script:
+  - coverage run manage.py test --settings=autostew.settings.dev
+after_success: coveralls
