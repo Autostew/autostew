@@ -1,7 +1,7 @@
 import logging
 
 from autostew_back.plugins import db, laptimes, crash_monitor, motd, db_reader, db_writer, db_enum_writer, clock
-from autostew_back.setups import default_setup, short_race_for_recording, prl_s1_r2_dubai
+from autostew_back.setups import prl_s1_r2_dubai
 
 logging.getLogger().setLevel(logging.INFO)
 logging.getLogger('django.db.backends').setLevel(logging.INFO)
@@ -23,6 +23,7 @@ class Settings:
         db,
         db_enum_writer,
         db_writer,
+        db_reader,
         clock,
         laptimes,
         crash_monitor,
