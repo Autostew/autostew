@@ -17,7 +17,6 @@ class TestGameReplay(TestCase):
         settings = SettingsWithoutPlugins()
         settings.plugins = [
             db,
-            db_reader,
             db_enum_writer,
             db_writer,
             clock,
