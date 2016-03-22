@@ -97,7 +97,7 @@ class Server:
             load_index = index
         if load_index >= len(self.settings.setup_rotation):
             load_index = 0
-        logging.info("Loading setup {}: {}".format(load_index, self.settings.setup_rotation[load_index].__file__))
+        logging.info("Loading setup {}: {}".format(load_index, self.settings.setup_rotation[load_index].name))
         self.settings.setup_rotation[load_index].make_setup(self)
         self._setup_index = load_index
 
