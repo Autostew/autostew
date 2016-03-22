@@ -1,10 +1,12 @@
 language: python
 python:
   - "3.5"
+env:
+  - DJANGO_SETTINGS_MODULE=autostew.settings.dev
 install:
   - pip install -r requirements.txt
   - pip install coveralls
 script:
   - ./recreate_db.sh
-  - coverage run --branch --source . manage.py test --settings=autostew.settings.dev
+  - coverage run --branch --source . manage.py test
 after_success: coveralls
