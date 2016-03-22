@@ -67,7 +67,7 @@ class SessionSetup(models.Model):
     class Meta:
         ordering = ['name']
 
-    name = models.CharField(max_length=50, unique=True)
+    name = models.CharField(max_length=100, unique=True)
     server_controls_setup = models.BooleanField()
     server_controls_track = models.BooleanField()
     server_controls_vehicle_class = models.BooleanField()

@@ -235,10 +235,7 @@ def _close_current_session():
 
 
 def _create_session(server: DServer, server_in_db: session_models.Server) -> session_models.Session:
-    try:
-        setup = session_models.SessionSetup.objects.get(name=server.get_current_setup_name())
-    except session_models.SessionSetup.DoesNotExist:
-        setup = _get_or_create_session_setup(server)
+    setup = _get_or_create_session_setup(server)
     setup.save()
 
     session = session_models.Session(
