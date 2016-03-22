@@ -268,7 +268,7 @@ def _create_session(server: DServer, server_in_db: session_models.Server) -> ses
 
 def _get_or_create_session_setup(server):
     try:
-        return session_models.SessionSetup.objects.get(name=server.get_current_setup_name)
+        return session_models.SessionSetup.objects.get(name=server.get_current_setup_name())
     except session_models.SessionSetup.DoesNotExist:
         flags = server.session.flags.get_flags()
         return session_models.SessionSetup(
