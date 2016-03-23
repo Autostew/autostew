@@ -9,4 +9,13 @@ install:
 script:
   - ./recreate_db.sh
   - coverage run --branch --source . manage.py test
+
+notifications:
+  email:
+    recipients:
+      - witmic1@gmail.com
+      - joan.ardiaca@gmail.com
+    on_success: change
+    on_failure: always
+
 after_success: coveralls
