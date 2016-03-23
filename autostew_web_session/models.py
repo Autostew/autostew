@@ -67,7 +67,9 @@ class SessionSetup(models.Model):
     class Meta:
         ordering = ['name']
 
-    name = models.CharField(max_length=100, unique=True)
+    name = models.CharField(max_length=100, unique=True, null=True)
+    is_template = models.BooleanField()
+
     server_controls_setup = models.BooleanField()
     server_controls_track = models.BooleanField()
     server_controls_vehicle_class = models.BooleanField()
@@ -161,7 +163,8 @@ class Session(models.Model):
         ordering = ['start_timestamp']
 
     server = models.ForeignKey(Server)
-    setup = models.ForeignKey(SessionSetup)
+    setup_template = models.ForeignKey(SessionSetup, related_name='+')
+    setup_actual = models.ForeignKey(SessionSetup, related_name='+')
 
     start_timestamp = models.DateTimeField(auto_now_add=True)
     last_update_timestamp = models.DateTimeField(auto_now=True)

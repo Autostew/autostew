@@ -1,6 +1,7 @@
 import json
 import logging
 
+from django.core.wsgi import get_wsgi_application
 from django.db import transaction
 
 from autostew_back.gameserver.event import EventType, LeavingReason
@@ -17,7 +18,8 @@ from autostew_web_enums.models import EventDefinition, GameModeDefinition, TireW
 
 
 name = 'DB enum writer'
-dependencies = [db]
+
+get_wsgi_application()
 
 enum_tables = [Track, EventDefinition, SessionFlagDefinition, DamageDefinition, WeatherDefinition,
                PlayerFlagDefinition, AllowedViewsDefinition, FuelUsageDefinition,

@@ -1,33 +1,63 @@
+import logging
+
 from autostew_back.gameserver.event import EventType
 from autostew_back.gameserver.server import Server
 from autostew_back.gameserver.session import Privacy, SessionFlags, SessionState
-from autostew_back.plugins import db
+from autostew_back.plugins import db, local_setup_rotation
 from autostew_web_session import models
 from autostew_web_session.models import SessionSetup
 
-name = 'DB reader'
+name = 'DB setup rotation'
 dependencies = [db]
+conflicts = [local_setup_rotation]
+
+setup_rotation = []
+_setup_index = None
+_current_setup = None
+_server = None
 
 
-def init(server):
-    pass
-    # TODO load plugins from server
-    # and then raise BreakPluginLoadingException
+def init(server: Server):
+    global setup_rotation
+    global _server
+    _server = server
+    server.get_current_setup_name = get_current_setup_name
+    load_settings(server)
+    load_next_setup(server)
+
+
+def load_next_setup(server: Server, index=None):
+    global _setup_index
+    global _current_setup
+    if index is None:
+        load_index = 0 if _setup_index is None else _setup_index + 1
+    else:
+        load_index = index
+    if load_index >= len(setup_rotation):
+        load_index = 0
+    _current_setup = setup_rotation[load_index]
+    logging.info("Loading setup {}: {}".format(load_index, _current_setup.name))
+    _current_setup.make_setup(server)
+    _setup_index = load_index
 
 
 def event(server, event):
+    global setup_rotation
     if event.type == EventType.state_changed:
         if event.new_state == SessionState.lobby:
-            server.settings.setup_rotation = [DBSetup(setup) for setup in load_settings(server)]
-            server.load_next_setup()
+            load_settings(server)
+            load_next_setup(server)
 
 
 def load_settings(server):
-    return models.Server.objects.get(name=server.settings.server_name).session_setups.all()
+    global setup_rotation
+    setup_rotation = [
+        DBSetup(setup) for setup in models.Server.objects.get(name=server.settings.server_name).session_setups.all()
+    ]
 
 
-def tick(server):
-    pass
+def get_current_setup_name():
+    return _current_setup.name
 
 
 class DBSetup:
@@ -90,4 +120,5 @@ class DBSetup:
         server.session.warmup_length.set_to_game(self.setup.warmup_length)
         server.session.race1_length.set_to_game(self.setup.race1_length)
         server.session.race2_length.set_to_game(self.setup.race2_length)
+        server.fetch_status()
 

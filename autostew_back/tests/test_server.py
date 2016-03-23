@@ -8,6 +8,7 @@ from autostew_back.gameserver.mocked_api import FakeApi
 from autostew_back.gameserver.participant import ParticipantState
 from autostew_back.gameserver.server import Server, ServerState
 from autostew_back.gameserver.session import SessionFlags, Privacy, SessionState, SessionStage, SessionPhase
+from autostew_back.plugins import local_setup_rotation
 from autostew_back.tests.test_assets import prl_s4_r2_zolder_casual, no_setup
 from autostew_back.tests.test_assets.settings_no_plugins import SettingsWithoutPlugins
 
@@ -22,7 +23,6 @@ def status_empty(test_case, server):
     test_case.assertEqual(server.max_member_count, 0)
 
     test_case.assertEqual(server.get_current_setup_name(), prl_s4_r2_zolder_casual.name)
-    test_case.assertEqual(server._setup_index, 0)
     test_case.assertEqual(server.session.server_controls_setup.get(), True)
     test_case.assertEqual(server.session.server_controls_vehicle.get(), False)
     test_case.assertEqual(server.session.vehicle_class.get_nice(), "GT3")
@@ -63,7 +63,6 @@ def status_in_lobby(test_case, server):
     test_case.assertEqual(server.joinable, True)
     test_case.assertEqual(server.max_member_count, 22)
     test_case.assertEqual(server.get_current_setup_name(), no_setup.name)
-    test_case.assertEqual(server._setup_index, 0)
     test_case.assertEqual(server.session.server_controls_setup.get(), True)
     test_case.assertEqual(server.session.server_controls_vehicle.get(), False)
     test_case.assertEqual(server.session.vehicle_class.get_nice(), "GT3")
@@ -174,7 +173,6 @@ def status_quali(test_case, server):
     test_case.assertEqual(server.max_member_count, 22)
 
     test_case.assertEqual(server.get_current_setup_name(), no_setup.name)
-    test_case.assertEqual(server._setup_index, 0)
     test_case.assertEqual(server.session.server_controls_setup.get(), True)
     test_case.assertEqual(server.session.server_controls_vehicle.get(), False)
     test_case.assertEqual(server.session.vehicle_class.get_nice(), "GT3")
@@ -406,6 +404,7 @@ class TestServer(TestCase):
         api = FakeApi()
         with mock.patch.object(requests, 'get', api.fake_request):
             server = Server(SettingsWithoutPlugins(), False)
+            local_setup_rotation.load_next_setup(server)
             status_empty(self, server)
 
     def test_in_lobby_one_player_setup_without_setup(self):
@@ -418,6 +417,7 @@ class TestServer(TestCase):
         settings.setup_rotation = [no_setup]
         with mock.patch.object(requests, 'get', api.fake_request):
             server = Server(settings, False)
+            local_setup_rotation.load_next_setup(server)
             status_in_lobby(self, server)
 
     def test_in_lobby_one_player_members_without_setup(self):
@@ -430,6 +430,7 @@ class TestServer(TestCase):
         settings.setup_rotation = [no_setup]
         with mock.patch.object(requests, 'get', api.fake_request):
             server = Server(settings, False)
+            local_setup_rotation.load_next_setup(server)
             members_one_player_lobby(self, server)
 
     def test_setup_in_quali_two_player_14_ai_setup_without_setup(self):
@@ -442,6 +443,7 @@ class TestServer(TestCase):
         settings.setup_rotation = [no_setup]
         with mock.patch.object(requests, 'get', api.fake_request):
             server = Server(settings, False)
+            local_setup_rotation.load_next_setup(server)
             status_quali(self, server)
 
     def test_setup_in_quali_two_player_14_ai_members_without_setup(self):
@@ -454,6 +456,7 @@ class TestServer(TestCase):
         settings.setup_rotation = [no_setup]
         with mock.patch.object(requests, 'get', api.fake_request):
             server = Server(settings, False)
+            local_setup_rotation.load_next_setup(server)
             members_in_quali(self, server)
 
     def test_setup_in_quali_two_player_14_ai_participants_without_setup(self):
@@ -466,6 +469,7 @@ class TestServer(TestCase):
         settings.setup_rotation = [no_setup]
         with mock.patch.object(requests, 'get', api.fake_request):
             server = Server(settings, False)
+            local_setup_rotation.load_next_setup(server)
             participants_in_quali(self, server)
 
     def test_status_progression(self):
@@ -477,6 +481,7 @@ class TestServer(TestCase):
         settings.setup_rotation = [no_setup]
         with mock.patch.object(requests, 'get', api.fake_request):
             server = Server(settings, False)
+            local_setup_rotation.load_next_setup(server)
             status_in_lobby(self, server)
             api.status_result = 'autostew_back/tests/test_assets/session_in_quali_two_players_14ai.json'
             server.fetch_status()

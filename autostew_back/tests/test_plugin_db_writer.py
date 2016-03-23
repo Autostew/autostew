@@ -7,14 +7,77 @@ from autostew_back.gameserver.member import MemberLoadState, MemberState
 from autostew_back.gameserver.mocked_api import FakeApi
 from autostew_back.gameserver.participant import ParticipantState
 from autostew_back.gameserver.server import Server as DServer, UnmetPluginDependency
-from autostew_back.plugins import db_enum_writer, db, db_writer
+from autostew_back.plugins import db_enum_writer, db, db_session_writer, db_setup_rotation
 from autostew_back.tests.test_assets.settings_no_plugins import SettingsWithoutPlugins
+from autostew_web_enums.models import DamageDefinition, TireWearDefinition, FuelUsageDefinition, PenaltyDefinition, \
+    AllowedViewsDefinition, WeatherDefinition, GameModeDefinition
 from autostew_web_session import models
 from autostew_web_session.models import Session, SessionSetup, Participant, SessionSnapshot, Member, MemberSnapshot, \
-    ParticipantSnapshot
+    ParticipantSnapshot, Track, VehicleClass, Vehicle
 
 
 class TestDBWriter(TestCase):
+    @classmethod
+    def make_test_setup(cls):
+        return SessionSetup(
+            name='test',
+            is_template=True,
+            server_controls_setup=True,
+            server_controls_track=True,
+            server_controls_vehicle_class=True,
+            server_controls_vehicle=True,
+            grid_size=24,
+            max_players=24,
+            opponent_difficulty=100,
+            force_identical_vehicles=False,
+            allow_custom_vehicle_setup=True,
+            force_realistic_driving_aids=True,
+            abs_allowed=False,
+            sc_allowed=False,
+            tcs_allowed=False,
+            force_manual=False,
+            rolling_starts=False,
+            force_same_vehicle_class=True,
+            fill_session_with_ai=False,
+            mechanical_failures=True,
+            auto_start_engine=True,
+            timed_race=False,
+            ghost_griefers=True,
+            enforced_pitstop=True,
+            practice1_length=60,
+            practice2_length=0,
+            qualify_length=15,
+            warmup_length=5,
+            race1_length=25,
+            race2_length=0,
+            public=True,
+            friends_can_join=False,
+            damage=DamageDefinition.objects.get(name="FULL"),
+            tire_wear=TireWearDefinition.objects.get(name="X2"),
+            fuel_usage=FuelUsageDefinition.objects.get(name="STANDARD"),
+            penalties=PenaltyDefinition.objects.get(name="FULL"),
+            allowed_views=AllowedViewsDefinition.objects.get(name="Any"),
+            track=Track.objects.get(name="Hockenheim GP"),
+            vehicle_class=VehicleClass.objects.get(name="GT3"),
+            vehicle=Vehicle.objects.get(name="McLaren 12C GT3"),
+            date_year=2016,
+            date_month=1,
+            date_day=1,
+            date_hour=0,
+            date_minute=0,
+            date_progression=1,
+            weather_progression=1,
+            weather_slots=1,
+            weather_1=WeatherDefinition.objects.get(name="Clear"),
+            weather_2=WeatherDefinition.objects.get(name="Clear"),
+            weather_3=WeatherDefinition.objects.get(name="Clear"),
+            weather_4=WeatherDefinition.objects.get(name="Clear"),
+            game_mode=GameModeDefinition.objects.get(name="MP_Race"),
+            track_latitude=0,
+            track_longitude=0,
+            track_altitude=0,
+        )
+
     def test_dependency(self):
         """
         Tests if the dependencies of the db_writer plugin are correctly handled
@@ -22,13 +85,13 @@ class TestDBWriter(TestCase):
         api = FakeApi()
         settings = SettingsWithoutPlugins()
         with mock.patch.object(requests, 'get', api.fake_request):
-            settings.plugins = [db_writer]
+            settings.plugins = [db_session_writer]
             self.assertRaises(UnmetPluginDependency, DServer, settings, False)
         with mock.patch.object(requests, 'get', api.fake_request):
-            settings.plugins = [db, db_writer]
+            settings.plugins = [db, db_session_writer]
             self.assertRaises(UnmetPluginDependency, DServer, settings, False)
         with mock.patch.object(requests, 'get', api.fake_request):
-            settings.plugins = [db_enum_writer, db_writer]
+            settings.plugins = [db_enum_writer, db_session_writer]
             self.assertRaises(UnmetPluginDependency, DServer, settings, False)
 
     def test_create_session_in_lobby(self):
@@ -37,11 +100,15 @@ class TestDBWriter(TestCase):
         """
         api = FakeApi('autostew_back/tests/test_assets/session_in_lobby_one_player.json')
         settings = SettingsWithoutPlugins()
-        settings.plugins = [db, db_enum_writer, db_writer]
+        settings.plugins = [db_enum_writer]
         with mock.patch.object(requests, 'get', api.fake_request):
             server = DServer(settings, True)
+        self.make_test_setup().save(True)
+        settings.plugins = [db, db_setup_rotation, db_session_writer]
+        with mock.patch.object(requests, 'get', api.fake_request):
+            server = DServer(settings)
         self.assertEqual(models.Server.objects.count(), 1)
-        self.assertEqual(SessionSetup.objects.count(), 1)
+        self.assertEqual(SessionSetup.objects.count(), 2)
         self.assertEqual(Session.objects.count(), 1)
         self.assertEqual(SessionSnapshot.objects.count(), 1)
         self.assertEqual(Member.objects.count(), 1)
@@ -53,7 +120,7 @@ class TestDBWriter(TestCase):
         self.assertEqual(server_in_db.name, settings.server_name)
         self.assertTrue(server_in_db.running)
 
-        session_setup = models.SessionSetup.objects.all()[0]
+        session_setup = models.SessionSetup.objects.get(is_template=False)
         self.assertTrue(session_setup.server_controls_setup)
         self.assertTrue(session_setup.server_controls_track)
         self.assertFalse(session_setup.server_controls_vehicle)
@@ -95,7 +162,7 @@ class TestDBWriter(TestCase):
         session = Session.objects.all()[0]
         session_snapshot = SessionSnapshot.objects.all()[0]
         self.assertEqual(session.server, server_in_db)
-        self.assertEqual(session.setup, session_setup)
+        self.assertEqual(session.setup_actual, session_setup)
         self.assertEqual(session.planned, False)
         self.assertEqual(session.running, True)
         self.assertEqual(session.finished, False)
@@ -158,11 +225,15 @@ class TestDBWriter(TestCase):
         """
         api = FakeApi('autostew_back/tests/test_assets/session_in_quali_two_players_14ai.json')
         settings = SettingsWithoutPlugins()
-        settings.plugins = [db, db_enum_writer, db_writer]
+        settings.plugins = [db_enum_writer]
         with mock.patch.object(requests, 'get', api.fake_request):
             server = DServer(settings, True)
+        self.make_test_setup().save(True)
+        settings.plugins = [db, db_setup_rotation, db_session_writer]
+        with mock.patch.object(requests, 'get', api.fake_request):
+            server = DServer(settings)
         self.assertEqual(models.Server.objects.count(), 1)
-        self.assertEqual(SessionSetup.objects.count(), 1)
+        self.assertEqual(SessionSetup.objects.count(), 2)
         self.assertEqual(Session.objects.count(), 1)
         self.assertEqual(SessionSnapshot.objects.count(), 1)
         self.assertEqual(Member.objects.count(), 2)
@@ -174,7 +245,7 @@ class TestDBWriter(TestCase):
         self.assertEqual(server_in_db.name, settings.server_name)
         self.assertTrue(server_in_db.running)
 
-        session_setup = models.SessionSetup.objects.all()[0]
+        session_setup = models.SessionSetup.objects.get(is_template=False)
         self.assertTrue(session_setup.server_controls_setup)
         self.assertTrue(session_setup.server_controls_track)
         self.assertFalse(session_setup.server_controls_vehicle)
@@ -216,7 +287,7 @@ class TestDBWriter(TestCase):
         session = Session.objects.all()[0]
         session_snapshot = SessionSnapshot.objects.all()[0]
         self.assertEqual(session.server, server_in_db)
-        self.assertEqual(session.setup, session_setup)
+        self.assertEqual(session.setup_actual, session_setup)
         self.assertEqual(session.planned, False)
         self.assertEqual(session.running, True)
         self.assertEqual(session.finished, False)

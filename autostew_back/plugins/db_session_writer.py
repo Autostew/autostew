@@ -11,51 +11,24 @@ from autostew_back.gameserver.member import MemberFlags, Member as SessionMember
 from autostew_back.gameserver.participant import Participant as SessionParticipant
 from autostew_back.gameserver.server import ServerState, Server as DServer
 from autostew_back.gameserver.session import SessionFlags, Privacy, SessionState, SessionStage
-from autostew_back.plugins import db, db_enum_writer
+from autostew_back.plugins import db, db_enum_writer, db_setup_rotation
 from autostew_back.utils import td_to_milli
 from autostew_web_enums import models as enum_models
 from autostew_web_session import models as session_models
 from autostew_web_users.models import SteamUser
 
 name = 'DB writer'
-dependencies = [db, db_enum_writer]
-ping_interval = 10
+dependencies = [db, db_setup_rotation]
 
 current_session = None
-server_in_db = None
 DEFAULT_SESSION_SETUP_NAME = 'default setup'
-last_ping = None
+
 
 @transaction.atomic
 def init(server: DServer):
     global current_session
-    global server_in_db
-    try:
-        server_in_db = session_models.Server.objects.get(name=server.settings.server_name)
-    except session_models.Server.DoesNotExist:
-        server_in_db = session_models.Server(name=server.settings.server_name, running=True)
-    server_in_db.running = True
-    server_in_db.state = server.state
-    server_in_db.save()
     if server.state == ServerState.running:
-        current_session = _create_session(server, server_in_db)  # TODO should be _find_current_or_create_session()
-    _ping(server)
-
-
-def tick(server: DServer):
-    if time.time() - last_ping >= ping_interval:
-        _ping(server)
-
-
-def _ping(server: DServer):
-    global last_ping
-    server_in_db.last_ping = timezone.make_aware(datetime.datetime.now())
-    if len(server.members.elements) == 0:
-        server_in_db.average_player_latency = None
-    else:
-        server_in_db.average_player_latency = sum([member.ping.get() for member in server.members.elements]) / len(server.members.elements)
-    server_in_db.save()
-    last_ping = time.time()
+        current_session = _create_session(server, db.server_in_db)  # TODO should be _find_current_or_create_session()
 
 
 @transaction.atomic
@@ -65,9 +38,6 @@ def destroy(server: DServer):
         current_session.running = False
         current_session.save()
         current_session = None
-        server_in_db.current_session = None
-        server_in_db.running = False
-        server_in_db.save()
 
 
 @transaction.atomic
@@ -180,8 +150,11 @@ def event(server: DServer, event: (BaseEvent, ParticipantEvent)):
         if event.new_state == SessionState.lobby:
             if current_session is not None:
                 _close_current_session()
-            current_session = _create_session(server, server_in_db)
+            current_session = _create_session(server, db.server_in_db)
         if event.new_state == SessionState.race:
+            final_setup = _create_session_setup(server)
+            final_setup.id = current_session.setup_actual_id
+            final_setup.save(force_update=True)
             current_session.starting_snapshot_to_track = _create_session_snapshot(server, current_session)
             current_session.save()
             stage = _get_or_create_stage(server)
@@ -230,17 +203,18 @@ def _close_current_session():
     current_session.finished = True
     current_session.save()
     current_session = None
-    server_in_db.current_session = None
-    server_in_db.save()
+    db.server_in_db.current_session = None
+    db.server_in_db.save()
 
 
 def _create_session(server: DServer, server_in_db: session_models.Server) -> session_models.Session:
-    setup = _get_or_create_session_setup(server)
-    setup.save()
+    actual_setup = _create_session_setup(server)
+    actual_setup.save()
 
     session = session_models.Session(
         server=server_in_db,
-        setup=setup,
+        setup_template=db_setup_rotation._current_setup.setup,
+        setup_actual=actual_setup,
         lobby_id=server.lobby_id,
         max_member_count=server.max_member_count,
         planned=False,
@@ -263,81 +237,79 @@ def _create_session(server: DServer, server_in_db: session_models.Server) -> ses
     return session
 
 
-def _get_or_create_session_setup(server):
-    try:
-        return session_models.SessionSetup.objects.get(name=server.get_current_setup_name())
-    except session_models.SessionSetup.DoesNotExist:
-        flags = server.session.flags.get_flags()
-        return session_models.SessionSetup(
-            name=server.get_current_setup_name(),
-            server_controls_setup=server.session.server_controls_setup.get(),
-            server_controls_track=server.session.server_controls_track.get(),
-            server_controls_vehicle_class=server.session.server_controls_vehicle_class.get(),
-            server_controls_vehicle=server.session.server_controls_vehicle.get(),
-            grid_size=server.session.grid_size.get(),
-            max_players=server.session.max_players.get(),
-            opponent_difficulty=server.session.opponent_difficulty.get(),
-            force_identical_vehicles=SessionFlags.force_identical_vehicles in flags,
-            allow_custom_vehicle_setup=SessionFlags.allow_custom_vehicle_setup in flags,
-            force_realistic_driving_aids=SessionFlags.force_realistic_driving_aids in flags,
-            abs_allowed=SessionFlags.abs_allowed in flags,
-            sc_allowed=SessionFlags.sc_allowed in flags,
-            tcs_allowed=SessionFlags.tcs_allowed in flags,
-            force_manual=SessionFlags.force_manual in flags,
-            rolling_starts=SessionFlags.rolling_starts in flags,
-            force_same_vehicle_class=SessionFlags.force_same_vehicle_class in flags,
-            fill_session_with_ai=SessionFlags.fill_session_with_ai in flags,
-            mechanical_failures=SessionFlags.mechanical_failures in flags,
-            auto_start_engine=SessionFlags.auto_start_engine in flags,
-            timed_race=SessionFlags.timed_race in flags,
-            ghost_griefers=SessionFlags.ghost_griefers in flags,
-            enforced_pitstop=SessionFlags.enforced_pitstop in flags,
-            practice1_length=server.session.practice1_length.get(),
-            practice2_length=server.session.practice2_length.get(),
-            qualify_length=server.session.qualify_length.get(),
-            warmup_length=server.session.warmup_length.get(),
-            race1_length=server.session.race1_length.get(),
-            race2_length=server.session.race2_length.get(),
-            public=server.session.privacy.get_nice() == Privacy.public,
-            friends_can_join=server.session.privacy.get_nice() in (Privacy.public, Privacy.friends),
-            damage=enum_models.DamageDefinition.objects.get(
-                ingame_id=server.session.damage.get()) if server.session.damage.get() is not None else None,
-            tire_wear=enum_models.TireWearDefinition.objects.get(
-                ingame_id=server.session.tire_wear.get()) if server.session.tire_wear.get() is not None else None,
-            fuel_usage=enum_models.FuelUsageDefinition.objects.get(
-                ingame_id=server.session.fuel_usage.get()) if server.session.fuel_usage.get() is not None else None,
-            penalties=enum_models.PenaltyDefinition.objects.get(
-                ingame_id=server.session.penalties.get()) if server.session.penalties.get() is not None else None,
-            allowed_views=enum_models.AllowedViewsDefinition.objects.get(
-                ingame_id=server.session.allowed_views.get()) if server.session.allowed_views.get() is not None else None,
-            track=session_models.Track.objects.get(
-                ingame_id=server.session.track.get()) if server.session.track.get() is not None else None,
-            vehicle_class=session_models.VehicleClass.objects.get(
-                ingame_id=server.session.vehicle_class.get()) if server.session.vehicle_class.get() is not None else None,
-            vehicle=session_models.Vehicle.objects.get(
-                ingame_id=server.session.vehicle.get()) if server.session.vehicle.get() else None,
-            date_year=server.session.date_year.get(),
-            date_month=server.session.date_month.get(),
-            date_day=server.session.date_day.get(),
-            date_hour=server.session.date_hour.get(),
-            date_minute=server.session.date_minute.get(),
-            date_progression=server.session.date_progression.get(),
-            weather_progression=server.session.weather_progression.get(),
-            weather_slots=server.session.weather_slots.get(),
-            weather_1=enum_models.WeatherDefinition.objects.get(
-                ingame_id=server.session.weather_1.get()) if server.session.weather_1.get() else None,
-            weather_2=enum_models.WeatherDefinition.objects.get(
-                ingame_id=server.session.weather_2.get()) if server.session.weather_2.get() else None,
-            weather_3=enum_models.WeatherDefinition.objects.get(
-                ingame_id=server.session.weather_3.get()) if server.session.weather_3.get() else None,
-            weather_4=enum_models.WeatherDefinition.objects.get(
-                ingame_id=server.session.weather_4.get()) if server.session.weather_4.get() else None,
-            game_mode=enum_models.GameModeDefinition.objects.get(
-                ingame_id=server.session.game_mode.get()) if server.session.game_mode.get() else None,
-            track_latitude=server.session.track_latitude.get(),
-            track_longitude=server.session.track_longitude.get(),
-            track_altitude=server.session.track_altitude.get(),
-        )
+def _create_session_setup(server):
+    flags = server.session.flags.get_flags()
+    return session_models.SessionSetup(
+        name=None,
+        is_template=False,
+        server_controls_setup=server.session.server_controls_setup.get(),
+        server_controls_track=server.session.server_controls_track.get(),
+        server_controls_vehicle_class=server.session.server_controls_vehicle_class.get(),
+        server_controls_vehicle=server.session.server_controls_vehicle.get(),
+        grid_size=server.session.grid_size.get(),
+        max_players=server.session.max_players.get(),
+        opponent_difficulty=server.session.opponent_difficulty.get(),
+        force_identical_vehicles=SessionFlags.force_identical_vehicles in flags,
+        allow_custom_vehicle_setup=SessionFlags.allow_custom_vehicle_setup in flags,
+        force_realistic_driving_aids=SessionFlags.force_realistic_driving_aids in flags,
+        abs_allowed=SessionFlags.abs_allowed in flags,
+        sc_allowed=SessionFlags.sc_allowed in flags,
+        tcs_allowed=SessionFlags.tcs_allowed in flags,
+        force_manual=SessionFlags.force_manual in flags,
+        rolling_starts=SessionFlags.rolling_starts in flags,
+        force_same_vehicle_class=SessionFlags.force_same_vehicle_class in flags,
+        fill_session_with_ai=SessionFlags.fill_session_with_ai in flags,
+        mechanical_failures=SessionFlags.mechanical_failures in flags,
+        auto_start_engine=SessionFlags.auto_start_engine in flags,
+        timed_race=SessionFlags.timed_race in flags,
+        ghost_griefers=SessionFlags.ghost_griefers in flags,
+        enforced_pitstop=SessionFlags.enforced_pitstop in flags,
+        practice1_length=server.session.practice1_length.get(),
+        practice2_length=server.session.practice2_length.get(),
+        qualify_length=server.session.qualify_length.get(),
+        warmup_length=server.session.warmup_length.get(),
+        race1_length=server.session.race1_length.get(),
+        race2_length=server.session.race2_length.get(),
+        public=server.session.privacy.get_nice() == Privacy.public,
+        friends_can_join=server.session.privacy.get_nice() in (Privacy.public, Privacy.friends),
+        damage=enum_models.DamageDefinition.objects.get(
+            ingame_id=server.session.damage.get()) if server.session.damage.get() is not None else None,
+        tire_wear=enum_models.TireWearDefinition.objects.get(
+            ingame_id=server.session.tire_wear.get()) if server.session.tire_wear.get() is not None else None,
+        fuel_usage=enum_models.FuelUsageDefinition.objects.get(
+            ingame_id=server.session.fuel_usage.get()) if server.session.fuel_usage.get() is not None else None,
+        penalties=enum_models.PenaltyDefinition.objects.get(
+            ingame_id=server.session.penalties.get()) if server.session.penalties.get() is not None else None,
+        allowed_views=enum_models.AllowedViewsDefinition.objects.get(
+            ingame_id=server.session.allowed_views.get()) if server.session.allowed_views.get() is not None else None,
+        track=session_models.Track.objects.get(
+            ingame_id=server.session.track.get()) if server.session.track.get() is not None else None,
+        vehicle_class=session_models.VehicleClass.objects.get(
+            ingame_id=server.session.vehicle_class.get()) if server.session.vehicle_class.get() is not None else None,
+        vehicle=session_models.Vehicle.objects.get(
+            ingame_id=server.session.vehicle.get()) if server.session.vehicle.get() else None,
+        date_year=server.session.date_year.get(),
+        date_month=server.session.date_month.get(),
+        date_day=server.session.date_day.get(),
+        date_hour=server.session.date_hour.get(),
+        date_minute=server.session.date_minute.get(),
+        date_progression=server.session.date_progression.get(),
+        weather_progression=server.session.weather_progression.get(),
+        weather_slots=server.session.weather_slots.get(),
+        weather_1=enum_models.WeatherDefinition.objects.get(
+            ingame_id=server.session.weather_1.get()) if server.session.weather_1.get() else None,
+        weather_2=enum_models.WeatherDefinition.objects.get(
+            ingame_id=server.session.weather_2.get()) if server.session.weather_2.get() else None,
+        weather_3=enum_models.WeatherDefinition.objects.get(
+            ingame_id=server.session.weather_3.get()) if server.session.weather_3.get() else None,
+        weather_4=enum_models.WeatherDefinition.objects.get(
+            ingame_id=server.session.weather_4.get()) if server.session.weather_4.get() else None,
+        game_mode=enum_models.GameModeDefinition.objects.get(
+            ingame_id=server.session.game_mode.get()) if server.session.game_mode.get() else None,
+        track_latitude=server.session.track_latitude.get(),
+        track_longitude=server.session.track_longitude.get(),
+        track_altitude=server.session.track_altitude.get(),
+    )
 
 
 def _get_or_create_steam_user(member: SessionMember) -> SteamUser:

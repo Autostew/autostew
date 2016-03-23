@@ -1,7 +1,6 @@
 import logging
 
-from autostew_back.plugins import db, laptimes, crash_monitor, motd, db_reader, db_writer, db_enum_writer, clock
-from autostew_back.setups import prl_s1_r2_dubai
+from autostew_back.plugins import db, laptimes, crash_monitor, motd, db_setup_rotation, db_session_writer, db_enum_writer, clock
 
 logging.getLogger().setLevel(logging.INFO)
 logging.getLogger('django.db.backends').setLevel(logging.INFO)
@@ -17,13 +16,11 @@ class Settings:
     event_poll_period = 10
     full_update_period = 10
 
-    setup_rotation = [prl_s1_r2_dubai]
-
     plugins = [
         db,
         db_enum_writer,
-        db_reader,
-        db_writer,
+        db_setup_rotation,
+        db_session_writer,
         clock,
         laptimes,
         crash_monitor,

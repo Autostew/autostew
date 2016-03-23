@@ -6,7 +6,7 @@ from django.test import TestCase
 
 from autostew_back.gameserver.mocked_api import FakeApi
 from autostew_back.gameserver.server import Server, UnmetPluginDependency
-from autostew_back.plugins import db_enum_writer, db
+from autostew_back.plugins import db_enum_writer, db, db_session_writer
 from autostew_back.tests.test_assets.settings_no_plugins import SettingsWithoutPlugins
 from autostew_web_enums.models import FuelUsageDefinition, SessionAttributeDefinition, MemberAttributeDefinition, \
     ParticipantAttributeDefinition
@@ -17,7 +17,7 @@ class TestEnumWriter(TestCase):
     def test_dependency(self):
         api = FakeApi()
         settings = SettingsWithoutPlugins()
-        settings.plugins = [db_enum_writer]
+        settings.plugins = [db_session_writer]
         with mock.patch.object(requests, 'get', api.fake_request):
             self.assertRaises(UnmetPluginDependency, Server, settings, False)
 

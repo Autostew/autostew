@@ -37,8 +37,8 @@ class UnmetPluginDependency(Exception):
 
 class Server:
     def __init__(self, settings, env_init=False, api_record=False):
+        self.get_current_setup_name = None  # Plugins set this to a function
         self.last_status_update_time = None
-        self._setup_index = None
         self.state = None
         self.lobby_id = None
         self.joinable = None
@@ -54,7 +54,6 @@ class Server:
         self.members = MemberList(self.lists[ListName.member_attributes], self.lists, self.api)
         self.participants = ParticipantList(self.lists[ListName.participant_attributes], self.lists, self.api)
         self.fetch_status()
-        self.load_next_setup(0)
         self._init_plugins(env_init)
 
     def fetch_status(self):
@@ -89,20 +88,6 @@ class Server:
             logging.info("Initializing environment for plugin {}.".format(plugin.name))
             if 'env_init' in dir(plugin):
                 plugin.env_init(self)
-
-    def load_next_setup(self, index=None):
-        if index is None:
-            load_index = 0 if self._setup_index is None else self._setup_index + 1
-        else:
-            load_index = index
-        if load_index >= len(self.settings.setup_rotation):
-            load_index = 0
-        logging.info("Loading setup {}: {}".format(load_index, self.settings.setup_rotation[load_index].name))
-        self.settings.setup_rotation[load_index].make_setup(self)
-        self._setup_index = load_index
-
-    def get_current_setup_name(self):
-        return self.settings.setup_rotation[self._setup_index].name
 
     def poll_loop(self, event_offset=None, only_one_run=False, one_by_one=False):
         logging.info("Entering event loop")
