@@ -1,20 +1,26 @@
 {% extends "autostew_web_home/base.html" %}
 
 {% block content %}
+    {% if user.is_authenticated and unread_messages %}
+        <div class="alert alert-info">
+            There are {{ unread_messages|length }} unread messages.
+        </div>
+    {% endif %}
+
     <h1 class="page-header">Autostew</h1>
     <p>
         Autostew allows you to:
-        <ul>
-            <li>See your last session results.</li>
-            <li>See the current and planned races.</li>
-        </ul>
     </p>
+    <ul>
+        <li>See your last session results.</li>
+        <li>See the current and planned races.</li>
+    </ul>
     <p>
         Also, in-game it has:
-        <ul>
-            <li>Warns (and kicks if need be) drivers who crash too much.</li>
-        </ul>
     </p>
+    <ul>
+        <li>Warns (and kicks if need be) drivers who crash too much.</li>
+    </ul>
     <h3>
         More to come!
     </h3>
@@ -24,6 +30,6 @@
         and <a href="https://github.com/Autostew/autostew/issues?q=is%3Aopen+is%3Aissue+label%3A%22help+wanted%22">where we can use help</a>.
     </p>
     <p>
-        Send us <a href="#">your feedback</a>!
+        Send us <a href="{% url 'contact:contact' %}">your feedback</a>!
     </p>
 {% endblock %}

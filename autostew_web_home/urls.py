@@ -1,6 +1,7 @@
 from django.conf.urls import url
-from django.views.generic.base import TemplateView
+
+from autostew_web_home.views import HomeView
 
 urlpatterns = [
-    url(r'^', TemplateView.as_view(template_name='autostew_web_home/home.html'), name='home'),
+    url(r'^', HomeView.as_view(), name='home'),
 ]

@@ -14,6 +14,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'autostew_web_home',
+    'autostew_web_contact',
     'autostew_web_enums',
     'autostew_web_session',
     'autostew_web_users',

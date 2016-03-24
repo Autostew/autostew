@@ -13,7 +13,8 @@
             <li><a href='{% url 'session:sessions' %}'>Sessions</a></li>
             <li><a href='{% url 'users:list' %}'>Drivers</a></li>
             <li><a href='{% url 'session:servers' %}'>Servers</a></li>
-            <li><a href='/admin/'>Admin</a></li>
+            <li><a href='{% url 'admin:login' %}'>Admin</a></li>
+            <li><a href='{% url 'contact:contact' %}'>Contact</a></li>
         </ul>
     </div>
 {% endblock %}
