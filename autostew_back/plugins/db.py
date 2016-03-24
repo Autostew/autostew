@@ -43,6 +43,7 @@ def destroy(server: DedicatedServer):
     server_in_db.running = False
     server_in_db.save()
 
+
 def _ping(server: DedicatedServer):
     global last_ping
     server_in_db.last_ping = timezone.make_aware(datetime.datetime.now())

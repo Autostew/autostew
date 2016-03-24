@@ -11,7 +11,7 @@ from autostew_back.gameserver.server import Server as DServer
 from autostew_back.plugins import db_session_writer, db_enum_writer, db, db_setup_rotation, clock, laptimes, crash_monitor, motd
 from autostew_back.tests.test_assets.settings_no_plugins import SettingsWithoutPlugins
 from autostew_back.tests.test_plugin_db_writer import TestDBWriter
-from autostew_web_session.models import Session, RaceLapSnapshot
+from autostew_web_session.models import Session, RaceLapSnapshot, Server
 
 
 class TestGameReplay(TestCase):
@@ -42,10 +42,12 @@ class TestGameReplay(TestCase):
                 server.poll_loop()
             except api.RecordFinished:
                 pass
+        server.destroy()
         # TODO add more tests here!
-        #self.assertEqual(Session.objects.count(), 2)
-        #self.assertFalse(Session.objects.filter(running=True).exists())
-        #self.assertEqual(RaceLapSnapshot.objects.count(), 15)
+        # self.assertEqual(Session.objects.count(), 3)  # not sure about this one
+        self.assertFalse(Server.objects.filter(running=True).exists())
+        self.assertFalse(Session.objects.filter(running=True).exists())
+        self.assertEqual(RaceLapSnapshot.objects.count(), 15)  # 15 laps + result snapshot
         client = Client()
         response = client.get(reverse('session:sessions'))
         self.assertEqual(response.status_code, 200)
