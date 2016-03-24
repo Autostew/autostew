@@ -2,7 +2,9 @@ import os
 from unittest import mock
 
 import requests
+from django.core.urlresolvers import reverse
 from django.test import TestCase
+from django.test.client import Client
 
 from autostew_back.gameserver.mocked_api import ApiReplay
 from autostew_back.gameserver.server import Server as DServer
@@ -20,7 +22,8 @@ class TestGameReplay(TestCase):
         settings.plugins = [db_enum_writer]
         with mock.patch.object(requests, 'get', api.fake_request):
             server = DServer(settings, True)
-        TestDBWriter.make_test_setup().save(True)
+        test_setup = TestDBWriter.make_test_setup()
+        test_setup.save(True)
 
         settings.plugins = [
             db,
@@ -43,3 +46,9 @@ class TestGameReplay(TestCase):
         #self.assertEqual(Session.objects.count(), 2)
         #self.assertFalse(Session.objects.filter(running=True).exists())
         #self.assertEqual(RaceLapSnapshot.objects.count(), 15)
+        client = Client()
+        response = client.get(reverse('session:sessions'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, test_setup.name)
+        for session in Session.objects.all():
+            self.assertContains(response, session.get_absolute_url())

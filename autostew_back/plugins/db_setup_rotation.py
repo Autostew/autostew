@@ -17,6 +17,10 @@ _current_setup = None
 _server = None
 
 
+class NoSessionSetupTemplateAvailable(Exception):
+    pass
+
+
 def init(server: Server):
     global setup_rotation
     global _server
@@ -35,6 +39,8 @@ def load_next_setup(server: Server, index=None):
         load_index = index
     if load_index >= len(setup_rotation):
         load_index = 0
+    if len(setup_rotation) == 0:
+        raise NoSessionSetupTemplateAvailable
     _current_setup = setup_rotation[load_index]
     logging.info("Loading setup {}: {}".format(load_index, _current_setup.name))
     _current_setup.make_setup(server)

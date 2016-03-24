@@ -67,7 +67,7 @@ class SessionSetup(models.Model):
     class Meta:
         ordering = ['name']
 
-    name = models.CharField(max_length=100, unique=True, null=True)
+    name = models.CharField(max_length=100, blank=True)
     is_template = models.BooleanField()
 
     server_controls_setup = models.BooleanField()
@@ -184,7 +184,7 @@ class Session(models.Model):
         return reverse('session:session', args=[str(self.id)])
 
     def __str__(self):
-        return "{} - {}".format(self.id, self.setup.name)
+        return "{} - {}".format(self.id, self.setup_actual.name)
 
 
 class SessionSnapshot(models.Model):

@@ -21,6 +21,8 @@ def main(args):
     def start():
         nonlocal server
         server = Server(settings, args.env_init, args.api_record)
+        if args.env_init:
+            return
         server.poll_loop(event_offset=args.event_offset, one_by_one=args.api_replay_manual)
 
     logging.info("Starting autostew")
@@ -41,7 +43,8 @@ def main(args):
     except ApiReplay.RecordFinished:
         logging.info("API record ended")
 
-    server.destroy()
+    if not args.env_init:
+        server.destroy()
 
     logging.info("Autostew finished properly")
     return 0

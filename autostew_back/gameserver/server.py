@@ -68,26 +68,26 @@ class Server:
         self.last_status_update_time = time()
 
     def _init_plugins(self, env_init):
-
         try:
             for index, plugin in enumerate(self.settings.plugins):
-                self.env_init_plugins(env_init, plugin)
                 logging.info("Loading plugin {}.".format(plugin.name))
                 if 'dependencies' in dir(plugin):
                     for dependency in plugin.dependencies:
                         if dependency not in self.settings.plugins[:index]:
                             raise UnmetPluginDependency
+                if env_init:
+                    self.env_init_plugins(plugin)
+                    continue
                 if 'init' in dir(plugin):
                     plugin.init(self)
         except BreakPluginLoadingException:
             pass
 
     @log_time
-    def env_init_plugins(self, env_init, plugin):
-        if env_init:
-            logging.info("Initializing environment for plugin {}.".format(plugin.name))
-            if 'env_init' in dir(plugin):
-                plugin.env_init(self)
+    def env_init_plugins(self, plugin):
+        logging.info("Initializing environment for plugin {}.".format(plugin.name))
+        if 'env_init' in dir(plugin):
+            plugin.env_init(self)
 
     def poll_loop(self, event_offset=None, only_one_run=False, one_by_one=False):
         logging.info("Entering event loop")
@@ -136,6 +136,6 @@ class Server:
                 return
 
     def destroy(self):  # TODO consider using destructor
-        for plugin in self.settings.plugins:
+        for plugin in reversed(self.settings.plugins):
             if 'destroy' in dir(plugin):
                 plugin.destroy(self)

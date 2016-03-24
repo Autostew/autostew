@@ -240,7 +240,7 @@ def _create_session(server: DServer, server_in_db: session_models.Server) -> ses
 def _create_session_setup(server):
     flags = server.session.flags.get_flags()
     return session_models.SessionSetup(
-        name=None,
+        name=db_setup_rotation._current_setup.setup.name,
         is_template=False,
         server_controls_setup=server.session.server_controls_setup.get(),
         server_controls_track=server.session.server_controls_track.get(),

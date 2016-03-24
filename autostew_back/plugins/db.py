@@ -2,10 +2,13 @@ import datetime
 import time
 
 from django.utils import timezone
+from django.core.wsgi import get_wsgi_application
+
+# This line has to happen before importing models
+get_wsgi_application()
 
 from autostew_back.gameserver.server import Server as DedicatedServer
-from autostew_web_session.models import Server, SessionSetup
-from django.core.wsgi import get_wsgi_application
+from autostew_web_session import models
 
 name = 'DB'
 ping_interval = 10
@@ -13,20 +16,18 @@ ping_interval = 10
 server_in_db = None
 last_ping = None
 
-get_wsgi_application()
-
 
 def init(server: DedicatedServer):
     global server_in_db
     try:
-        server_in_db = Server.objects.get(name=server.settings.server_name)
-    except Server.DoesNotExist:
-        server_in_db = Server(name=server.settings.server_name, running=True)
+        server_in_db = models.Server.objects.get(name=server.settings.server_name)
+    except models.Server.DoesNotExist:
+        server_in_db = models.Server(name=server.settings.server_name, running=True)
     server_in_db.running = True
     server_in_db.state = server.state
     if not server_in_db.id:
         server_in_db.save()
-        server_in_db.session_setups = SessionSetup.objects.filter(is_template=True)
+        server_in_db.session_setups = models.SessionSetup.objects.filter(is_template=True)
     server_in_db.save()
     _ping(server)
 
