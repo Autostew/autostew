@@ -17,7 +17,7 @@ first_player_finished = [
 ]
 new_session_starts = [
     "The next session is starting",
-    "Read more about Autostew at http://autostew.selfhost.eu"
+    "See the session's results and more at http://autostew.selfhost.eu"
 ]
 
 
