@@ -3,6 +3,7 @@ from enum import Enum
 
 from autostew_back.gameserver.abstract_containers import AbstractAttribute, AbstractAttributeLinkedToList, \
     AbstractFlagAttribute, AbstractStatusTable, StatusList, AbstractAttributeLinkedToEnum
+from autostew_back.gameserver.api import ApiCaller
 from autostew_back.gameserver.lists import ListName, AttributeItem
 
 
@@ -65,7 +66,7 @@ class MemberFlagAttribute(AbstractFlagAttribute):
 
 
 class Member(AbstractStatusTable):
-    def __init__(self, attr_list, lists, api):
+    def __init__(self, attr_list, lists, api:ApiCaller):
         self._api = api
         self.attr_list = attr_list
 
@@ -103,6 +104,9 @@ class Member(AbstractStatusTable):
 
     def send_chat(self, message):
         self._api.send_chat(message, self.refid.get())
+
+    def kick(self, ban_seconds=0):
+        self._api.kick(self.refid, ban_seconds)
 
 
 class MemberList(StatusList):

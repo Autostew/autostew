@@ -129,7 +129,7 @@ class SessionSetup(models.Model):
     track_altitude = models.IntegerField()  # TODO this should be on track model
 
     def __str__(self):
-        return self.name
+        return "{} ({})".format(self.name, "template" if self.is_template else "instance")
 
 
 class Server(models.Model):

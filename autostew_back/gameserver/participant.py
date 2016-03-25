@@ -79,7 +79,12 @@ class Participant(AbstractStatusTable):
         self.orientation = _participant_attribute('Orientation')
 
     def send_chat(self, message):
-        self.member.send_chat(message)
+        if self.member:
+            self.member.send_chat(message)
+
+    def kick(self, ban_seconds=0):
+        if self.member:
+            self.member.kick(ban_seconds)
 
 
 class ParticipantList(StatusList):

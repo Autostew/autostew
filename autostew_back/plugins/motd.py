@@ -13,11 +13,11 @@ welcome_message = [
 ]
 first_player_finished = [
     "Congratulations to {winner_name} for winning this race!",
-    "See this race results and more about Autostew at http://autostew.selfhost.eu"
+    "See this race results and more about Autostew at autostew.selfhost.eu"
 ]
 new_session_starts = [
     "The next session is starting",
-    "See the session's results and more at http://autostew.selfhost.eu"
+    "See the session's results and more at autostew.selfhost.eu"
 ]
 
 

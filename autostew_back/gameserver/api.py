@@ -84,6 +84,17 @@ class ApiCaller:
         try:
             return self._call("session/send_chat", params)
         except self.ApiResultNotOk:
+            logging.error("Send chat to {} failed, message was: {}". format(player_refid, message))
+            return None
+
+    def kick(self, player_refid, ban_seconds=0):
+        params = {'refid': player_refid}
+        if ban_seconds:
+            params['ban'] = ban_seconds
+        try:
+            return self._call("session/kick")
+        except self.ApiResultNotOk:
+            logging.error("Kicking player {} failed". format(player_refid))
             return None
 
     def api_help_parser(self):
