@@ -13,8 +13,8 @@ class Settings:
     config_file = "/home/joan/.steam/steam/SteamApps/common/Project CARS Dedicated Server/server.cfg"
     api_record_destination = "api_record"
     url = "http://localhost:9000"
-    event_poll_period = 10
-    full_update_period = 10
+    event_poll_period = 1
+    full_update_period = 5
 
     plugins = [
         db,

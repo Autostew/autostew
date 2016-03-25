@@ -6,6 +6,7 @@ db.sqlite3-journal
 */migrations/*
 api_record/*.json
 autostew/settings/prod.py
+static
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
