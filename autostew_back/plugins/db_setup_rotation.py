@@ -79,17 +79,23 @@ class DBSetup:
         server.session.server_controls_vehicle_class.set_to_game(self.setup.server_controls_vehicle_class)
         server.session.server_controls_vehicle.set_to_game(self.setup.server_controls_vehicle)
 
-        server.session.vehicle_class.set_to_game(self.setup.vehicle_class.ingame_id)
-        server.session.track.set_to_game(self.setup.track.ingame_id)
+        if self.setup.vehicle_class:
+            server.session.vehicle_class.set_to_game(self.setup.vehicle_class.ingame_id)
+        if self.setup.track:
+            server.session.track.set_to_game(self.setup.track.ingame_id)
         server.session.grid_size.set_to_game(self.setup.grid_size)
         server.session.max_players.set_to_game(self.setup.max_players)
 
         server.session.weather_slots.set_to_game(self.setup.weather_slots)
         server.session.weather_progression.set_to_game(self.setup.weather_progression)
-        server.session.weather_1.set_to_game(self.setup.weather_1.ingame_id)
-        server.session.weather_2.set_to_game(self.setup.weather_2.ingame_id)
-        server.session.weather_3.set_to_game(self.setup.weather_3.ingame_id)
-        server.session.weather_4.set_to_game(self.setup.weather_4.ingame_id)
+        if self.setup.weather_1:
+            server.session.weather_1.set_to_game(self.setup.weather_1.ingame_id)
+        if self.setup.weather_2:
+            server.session.weather_2.set_to_game(self.setup.weather_2.ingame_id)
+        if self.setup.weather_3:
+            server.session.weather_3.set_to_game(self.setup.weather_3.ingame_id)
+        if self.setup.weather_4:
+            server.session.weather_4.set_to_game(self.setup.weather_4.ingame_id)
 
         server.session.flags.set_flags(SessionFlags.abs_allowed, self.setup.abs_allowed)
 
