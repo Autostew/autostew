@@ -3,13 +3,12 @@ import logging
 from autostew_back.gameserver.event import EventType
 from autostew_back.gameserver.server import Server
 from autostew_back.gameserver.session import Privacy, SessionFlags, SessionState
-from autostew_back.plugins import db, local_setup_rotation
+from autostew_back.plugins import db
 from autostew_web_session import models
 from autostew_web_session.models import SessionSetup
 
 name = 'DB setup rotation'
 dependencies = [db]
-conflicts = [local_setup_rotation]
 
 setup_rotation = []
 _setup_index = None

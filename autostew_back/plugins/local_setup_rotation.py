@@ -3,10 +3,8 @@ import logging
 from autostew_back.gameserver.event import EventType, BaseEvent
 from autostew_back.gameserver.server import Server
 from autostew_back.gameserver.session import SessionState
-from autostew_back.plugins import db_setup_rotation
 
 name = 'Local setup rotation'
-conflicts = [db_setup_rotation]
 
 setup_rotation = []
 _setup_index = None
