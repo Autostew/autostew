@@ -70,63 +70,88 @@ class SessionSetup(models.Model):
     name = models.CharField(max_length=100, blank=True)
     is_template = models.BooleanField()
 
-    server_controls_setup = models.BooleanField()
-    server_controls_track = models.BooleanField()
-    server_controls_vehicle_class = models.BooleanField()
-    server_controls_vehicle = models.BooleanField()
-    grid_size = models.IntegerField()
-    max_players = models.IntegerField()
-    opponent_difficulty = models.IntegerField()
+    server_controls_setup = models.BooleanField(
+        help_text="If true, players won't be able to control the race setup")
+    server_controls_track = models.BooleanField(
+        help_text="If true, players won't be able to control track selection")
+    server_controls_vehicle_class = models.BooleanField(
+        help_text="If true, players won't be acle to control vehicle class selection")
+    server_controls_vehicle = models.BooleanField(
+        help_text="If true, players won't be able to access vehicle selection")
+    grid_size = models.IntegerField(
+        help_text="How many cars can be on the field, don't set it higher than the track's grid size")
+    max_players = models.IntegerField(
+        help_text="How many human players can join the game")
+    opponent_difficulty = models.IntegerField(
+        help_text="AI difficulty, 0 to 100")
 
     force_identical_vehicles = models.BooleanField()
     allow_custom_vehicle_setup = models.BooleanField()
     force_realistic_driving_aids = models.BooleanField()
-    abs_allowed = models.BooleanField()
-    sc_allowed = models.BooleanField()
-    tcs_allowed = models.BooleanField()
-    force_manual = models.BooleanField()
-    rolling_starts = models.BooleanField()
+    abs_allowed = models.BooleanField(
+        help_text="Won't have any effect if force realistic driving aids is on")
+    sc_allowed = models.BooleanField(
+        help_text="Won't have any effect if force realistic driving aids is on")
+    tcs_allowed = models.BooleanField(
+        help_text="Won't have any effect if force realistic driving aids is on")
+    force_manual = models.BooleanField(
+        help_text="If true, only manual transmission will be allowed")
+    rolling_starts = models.BooleanField(
+        help_text="If true, the race will have a rolling start")
     force_same_vehicle_class = models.BooleanField()
     fill_session_with_ai = models.BooleanField()
     mechanical_failures = models.BooleanField()
     auto_start_engine = models.BooleanField()
-    timed_race = models.BooleanField()
+    timed_race = models.BooleanField(
+        "If true, race length will be measured in minutes")
     ghost_griefers = models.BooleanField()
     enforced_pitstop = models.BooleanField()
 
-    practice1_length = models.IntegerField()
-    practice2_length = models.IntegerField()
-    qualify_length = models.IntegerField()
-    warmup_length = models.IntegerField()
-    race1_length = models.IntegerField()
-    race2_length = models.IntegerField()
+    practice1_length = models.IntegerField(help_text="In minutes")
+    practice2_length = models.IntegerField(help_text="In minutes")
+    qualify_length = models.IntegerField(help_text="In minutes")
+    warmup_length = models.IntegerField(help_text="In minutes")
+    race1_length = models.IntegerField(help_text="In laps or minutes")
+    race2_length = models.IntegerField(help_text="In laps or minutes (this setting does not have any effect (yet?)")
 
-    public = models.BooleanField()
-    friends_can_join = models.BooleanField()
+    public = models.BooleanField(
+        help_text="If true, this game will be listed in the multiplayer server search (implies friends_can_join)")
+    friends_can_join = models.BooleanField(help_text="If true, the players' friend will be able to join")
     damage = models.ForeignKey('autostew_web_enums.DamageDefinition', null=True)
     tire_wear = models.ForeignKey('autostew_web_enums.TireWearDefinition', null=True)
     fuel_usage = models.ForeignKey('autostew_web_enums.FuelUsageDefinition', null=True)
     penalties = models.ForeignKey('autostew_web_enums.PenaltyDefinition', null=True)
     allowed_views = models.ForeignKey('autostew_web_enums.AllowedViewsDefinition', null=True)
     track = models.ForeignKey(Track, null=True, blank=True)
-    vehicle_class = models.ForeignKey(VehicleClass, null=True, blank=True)
-    vehicle = models.ForeignKey(Vehicle, null=True, blank=True)
-    date_year = models.IntegerField()
-    date_month = models.IntegerField()
-    date_day = models.IntegerField()
+    vehicle_class = models.ForeignKey(VehicleClass, null=True, blank=True,
+        help_text="Only has a real effect if force_same_vehicle_class")
+    vehicle = models.ForeignKey(Vehicle, null=True, blank=True,
+        help_text="Only has a real effect if force_same_vehicle")
+    date_year = models.IntegerField(help_text="Race date, set to 0 for 'real date'")
+    date_month = models.IntegerField(help_text="Race date, set to 0 for 'real date'")
+    date_day = models.IntegerField(help_text="Race date, set to 0 for 'real date'")
     date_hour = models.IntegerField()
     date_minute = models.IntegerField()
-    date_progression = models.IntegerField()
-    weather_progression = models.IntegerField()
-    weather_slots = models.IntegerField()
+    date_progression = models.IntegerField(
+        help_text="Time multiplier, unconfirmed allowed values: 0, 1, 2, 5, 10, 30, 60"
+    )
+    weather_progression = models.IntegerField(
+        help_text="Weather progression multiplier, unconfirmed allowed values: 0, 1, 2, 5, 10, 30, 60"
+    )
+    weather_slots = models.IntegerField(
+        help_text="Set to 0 for 'real weather'"
+    )
     weather_1 = models.ForeignKey('autostew_web_enums.WeatherDefinition', related_name='+', null=True, blank=True)
     weather_2 = models.ForeignKey('autostew_web_enums.WeatherDefinition', related_name='+', null=True, blank=True)
     weather_3 = models.ForeignKey('autostew_web_enums.WeatherDefinition', related_name='+', null=True, blank=True)
     weather_4 = models.ForeignKey('autostew_web_enums.WeatherDefinition', related_name='+', null=True, blank=True)
     game_mode = models.ForeignKey('autostew_web_enums.GameModeDefinition', related_name='+', null=True, blank=True)
-    track_latitude = models.IntegerField()  # TODO this should be on track model
-    track_longitude = models.IntegerField()  # TODO this should be on track model
-    track_altitude = models.IntegerField()  # TODO this should be on track model
+    track_latitude = models.IntegerField(
+        help_text="Setting this value won't have any effect")  # TODO this should be on track model
+    track_longitude = models.IntegerField(
+        help_text="Setting this value won't have any effect")  # TODO this should be on track model
+    track_altitude = models.IntegerField(
+        help_text="Setting this value won't have any effect")  # TODO this should be on track model
 
     def __str__(self):
         return "{} ({})".format(self.name, "template" if self.is_template else "instance")
@@ -138,11 +163,13 @@ class Server(models.Model):
 
     name = models.CharField(max_length=50, unique=True,
                             help_text='To successfully rename a server you will need to change it\'s settings too')
-    session_setups = models.ManyToManyField(SessionSetup)
+    session_setups = models.ManyToManyField(SessionSetup,
+                                            help_text="Setups that will be used on this server's rotation")
 
-    running = models.BooleanField()
+    running = models.BooleanField(help_text="This value should not be changed manually")
     current_session = models.ForeignKey('Session', null=True, related_name='+', blank=True)
-    last_ping = models.DateTimeField(null=True, blank=True)
+    last_ping = models.DateTimeField(null=True, blank=True,
+                                     help_text="Last time the server reported to be alive")
     average_player_latency = models.IntegerField(null=True, blank=True)
     # TODO joinable = models.BooleanField()
     # TODO state = server.state!!
@@ -163,14 +190,17 @@ class Session(models.Model):
         ordering = ['start_timestamp']
 
     server = models.ForeignKey(Server)
-    setup_template = models.ForeignKey(SessionSetup, related_name='+')
-    setup_actual = models.ForeignKey(SessionSetup, related_name='+')
+    setup_template = models.ForeignKey(SessionSetup, related_name='+',
+                                       help_text="This setup is feeded to the game")
+    setup_actual = models.ForeignKey(SessionSetup, related_name='+',
+                                     help_text="This setup is read from the game once the race starts")
 
-    start_timestamp = models.DateTimeField(auto_now_add=True)
+    start_timestamp = models.DateTimeField(auto_now_add=True,
+                                           help_text="Time when the race starts/started")
     last_update_timestamp = models.DateTimeField(auto_now=True)
-    planned = models.BooleanField()
-    running = models.BooleanField()
-    finished = models.BooleanField()
+    planned = models.BooleanField(help_text="If true, this race was/is scheduled")
+    running = models.BooleanField(help_text="If true, this race is currently running")
+    finished = models.BooleanField(help_text="If true, this race finished")
 
     lobby_id = models.CharField(max_length=200)
     max_member_count = models.IntegerField()
