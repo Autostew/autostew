@@ -166,7 +166,8 @@ class Server(models.Model):
                             help_text='To successfully rename a server you will need to change it\'s settings too')
     session_setups = models.ManyToManyField(SessionSetup, limit_choices_to={'is_template': True},
                                             help_text="Setups that will be used on this server's rotation")
-
+    next_setup = models.ForeignKey(SessionSetup, limit_choices_to={'is_template': True}, null=True, related_name='+',
+                                   help_text="If set, this will be the next setup used")
     running = models.BooleanField(help_text="This value should not be changed manually")
     current_session = models.ForeignKey('Session', null=True, related_name='+', blank=True)
     last_ping = models.DateTimeField(null=True, blank=True,

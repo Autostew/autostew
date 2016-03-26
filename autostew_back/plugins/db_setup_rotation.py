@@ -4,7 +4,6 @@ from autostew_back.gameserver.event import EventType
 from autostew_back.gameserver.server import Server
 from autostew_back.gameserver.session import Privacy, SessionFlags, SessionState
 from autostew_back.plugins import db
-from autostew_web_session import models
 from autostew_web_session.models import SessionSetup
 
 name = 'DB setup rotation'
@@ -56,9 +55,14 @@ def load_next_setup(server: Server, index=None):
 
 def load_settings(server):
     global setup_rotation
-    setup_rotation = [
-        DBSetup(setup) for setup in models.Server.objects.get(name=server.settings.server_name).session_setups.all()
-    ]
+    if db.server_in_db.next_setup:
+        setup_rotation = [db.server_in_db.next_setup]
+        db.server_in_db.next_setup = None
+        db.server_in_db.save()
+    else:
+        setup_rotation = [
+            DBSetup(setup) for setup in db.server_in_db.session_setups.all()
+        ]
 
 
 def get_current_setup_name():
