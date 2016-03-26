@@ -51,7 +51,7 @@ class AbstractAttributeLinkedToList(AbstractAttribute):
             self._list.get_list_items(self._list_key_nice_value, nice_value)[0].raw[self._list_key_ugly_value]
         )
 
-    def set_to_game(self, value, copy_to_next=True, for_next_session=True):
+    def set_to_game(self, value, copy_to_next=True, for_next_session=False):
         AbstractAttribute.set_to_game(self, value, copy_to_next, for_next_session)
         self._update_nice_value_from_ugly_value()
 
@@ -83,7 +83,7 @@ class AbstractAttributeLinkedToEnum(AbstractAttribute):
     def set_to_game_nice(self, nice_value):
         self.set_to_game(nice_value.value)
 
-    def set_to_game(self, value, copy_to_next=True, for_next_session=True):
+    def set_to_game(self, value, copy_to_next=True, for_next_session=False):
         AbstractAttribute.set_to_game(self, value, copy_to_next, for_next_session)
         self._update_nice_value_from_ugly_value()
 

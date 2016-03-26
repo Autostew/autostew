@@ -29,6 +29,14 @@ def init(server: Server):
     load_next_setup(server)
 
 
+def event(server, event):
+    global setup_rotation
+    if event.type == EventType.state_changed:
+        if event.new_state == SessionState.lobby:
+            load_settings(server)
+            load_next_setup(server)
+
+
 def load_next_setup(server: Server, index=None):
     global _setup_index
     global _current_setup
@@ -40,18 +48,10 @@ def load_next_setup(server: Server, index=None):
         load_index = 0
     if len(setup_rotation) == 0:
         raise NoSessionSetupTemplateAvailable
+    _setup_index = load_index
     _current_setup = setup_rotation[load_index]
     logging.info("Loading setup {}: {}".format(load_index, _current_setup.name))
     _current_setup.make_setup(server)
-    _setup_index = load_index
-
-
-def event(server, event):
-    global setup_rotation
-    if event.type == EventType.state_changed:
-        if event.new_state == SessionState.lobby:
-            load_settings(server)
-            load_next_setup(server)
 
 
 def load_settings(server):
