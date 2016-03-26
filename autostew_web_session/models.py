@@ -50,6 +50,7 @@ class Vehicle(models.Model):
 class Livery(models.Model):
     class Meta:
         ordering = ['vehicle__name', 'name']
+        verbose_name_plural = "Liveries"
 
     name = models.CharField(max_length=50)
     id_for_vehicle = models.IntegerField(help_text='pCars internal ID')
