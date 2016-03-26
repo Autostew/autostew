@@ -1,6 +1,6 @@
 import logging
 
-from autostew_back.plugins import db, laptimes, crash_monitor, motd, db_setup_rotation, db_session_writer, db_enum_writer, clock
+from autostew_back.plugins import db, laptimes, crash_monitor, chat_notifications, db_setup_rotation, db_session_writer, db_enum_writer, clock
 
 logging.getLogger().setLevel(logging.INFO)
 logging.getLogger('django.db.backends').setLevel(logging.INFO)
@@ -24,6 +24,6 @@ class Settings:
         clock,
         laptimes,
         crash_monitor,
-        motd,
+        chat_notifications,
     ]
 
