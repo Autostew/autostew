@@ -24,8 +24,13 @@ class ApiCaller:
     def _print_api_version(self):
         r = self._call('version')
         logging.info("API version: {}".format(r))
-        # {'build_version': 88, 'lua_version': 301, 'protocol_version': 136}
-
+        for k, v in r.items():
+            if v not in self.server.settings.api_compatibility[k]:
+                logging.warning("{} is {}, not compatible with known versions {}".format(
+                    k,
+                    v,
+                    self.server.settings.api_compatibility[k])
+                )
 
     def _call(self, path, params={}):  # TODO handle errors
         r = requests.get("{url}/api/{path}?{params}".format(

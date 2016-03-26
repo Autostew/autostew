@@ -27,3 +27,8 @@ class Settings:
         chat_notifications,
     ]
 
+    api_compatibility = {
+        'build_version': [87, 88],
+        'lua_version': [301],
+        'protocol_version': [135, 136],
+    }
