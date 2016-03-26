@@ -180,14 +180,14 @@ class StatusList:
         elements_new = diff(elements_update, elements_known)
         for existing_element in self.elements:
             if getattr(existing_element, self._id_attribute).get() in elements_gone:
-                logging.info("Removing element {} from table {}".format(existing_element, self))
+                logging.debug("Removing element {} from table {}".format(existing_element, self))
                 self.elements.remove(existing_element)
         for new_element in elements_new:
             new_one = self._element_type(self._attr_list, self._lists, self._api)
             for st in status:
                 if st[self._id_attribute] == new_element:
                     new_one.update_from_game(st)
-            logging.info("Adding element {} from table {}".format(new_one, self))
+            logging.debug("Adding element {} from table {}".format(new_one, self))
             self.elements.append(new_one)
 
         for existing_element in self.elements:

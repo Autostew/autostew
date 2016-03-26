@@ -16,7 +16,7 @@ class CreateSessionView(FormView):
     success_url = '/session/all'
 
     def form_valid(self, form):
-        logging.info("valid form data for session setup has been posted.")
+        logging.debug("valid form data for session setup has been posted.")
         form.save()
         return super(CreateSessionView, self).form_valid(form)
 

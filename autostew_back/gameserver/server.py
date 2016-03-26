@@ -104,7 +104,6 @@ class Server:
             logging.debug("Got {} events".format(len(events)))
 
             for raw_event in events:
-                print(raw_event)
                 event = event_factory(raw_event, self)
 
                 if one_by_one:

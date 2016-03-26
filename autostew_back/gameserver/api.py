@@ -18,8 +18,8 @@ class ApiCaller:
         if test_connection:
             self._print_api_version()
         if show_api_definition:
-            logging.info("API definition:")
-            logging.info(self.api_help_parser())
+            logging.debug("API definition:")
+            logging.debug(self.api_help_parser())
 
     def _print_api_version(self):
         r = self._call('version')
