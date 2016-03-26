@@ -33,16 +33,21 @@ class ApiCaller:
                 )
 
     def _call(self, path, params={}):  # TODO handle errors
-        r = requests.get("{url}/api/{path}?{params}".format(
+        url = "{url}/api/{path}?{params}".format(
             url=self.server.settings.url,
             path=path,
             params='&'.join(["{k}={v}".format(k=k, v=v) for k, v in params.items()])
-        ))
+        )
+        r = requests.get(url)
         if not r.ok:
-            raise self.ApiResultNotOk('Request returned {code}'.format(code=r.status_code))
+            message = 'Request to {url} returned {code}'.format(url=url, code=r.status_code)
+            logging.warning(message)
+            raise self.ApiResultNotOk(message)
         parsed = json.loads(r.text)
         if parsed['result'] != 'ok':
-            raise self.ApiResultNotOk('Request result was {result}'.format(result=parsed['result']))
+            message = 'Request to {url} result was {result}'.format(url=url, result=parsed['result'])
+            logging.warning(message)
+            raise self.ApiResultNotOk(message)
         return parsed.get('response', None)
 
     def record_result(self, type, content):
