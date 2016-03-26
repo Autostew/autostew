@@ -5,7 +5,7 @@ from django.views import generic
 from django.views.generic import FormView
 
 from autostew_web_session import models
-from autostew_web_session.models import Event, Participant
+from autostew_web_session.models import Event, Participant, SessionSetup, Server
 from .models import Session, SessionSnapshot
 from .forms import SessionSetupForm
 
@@ -69,6 +69,7 @@ class SessionList(generic.ListView):
         context['sessions_in_progress'] = Session.objects.filter(running=True, finished=False)
         context['sessions_planned'] = Session.objects.filter(planned=True, finished=False)
         context['sessions_history'] = Session.objects.filter(finished=True)
+        context['setups_in_rotation'] = SessionSetup.objects.filter(server__in=Server.objects.all())
         return context
 
 
