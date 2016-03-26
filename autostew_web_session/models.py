@@ -164,7 +164,7 @@ class Server(models.Model):
 
     name = models.CharField(max_length=50, unique=True,
                             help_text='To successfully rename a server you will need to change it\'s settings too')
-    session_setups = models.ManyToManyField(SessionSetup,
+    session_setups = models.ManyToManyField(SessionSetup, limit_choices_to={'is_template': True},
                                             help_text="Setups that will be used on this server's rotation")
 
     running = models.BooleanField(help_text="This value should not be changed manually")
@@ -191,9 +191,9 @@ class Session(models.Model):
         ordering = ['start_timestamp']
 
     server = models.ForeignKey(Server)
-    setup_template = models.ForeignKey(SessionSetup, related_name='+',
+    setup_template = models.ForeignKey(SessionSetup,  limit_choices_to={'is_template': True}, related_name='+',
                                        help_text="This setup is feeded to the game")
-    setup_actual = models.ForeignKey(SessionSetup, related_name='+',
+    setup_actual = models.ForeignKey(SessionSetup,  limit_choices_to={'is_template': False}, related_name='+',
                                      help_text="This setup is read from the game once the race starts")
 
     start_timestamp = models.DateTimeField(auto_now_add=True,
