@@ -1,9 +1,8 @@
 """
 Show a message when a fastest lap is finished.
 """
-from datetime import timedelta
-
-from autostew_back.gameserver.event import EventType
+from autostew_back.gameserver.event import EventType, BaseEvent
+from autostew_back.gameserver.server import Server
 from autostew_back.utils import std_time_format
 
 name = 'laptime announcements'
@@ -23,11 +22,11 @@ def tick(server):
     pass
 
 
-def event(server, event):
+def event(server: Server, event: BaseEvent):
     global _fastest_lap_time
     if event.type == EventType.stage_changed:
         _fastest_lap_time = None
-    if event.type == EventType.lap:
+    if event.type == EventType.lap and event.count_this_lap_times:
         is_fastest_lap = False
 
         if _fastest_lap_time is None or _fastest_lap_time > event.lap_time:
