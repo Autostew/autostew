@@ -6,8 +6,10 @@
         <div class="col-xs-12 col-sm-4 placeholder">
             <h3>
                 Race
-                {% if session.planned %}(planned){% endif %}
-                {% if session.running %}in progress{% endif %}
+                {% if session.finished %}<span class="label label-success">finished</span>
+                {% elif session.running %}<span class="label label-danger">in progress</span>
+                {% elif session.planned %}<span class="label label-info">planned</span>
+                {% endif %}
             </h3>
             <h4>{% if session.setup_actual.force_identical_vehicles %}
                 {{ session.setup_actual.vehicle.name }}
@@ -19,7 +21,6 @@
 
             <h4>
                 {{ session.setup_actual.name }}
-                {% if session.setup_actual.server_controls_setup %}(server setup){% else %}(client setup){% endif %}
             </h4>
 
             Real time: {{ sessionsnapshot.timestamp|date }} {{ sessionsnapshot.timestamp|time }}<br>
