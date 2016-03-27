@@ -1,8 +1,6 @@
-import datetime
 import json
 import logging
 
-import time
 from django.db import transaction
 from django.utils import timezone
 
@@ -11,7 +9,7 @@ from autostew_back.gameserver.member import MemberFlags, Member as SessionMember
 from autostew_back.gameserver.participant import Participant as SessionParticipant
 from autostew_back.gameserver.server import ServerState, Server as DServer
 from autostew_back.gameserver.session import SessionFlags, Privacy, SessionState, SessionStage
-from autostew_back.plugins import db, db_enum_writer, db_setup_rotation
+from autostew_back.plugins import db, db_setup_rotation
 from autostew_back.utils import td_to_milli
 from autostew_web_enums import models as enum_models
 from autostew_web_session import models as session_models
@@ -21,7 +19,6 @@ name = 'DB writer'
 dependencies = [db, db_setup_rotation]
 
 current_session = None
-DEFAULT_SESSION_SETUP_NAME = 'default setup'
 
 
 @transaction.atomic

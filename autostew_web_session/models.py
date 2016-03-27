@@ -164,15 +164,20 @@ class Server(models.Model):
 
     name = models.CharField(max_length=50, unique=True,
                             help_text='To successfully rename a server you will need to change it\'s settings too')
+
     session_setups = models.ManyToManyField(SessionSetup, limit_choices_to={'is_template': True},
                                             related_name='rotated_in_server',
                                             help_text="Setups that will be used on this server's rotation")
+
     next_setup = models.ForeignKey(SessionSetup, limit_choices_to={'is_template': True}, related_name='next_in_server',
                                    null=True, blank=True,
                                    help_text="If set, this will be the next setup used")
+
     scheduled_sessions = models.ManyToManyField('Session', limit_choices_to={'planned': True},
+                                                null=True, blank=True,
                                                 related_name='schedule_at_servers',
                                                 help_text="These schedule setups will be used (on their scheduled time)")
+
     running = models.BooleanField(help_text="This value should not be changed manually")
     current_session = models.ForeignKey('Session', null=True, related_name='+', blank=True)
     last_ping = models.DateTimeField(null=True, blank=True,
