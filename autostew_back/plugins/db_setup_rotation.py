@@ -1,4 +1,7 @@
+import datetime
 import logging
+
+from django.utils import timezone
 
 from autostew_back.gameserver.event import EventType
 from autostew_back.gameserver.server import Server
@@ -10,9 +13,9 @@ name = 'DB setup rotation'
 dependencies = [db]
 
 setup_rotation = []
+scheduled_session = None
+current_setup = None
 _setup_index = None
-_current_setup = None
-_server = None
 
 
 class NoSessionSetupTemplateAvailable(Exception):
@@ -21,8 +24,6 @@ class NoSessionSetupTemplateAvailable(Exception):
 
 def init(server: Server):
     global setup_rotation
-    global _server
-    _server = server
     server.get_current_setup_name = get_current_setup_name
     load_settings(server)
     load_next_setup(server)
@@ -36,25 +37,17 @@ def event(server, event):
             load_next_setup(server)
 
 
-def load_next_setup(server: Server, index=None):
-    global _setup_index
-    global _current_setup
-    if index is None:
-        load_index = 0 if _setup_index is None else _setup_index + 1
-    else:
-        load_index = index
-    if load_index >= len(setup_rotation):
-        load_index = 0
-    if len(setup_rotation) == 0:
-        raise NoSessionSetupTemplateAvailable
-    _setup_index = load_index
-    _current_setup = setup_rotation[load_index]
-    logging.info("Loading setup {}: {}".format(load_index, _current_setup.name))
-    _current_setup.make_setup(server)
-
-
 def load_settings(server):
     global setup_rotation
+    global scheduled_session
+    for scheduled_session_it in db.server_in_db.scheduled_sessions.all():
+        if (
+                not scheduled_session_it.running and not scheduled_session_it.finished
+                (not scheduled_session_it.schedule_date or scheduled_session_it.schedule_date == datetime.date.today())
+                and abs(scheduled_session_it.schedule_time - datetime.time()) < datetime.timedelta(seconds=300)
+        ):
+            scheduled_session = scheduled_session_it
+            return
     if db.server_in_db.next_setup:
         setup_rotation = [db.server_in_db.next_setup]
         db.server_in_db.next_setup = None
@@ -65,8 +58,28 @@ def load_settings(server):
         ]
 
 
+def load_next_setup(server: Server, force_index=None):
+    global _setup_index
+    global current_setup
+    if scheduled_session:
+        current_setup = DBSetup(scheduled_session.setup_template)
+    else:
+        if force_index is None:
+            load_index = 0 if _setup_index is None else _setup_index + 1
+        else:
+            load_index = force_index
+        if load_index >= len(setup_rotation):
+            load_index = 0
+        if len(setup_rotation) == 0:
+            raise NoSessionSetupTemplateAvailable
+        _setup_index = load_index
+        current_setup = setup_rotation[load_index]
+    logging.info("Loading setup {}: {}".format(load_index, current_setup.name))
+    current_setup.make_setup(server)
+
+
 def get_current_setup_name():
-    return _current_setup.name
+    return current_setup.name
 
 
 class DBSetup:

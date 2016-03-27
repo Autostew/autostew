@@ -165,10 +165,14 @@ class Server(models.Model):
     name = models.CharField(max_length=50, unique=True,
                             help_text='To successfully rename a server you will need to change it\'s settings too')
     session_setups = models.ManyToManyField(SessionSetup, limit_choices_to={'is_template': True},
+                                            related_name='rotated_in_server',
                                             help_text="Setups that will be used on this server's rotation")
-    next_setup = models.ForeignKey(SessionSetup, limit_choices_to={'is_template': True}, related_name='+',
+    next_setup = models.ForeignKey(SessionSetup, limit_choices_to={'is_template': True}, related_name='next_in_server',
                                    null=True, blank=True,
                                    help_text="If set, this will be the next setup used")
+    scheduled_sessions = models.ManyToManyField('Session', limit_choices_to={'planned': True},
+                                                related_name='schedule_at_servers',
+                                                help_text="These schedule setups will be used (on their scheduled time)")
     running = models.BooleanField(help_text="This value should not be changed manually")
     current_session = models.ForeignKey('Session', null=True, related_name='+', blank=True)
     last_ping = models.DateTimeField(null=True, blank=True,
@@ -196,12 +200,15 @@ class Session(models.Model):
     setup_template = models.ForeignKey(SessionSetup,  limit_choices_to={'is_template': True}, related_name='+',
                                        help_text="This setup is feeded to the game")
     setup_actual = models.ForeignKey(SessionSetup,  limit_choices_to={'is_template': False}, related_name='+',
-                                     help_text="This setup is read from the game once the race starts")
+                                     null=True, help_text="This setup is read from the game once the race starts")
 
     start_timestamp = models.DateTimeField(auto_now_add=True,
                                            help_text="Time when the race starts/started")
     last_update_timestamp = models.DateTimeField(auto_now=True)
     planned = models.BooleanField(help_text="If true, this race was/is scheduled")
+    schedule_time = models.TimeField(null=True, blank=True, help_text="Time this schedule will run")
+    schedule_date = models.DateField(null=True, blank=True,
+                                     help_text="Date this schedule will run, if blank will run daily")
     running = models.BooleanField(help_text="If true, this race is currently running")
     finished = models.BooleanField(help_text="If true, this race finished")
 

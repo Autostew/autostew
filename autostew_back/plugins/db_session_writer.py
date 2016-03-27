@@ -28,7 +28,7 @@ DEFAULT_SESSION_SETUP_NAME = 'default setup'
 def init(server: DServer):
     global current_session
     if server.state == ServerState.running:
-        current_session = _create_session(server, db.server_in_db)  # TODO should be _find_current_or_create_session()
+        current_session = _get_or_create_session(server, db.server_in_db)
 
 
 @transaction.atomic
@@ -145,13 +145,13 @@ def event(server: DServer, event: (BaseEvent, ParticipantEvent)):
         _close_current_session()
 
     # When session enters lobby, destroys current session if any and creates a new one.
-    # When session enters track, makes snapshot
-    if event.type == EventType.state_changed:
-        if event.new_state == SessionState.lobby:
+    if event.type == EventType.state_changed and event.new_state == SessionState.lobby:
             if current_session is not None:
                 _close_current_session()
-            current_session = _create_session(server, db.server_in_db)
-        if event.new_state == SessionState.race:
+            current_session = _get_or_create_session(server, db.server_in_db)
+
+    # When session enters track, makes snapshot
+    if event.type == EventType.state_changed and event.new_state == SessionState.race:
             final_setup = _create_session_setup(server)
             final_setup.id = current_session.setup_actual_id
             final_setup.save(force_update=True)
@@ -207,21 +207,26 @@ def _close_current_session():
     db.server_in_db.save()
 
 
-def _create_session(server: DServer, server_in_db: session_models.Server) -> session_models.Session:
+def _get_or_create_session(server: DServer, server_in_db: session_models.Server) -> session_models.Session:
     actual_setup = _create_session_setup(server)
     actual_setup.save()
 
     session = session_models.Session(
         server=server_in_db,
-        setup_template=db_setup_rotation._current_setup.setup,
+        setup_template=db_setup_rotation.current_setup.setup,
         setup_actual=actual_setup,
         lobby_id=server.lobby_id,
         max_member_count=server.max_member_count,
-        planned=False,
         running=True,
         finished=False,
     )
-    session.save(True)
+
+    if db_setup_rotation.scheduled_session:
+        session.id = db_setup_rotation.scheduled_session.id
+        session.planned = True
+    else:
+        session.planned = False
+    session.save()
 
     for member in server.members.elements:
         _get_or_create_member(session, member)
@@ -240,7 +245,7 @@ def _create_session(server: DServer, server_in_db: session_models.Server) -> ses
 def _create_session_setup(server):
     flags = server.session.flags.get_flags()
     return session_models.SessionSetup(
-        name=db_setup_rotation._current_setup.setup.name,
+        name=db_setup_rotation.current_setup.setup.name,
         is_template=False,
         server_controls_setup=server.session.server_controls_setup.get(),
         server_controls_track=server.session.server_controls_track.get(),
