@@ -9,6 +9,7 @@ from django.test import TestCase
 from autostew_back import setups
 from autostew_back.gameserver.mocked_api import FakeApi
 from autostew_back.gameserver.server import Server
+from autostew_back.plugins import local_setup_rotation
 from autostew_back.tests.test_assets.settings_no_plugins import SettingsWithoutPlugins
 
 
@@ -25,4 +26,5 @@ class TestSetups(TestCase):
             setup = importlib.import_module('autostew_back.setups.{}'.format(setup_module))
             settings.setup_rotation = [setup]
             with mock.patch.object(requests, 'get', api.fake_request):
-                Server(settings, True)
+                server = Server(settings, True)
+                local_setup_rotation.load_next_setup(server)
