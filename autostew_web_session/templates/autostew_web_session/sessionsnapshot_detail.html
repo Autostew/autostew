@@ -29,7 +29,13 @@
             {{ sessionsnapshot.current_hour }}:{{ sessionsnapshot.current_minute }}
         </div>
         <div class="col-xs-12 col-sm-4 placeholder" style="text-align: center">
-            <h2>{{ sessionsnapshot.session_stage.name|upper }}</h2>
+            <h2>
+                {% if sessionsnapshot.session_state.name == 'Race' %}
+                    {{ sessionsnapshot.session_stage.name|upper }}
+                {% else %}
+                    {{ sessionsnapshot.session_state.name|upper }}
+                {% endif %}
+            </h2>
             {% if session.setup_actual.practice1_length %}{{ session.setup_actual.practice1_length }} minutes practice<br>{% endif %}
             {% if session.setup_actual.practice2_length %}{{ session.setup_actual.practice2_length }} minutes practice<br>{% endif %}
             {% if session.setup_actual.qualify_length %}{{ session.setup_actual.qualify_length }} minutes qualifying<br>{% endif %}
