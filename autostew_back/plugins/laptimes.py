@@ -33,7 +33,7 @@ def event(server: Server, event: BaseEvent):
 
 
 def announce_lap(event: BaseEvent, is_fastest_lap: bool, server: Server):
-    message = "{notice}P{position} - {participant} - {laptime}".format(
+    message = "{notice}P{position} - {participant} - {notice}".format(
         participant=event.participant.name.get(),
         laptime=std_time_format(event.lap_time),
         position=event.race_position,
@@ -61,7 +61,7 @@ def check_if_new_fastest_lap(event: LapEvent):
     """
     global _fastest_known_lap_time
 
-    if _fastest_known_lap_time is None or _fastest_known_lap_time > event.lap_time:
+    if _fastest_known_lap_time is None or _fastest_known_lap_time >= event.lap_time:
         _fastest_known_lap_time = event.lap_time
         return True
     return False
