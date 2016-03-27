@@ -73,7 +73,7 @@ def event(server: DServer, event: (BaseEvent, ParticipantEvent)):
             snapshot.sector2_time = td_to_milli(event.sector2_time)
             snapshot.sector3_time = td_to_milli(event.sector3_time)
             snapshot.last_lap_time = td_to_milli(event.lap_time)
-            if td_to_milli(event.lap_time) < snapshot.fastest_lap_time:
+            if td_to_milli(event.lap_time) < snapshot.fastest_lap_time or not snapshot.fastest_lap_time:
                 snapshot.fastest_lap_time = td_to_milli(event.lap_time)
             snapshot.save()
 
