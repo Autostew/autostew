@@ -305,11 +305,13 @@ class SessionSnapshot(models.Model):
         return reverse('session:snapshot', args=[str(self.id)])
 
     def reorder_by_best_time(self):
-        for i, v in enumerate(self.participantsnapshot_set.filter(fastest_lap_time__gt=0).order_by('-fastest_lap_time')):
+        participants_with_fastest_lap_set = self.participantsnapshot_set.filter(fastest_lap_time__gt=0)
+        for i, v in enumerate(participants_with_fastest_lap_set.order_by('-fastest_lap_time')):
             v.race_position = i
             v.save()
+        positions_without_laptime = len(participants_with_fastest_lap_set) + 1
         for v in self.participantsnapshot_set.filter(fastest_lap_time__gt=0):
-            v.race_position = i + 1
+            v.race_position = positions_without_laptime
             v.save()
 
     @property
