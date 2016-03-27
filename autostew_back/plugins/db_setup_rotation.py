@@ -42,9 +42,9 @@ def load_settings(server):
     global scheduled_session
     for scheduled_session_it in db.server_in_db.scheduled_sessions.all():
         if (
-                not scheduled_session_it.running and not scheduled_session_it.finished
-                (not scheduled_session_it.schedule_date or scheduled_session_it.schedule_date == datetime.date.today())
-                and abs(scheduled_session_it.schedule_time - datetime.time()) < datetime.timedelta(seconds=300)
+                not scheduled_session_it.running and not scheduled_session_it.finished and
+                (not scheduled_session_it.schedule_date or scheduled_session_it.schedule_date == datetime.date.today()) and
+                scheduled_session_it.schedule_time + datetime.timedelta(seconds=300) > datetime.time()
         ):
             scheduled_session = scheduled_session_it
             return
