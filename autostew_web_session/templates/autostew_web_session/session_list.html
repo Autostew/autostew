@@ -12,7 +12,7 @@
             <h2>Recent sessions</h2>
             {% if sessions_history %}
                 <ul>
-                    {% for session in sessions_history reversed %}
+                    {% for session in sessions_history %}
                         <li><a href="{{ session.get_absolute_url }}">{{ session }}</a></li>
                     {% endfor %}
                 </ul>
