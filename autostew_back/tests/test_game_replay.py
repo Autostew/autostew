@@ -39,7 +39,11 @@ class TestGameReplay(TestCase):
         with mock.patch.object(requests, 'get', api.fake_request):
             server = DServer(settings)
             try:
-                server.poll_loop()
+                while True:
+                    server.poll_loop(only_one_run=True)
+                    if len(Session.objects.all()):
+                        response = self.client.get(Session.objects.all().order_by('-id')[0].get_absolute_url())
+                        self.assertEqual(response.status_code, 200)
             except api.RecordFinished:
                 pass
         server.destroy()

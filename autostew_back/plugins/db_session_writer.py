@@ -65,18 +65,13 @@ def event(server: DServer, event: (BaseEvent, ParticipantEvent)):
         ).save()
 
         if not current_session.current_snapshot.session_stage.name.startswith("Race"):
-            snapshot = _get_or_create_participant_snapshot(event.participant, current_session, current_session.current_snapshot)
-            snapshot.race_position = event.race_position
-            snapshot.current_lap = (event.lap + 1)
-            snapshot.current_sector = 1
-            if event.count_this_lap_times:
-                snapshot.sector1_time = td_to_milli(event.sector1_time)
-                snapshot.sector2_time = td_to_milli(event.sector2_time)
-                snapshot.sector3_time = td_to_milli(event.sector3_time)
-                snapshot.last_lap_time = td_to_milli(event.lap_time)
-                if td_to_milli(event.lap_time) < snapshot.fastest_lap_time or not snapshot.fastest_lap_time:
-                    snapshot.fastest_lap_time = td_to_milli(event.lap_time)
-            snapshot.save()
+            _get_or_create_participant_snapshot(
+                event.participant,
+                current_session,
+                current_session.current_snapshot,
+                overwrite=True
+            )
+            current_session.current_snapshot.reorder_by_best_time()
 
     # Stores each sector
     if event.type == EventType.sector and event.lap > 0:
@@ -454,51 +449,51 @@ def _create_session_snapshot(server: DServer, session: session_models.Session) -
 def _get_or_create_participant_snapshot(
         participant: SessionParticipant,
         session: session_models.Session,
-        session_snapshot: session_models.SessionSnapshot
+        session_snapshot: session_models.SessionSnapshot,
+        overwrite=False
 ) -> session_models.ParticipantSnapshot:
+    participant_snapshot = None
     try:
         participant_snapshot = session_models.ParticipantSnapshot.objects.get(
             snapshot=session_snapshot,
             participant__ingame_id=participant.id.get()
         )
-        return participant_snapshot
+        if not overwrite:
+            return participant_snapshot
     except session_models.ParticipantSnapshot.DoesNotExist:
         pass
 
     try:
-        if participant.is_player.get():
-            parent = session_models.Participant.objects.get(ingame_id=participant.id.get(),
-                                                            member__refid=participant.refid.get(),
-                                                            member__session=session)
-        else:
-            parent = session_models.Participant.objects.get(ingame_id=participant.id.get(), session=session)
+        parent = session_models.Participant.objects.get(ingame_id=participant.id.get(), session=session)
     except session_models.Participant.DoesNotExist:
         parent = _get_or_create_participant(session, participant)
-    participant_snapshot = session_models.ParticipantSnapshot(
-        snapshot=session_snapshot,
-        participant=parent,
-        still_connected=True,
-        grid_position=participant.grid_position.get(),
-        race_position=participant.race_position.get(),
-        current_lap=participant.current_lap.get(),
-        current_sector=participant.current_sector.get(),
-        sector1_time=participant.sector1_time.get(),
-        sector2_time=participant.sector2_time.get(),
-        sector3_time=participant.sector3_time.get(),
-        last_lap_time=participant.last_lap_time.get(),
-        fastest_lap_time=participant.fastest_lap_time.get(),
-        state=enum_models.ParticipantState.objects.get(name=participant.state.get()),
-        headlights=participant.headlights.get(),
-        wipers=participant.wipers.get(),
-        speed=participant.speed.get(),
-        gear=participant.gear.get(),
-        rpm=participant.rpm.get(),
-        position_x=participant.position_x.get(),
-        position_y=participant.position_y.get(),
-        position_z=participant.position_z.get(),
-        orientation=participant.orientation.get(),
-        total_time=0,
-    )
+
+    if not participant_snapshot:
+        participant_snapshot = session_models.ParticipantSnapshot()
+
+    participant_snapshot.snapshot = session_snapshot
+    participant_snapshot.participant = parent
+    participant_snapshot.still_connected = True
+    participant_snapshot.grid_position = participant.grid_position.get()
+    participant_snapshot.race_position = participant.race_position.get()
+    participant_snapshot.current_lap = participant.current_lap.get()
+    participant_snapshot.current_sector = participant.current_sector.get()
+    participant_snapshot.sector1_time = participant.sector1_time.get()
+    participant_snapshot.sector2_time = participant.sector2_time.get()
+    participant_snapshot.sector3_time = participant.sector3_time.get()
+    participant_snapshot.last_lap_time = participant.last_lap_time.get()
+    participant_snapshot.fastest_lap_time = participant.fastest_lap_time.get()
+    participant_snapshot.state = enum_models.ParticipantState.objects.get(name=participant.state.get())
+    participant_snapshot.headlights = participant.headlights.get()
+    participant_snapshot.wipers = participant.wipers.get()
+    participant_snapshot.speed = participant.speed.get()
+    participant_snapshot.gear = participant.gear.get()
+    participant_snapshot.rpm = participant.rpm.get()
+    participant_snapshot.position_x = participant.position_x.get()
+    participant_snapshot.position_y = participant.position_y.get()
+    participant_snapshot.position_z = participant.position_z.get()
+    participant_snapshot.orientation = participant.orientation.get()
+    participant_snapshot.total_time = 0
     participant_snapshot.save()
     return participant_snapshot
 

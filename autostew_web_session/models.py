@@ -304,6 +304,14 @@ class SessionSnapshot(models.Model):
     def get_absolute_url(self):
         return reverse('session:snapshot', args=[str(self.id)])
 
+    def reorder_by_best_time(self):
+        for i, v in enumerate(self.participantsnapshot_set.filter(fastest_lap_time__gt=0).order_by('-fastest_lap_time')):
+            v.race_position = i
+            v.save()
+        for v in self.participantsnapshot_set.filter(fastest_lap_time__gt=0):
+            v.race_position = i + 1
+            v.save()
+
     @property
     def previous_in_session(self):
         try:
