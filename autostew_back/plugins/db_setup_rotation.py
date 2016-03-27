@@ -3,7 +3,7 @@ import logging
 
 from django.utils import timezone
 
-from autostew_back.gameserver.event import EventType
+from autostew_back.gameserver.event import EventType, BaseEvent
 from autostew_back.gameserver.server import Server, ServerState
 from autostew_back.gameserver.session import Privacy, SessionFlags, SessionState
 from autostew_back.plugins import db
@@ -32,15 +32,14 @@ def init(server: Server):
         _setup_index = None
 
 
-def event(server, event):
+def event(server: Server, event: BaseEvent):
     global setup_rotation
-    if event.type == EventType.state_changed:
-        if event.new_state == SessionState.lobby:
+    if event.type == EventType.state_changed and event.new_state == SessionState.lobby:
             load_settings(server)
             load_next_setup(server)
 
 
-def load_settings(server):
+def load_settings(server: Server):
     global setup_rotation
     global scheduled_session
 
@@ -78,7 +77,7 @@ def load_next_setup(server: Server, force_index=None):
     current_setup.make_setup(server)
 
 
-def get_current_setup_name():
+def get_current_setup_name() -> str:
     return current_setup.name
 
 
