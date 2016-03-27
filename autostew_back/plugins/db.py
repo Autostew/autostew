@@ -5,10 +5,12 @@ from django.utils import timezone
 from django.core.wsgi import get_wsgi_application
 
 # This line has to happen before importing models
+
 get_wsgi_application()
 
 from autostew_back.gameserver.server import Server as DedicatedServer
 from autostew_web_session import models
+from autostew_web_session.models import SetupRotationEntry
 
 name = 'DB'
 ping_interval = 10
@@ -27,7 +29,8 @@ def init(server: DedicatedServer):
     server_in_db.state = server.state
     if not server_in_db.id:
         server_in_db.save()
-        server_in_db.session_setups = models.SessionSetup.objects.filter(is_template=True)
+        for i, template_setup in enumerate(models.SessionSetup.objects.filter(is_template=True)):
+            SetupRotationEntry(order=i, server=server_in_db, setup=template_setup).save()
     server_in_db.save()
     _ping(server)
 
@@ -51,5 +54,5 @@ def _ping(server: DedicatedServer):
         server_in_db.average_player_latency = None
     else:
         server_in_db.average_player_latency = sum([member.ping.get() for member in server.members.elements]) / len(server.members.elements)
-    server_in_db.save()
     last_ping = time.time()
+    server_in_db.save()

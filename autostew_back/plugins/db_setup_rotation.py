@@ -40,22 +40,19 @@ def event(server, event):
 def load_settings(server):
     global setup_rotation
     global scheduled_session
-    for scheduled_session_it in db.server_in_db.scheduled_sessions.all():
-        if (
-                not scheduled_session_it.running and not scheduled_session_it.finished and
-                (not scheduled_session_it.schedule_date or scheduled_session_it.schedule_date == datetime.date.today()) and
-                scheduled_session_it.schedule_time + datetime.timedelta(seconds=300) > datetime.time()
-        ):
-            scheduled_session = scheduled_session_it
-            return
-    if db.server_in_db.next_setup:
-        setup_rotation = [db.server_in_db.next_setup]
-        db.server_in_db.next_setup = None
+
+    scheduled_session = db.server_in_db.next_scheduled_session()
+    if scheduled_session:
+        return
+
+    queued_setup = db.server_in_db.pop_next_queued_setup()
+    if queued_setup:
+        setup_rotation = [DBSetup(queued_setup)]
         db.server_in_db.save()
+        return
+
     else:
-        setup_rotation = [
-            DBSetup(setup) for setup in db.server_in_db.session_setups.all()
-        ]
+        setup_rotation = [DBSetup(setup) for setup in db.server_in_db.setup_rotation.all()]
 
 
 def load_next_setup(server: Server, force_index=None):
