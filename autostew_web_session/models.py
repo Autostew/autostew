@@ -205,9 +205,10 @@ class Session(models.Model):
     setup_template = models.ForeignKey(SessionSetup,  limit_choices_to={'is_template': True}, related_name='+',
                                        help_text="This setup is feeded to the game")
     setup_actual = models.ForeignKey(SessionSetup,  limit_choices_to={'is_template': False}, related_name='+',
-                                     null=True, help_text="This setup is read from the game once the race starts")
+                                     null=True, blank=True,
+                                     help_text="This setup is read from the game once the race starts")
 
-    start_timestamp = models.DateTimeField(auto_now_add=True,
+    start_timestamp = models.DateTimeField(auto_now_add=True,  # TODO remove auto_now_add
                                            help_text="Time when the race starts/started")
     last_update_timestamp = models.DateTimeField(auto_now=True)
     planned = models.BooleanField(help_text="If true, this race was/is scheduled")
@@ -217,8 +218,8 @@ class Session(models.Model):
     running = models.BooleanField(help_text="If true, this race is currently running")
     finished = models.BooleanField(help_text="If true, this race finished")
 
-    lobby_id = models.CharField(max_length=200)
-    max_member_count = models.IntegerField()
+    lobby_id = models.CharField(max_length=200, blank=True)
+    max_member_count = models.IntegerField(null=True, blank=True)
 
     first_snapshot = models.ForeignKey("SessionSnapshot", null=True, blank=True, related_name='+')
     current_snapshot = models.ForeignKey("SessionSnapshot", null=True, blank=True, related_name='+')
