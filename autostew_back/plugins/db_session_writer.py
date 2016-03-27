@@ -430,18 +430,27 @@ def _create_session_snapshot(server: DServer, session: session_models.Session) -
 
     for it in server.participants.elements:
         _get_or_create_participant(session, it)
-        _create_participant_snapshot(it, session, session_snapshot)
+        _get_or_create_participant_snapshot(it, session, session_snapshot)
 
     session.current_snapshot = session_snapshot
     session.save()
     return session_snapshot
 
 
-def _create_participant_snapshot(
+def _get_or_create_participant_snapshot(
         participant: SessionParticipant,
         session: session_models.Session,
         session_snapshot: session_models.SessionSnapshot
 ) -> session_models.ParticipantSnapshot:
+    try:
+        participant_snapshot = session_models.ParticipantSnapshot.objects.get(
+            snapshot=session_snapshot,
+            participant__ingame_id=participant.id.get()
+        )
+        return participant_snapshot
+    except session_models.ParticipantSnapshot.DoesNotExist:
+        pass
+
     try:
         if participant.is_player.get():
             parent = session_models.Participant.objects.get(ingame_id=participant.id.get(),
