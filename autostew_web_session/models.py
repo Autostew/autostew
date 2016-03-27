@@ -160,7 +160,8 @@ class SessionSetup(models.Model):
 
 class SetupRotationEntry(models.Model):
     class Meta:
-        ordering = ('order', )
+        ordering = ('server', 'order', )
+        verbose_name_plural = "Rotated setups"
     order = models.IntegerField(help_text='Index of setup in order')
     setup = models.ForeignKey(SessionSetup, on_delete=models.CASCADE)
     server = models.ForeignKey('Server', on_delete=models.CASCADE)
@@ -168,7 +169,8 @@ class SetupRotationEntry(models.Model):
 
 class SetupQueueEntry(models.Model):
     class Meta:
-        ordering = ('order', )
+        ordering = ('server', 'order', )
+        verbose_name_plural = "Queued setups"
     order = models.IntegerField(help_text='Index of setup in order')
     setup = models.ForeignKey(SessionSetup, on_delete=models.CASCADE)
     server = models.ForeignKey('Server', on_delete=models.CASCADE)

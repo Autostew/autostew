@@ -53,6 +53,18 @@ class SessionSetupAdmin(admin.ModelAdmin):
     ]
 
 
+@admin.register(SetupRotationEntry)
+class SetupRotationEntryAdmin(admin.ModelAdmin):
+    list_filter = ['server', 'setup']
+    list_display = ['order', 'server', 'setup']
+
+
+@admin.register(SetupQueueEntry)
+class SetupQueueEntryAdmin(admin.ModelAdmin):
+    list_filter = ['server', 'setup']
+    list_display = ['order', 'server', 'setup']
+
+
 @admin.register(Server)
 class ServerAdmin(admin.ModelAdmin):
     list_filter = ['running']
