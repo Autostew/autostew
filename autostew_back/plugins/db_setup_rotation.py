@@ -4,7 +4,7 @@ import logging
 from django.utils import timezone
 
 from autostew_back.gameserver.event import EventType
-from autostew_back.gameserver.server import Server
+from autostew_back.gameserver.server import Server, ServerState
 from autostew_back.gameserver.session import Privacy, SessionFlags, SessionState
 from autostew_back.plugins import db
 from autostew_web_session.models import SessionSetup
@@ -24,9 +24,12 @@ class NoSessionSetupTemplateAvailable(Exception):
 
 def init(server: Server):
     global setup_rotation
+    global _setup_index
     server.get_current_setup_name = get_current_setup_name
     load_settings(server)
     load_next_setup(server)
+    if server.state != ServerState.running:
+        _setup_index = None
 
 
 def event(server, event):
