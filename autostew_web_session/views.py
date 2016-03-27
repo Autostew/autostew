@@ -68,7 +68,7 @@ class SessionList(generic.ListView):
         context = super(SessionList, self).get_context_data(**kwargs)
         context['sessions_in_progress'] = Session.objects.filter(running=True, finished=False)
         context['sessions_planned'] = Session.objects.filter(planned=True, running=False, finished=False)
-        context['sessions_history'] = Session.objects.filter(finished=True)
+        context['sessions_history'] = Session.objects.filter(finished=True)[:10]
         context['setups_in_rotation'] = SessionSetup.objects.filter(rotated_in_server=Server.objects.all())
         return context
 
