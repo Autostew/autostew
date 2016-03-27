@@ -54,8 +54,8 @@
             <h2>In rotation</h2>
             {% if setups_in_rotation %}
                 <ul>
-                    {% for session in setups_in_rotation %}
-                        <li><a href="{{ session.get_absolute_url }}">{{ session }}</a></li>
+                    {% for setup in setups_in_rotation %}
+                        <li><a href="{{ setup.get_absolute_url }}">{{ setup.name }}</a></li>
                     {% endfor %}
                 </ul>
             {% else %}
