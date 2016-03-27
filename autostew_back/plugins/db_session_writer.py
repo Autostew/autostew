@@ -44,7 +44,7 @@ def event(server: DServer, event: (BaseEvent, ParticipantEvent)):
     # Creates snapshot and RaceLapSnapshot on each lap in the race by the leader
     if event.type == EventType.lap and event.race_position == 1 and server.session.session_stage.get_nice() == SessionStage.race1:
         snapshot = _create_session_snapshot(server, current_session)
-        session_models.RaceLapSnapshot(lap=event.lap + 1, snapshot=snapshot, session=current_session).save(True)
+        session_models.RaceLapSnapshot(lap=event.lap + 1, snapshot=snapshot, session=current_session).save()
 
     # Stores each lap
     if event.type == EventType.lap:
@@ -62,7 +62,20 @@ def event(server: DServer, event: (BaseEvent, ParticipantEvent)):
             sector2_time=td_to_milli(event.sector2_time),
             sector3_time=td_to_milli(event.sector3_time),
             distance_travelled=event.distance_travelled,
-        ).save(True)
+        ).save()
+
+        if not current_session.current_snapshot.session_stage.name.startswith("Race"):
+            snapshot = _get_or_create_participant_snapshot(event.participant, current_session, current_session.current_snapshot)
+            snapshot.race_position = event.race_position
+            snapshot.current_lap = (event.lap + 1)
+            snapshot.current_sector = 1
+            snapshot.sector1_time = td_to_milli(event.sector1_time)
+            snapshot.sector2_time = td_to_milli(event.sector2_time)
+            snapshot.sector3_time = td_to_milli(event.sector3_time)
+            snapshot.last_lap_time = td_to_milli(event.lap_time)
+            if td_to_milli(event.lap_time) < snapshot.fastest_lap_time:
+                snapshot.fastest_lap_time = td_to_milli(event.lap_time)
+            snapshot.save()
 
     # Stores each sector
     if event.type == EventType.sector and event.lap > 0:
@@ -76,7 +89,7 @@ def event(server: DServer, event: (BaseEvent, ParticipantEvent)):
             count_this_lap=event.count_this_lap,
             sector=event.sector,
             sector_time=td_to_milli(event.sector_time),
-        ).save(True)
+        ).save()
 
     # Writes results as a new snapshot
     if event.type == EventType.results:
@@ -84,7 +97,7 @@ def event(server: DServer, event: (BaseEvent, ParticipantEvent)):
             result_snapshot = session_models.SessionSnapshot.objects.get(
                 session=current_session,
                 is_result=True,
-                session_stage__name=server.session.session_stage.get_nice().value
+                session_stage__name=server.session.session_stage.get()
             )
         except session_models.SessionSnapshot.DoesNotExist:
             result_snapshot = _create_session_snapshot(server, current_session)
@@ -101,7 +114,7 @@ def event(server: DServer, event: (BaseEvent, ParticipantEvent)):
         participant.race_position = event.race_position
         participant.total_time = td_to_milli(event.total_time)
         participant.save()
-        current_stage = _get_or_create_stage(server)
+        current_stage = _get_or_create_stage(server, server.session.session_stage.get())
         current_stage.result_snapshot = result_snapshot
         current_stage.save()
 
@@ -154,14 +167,14 @@ def event(server: DServer, event: (BaseEvent, ParticipantEvent)):
             final_setup.save(force_update=True)
             current_session.starting_snapshot_to_track = _create_session_snapshot(server, current_session)
             current_session.save()
-            stage = _get_or_create_stage(server)
+            stage = _get_or_create_stage(server, server.session.session_stage.get())
             stage.starting_snapshot = current_session.starting_snapshot_to_track
             stage.save()
 
     # Create stage starting snapshots
     if event.type == EventType.stage_changed:
         snapshot = _create_session_snapshot(server, current_session)
-        stage = _get_or_create_stage(server)
+        stage = _get_or_create_stage(server, event.new_stage.value)
         stage.starting_snapshot = snapshot
         stage.save()
         current_session.save()
@@ -176,21 +189,21 @@ def event(server: DServer, event: (BaseEvent, ParticipantEvent)):
             timestamp=timezone.make_aware(event.time),
             ingame_index=event.index,
             raw=json.dumps(event.raw),
-        ).save(True)
+        ).save()
 
 
-def _get_or_create_stage(server):
+def _get_or_create_stage(server: DServer, new_stage: str):
     try:
         return session_models.SessionStage.objects.get(
             session=current_session,
-            stage__name=server.session.session_stage.get()
+            stage__name=new_stage
         )
     except session_models.SessionStage.DoesNotExist:
         stage = session_models.SessionStage(
             session=current_session,
-            stage=enum_models.SessionStage.objects.get(name=server.session.session_stage.get())
+            stage=enum_models.SessionStage.objects.get(name=new_stage)
         )
-        stage.save(True)
+        stage.save()
         return stage
 
 
@@ -322,7 +335,7 @@ def _get_or_create_steam_user(member: SessionMember) -> SteamUser:
             steam_id=member.steam_id.get(),
             display_name=member.name.get()
         )
-        steam_user.save(True)
+        steam_user.save()
     return steam_user
 
 
@@ -385,7 +398,7 @@ def _get_or_create_participant(session: session_models.Session, participant: Ses
             vehicle=vehicle,
             livery=livery,
         )
-        participant.save(True)
+        participant.save()
     return participant
 
 
@@ -422,7 +435,7 @@ def _create_session_snapshot(server: DServer, session: session_models.Session) -
         temperature_track=server.session.temperature_track.get(),
         air_pressure=server.session.air_pressure.get(),
     )
-    session_snapshot.save(True)
+    session_snapshot.save()
 
     for it in server.members.elements:
         _get_or_create_member(session, it)
@@ -485,7 +498,7 @@ def _get_or_create_participant_snapshot(
         orientation=participant.orientation.get(),
         total_time=0,
     )
-    participant_snapshot.save(True)
+    participant_snapshot.save()
     return participant_snapshot
 
 
@@ -505,5 +518,5 @@ def _create_member_snapshot(
         join_time=member.join_time.get(),
         host=member.host.get(),
     )
-    member_snapshot.save(True)
+    member_snapshot.save()
     return member_snapshot

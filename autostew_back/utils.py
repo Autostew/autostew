@@ -11,5 +11,5 @@ def std_time_format(tdelta):
     return strfdelta(tdelta, "{minutes}:{seconds:02d}.{milliseconds:03d}")
 
 
-def td_to_milli(tdelta):
+def td_to_milli(tdelta) -> int:
     return tdelta.microseconds/1000 + tdelta.seconds*1000
