@@ -163,7 +163,7 @@ class SetupRotationEntry(models.Model):
         ordering = ('server', 'order', )
         verbose_name_plural = "Rotated setups"
     order = models.IntegerField(help_text='Index of setup in order')
-    setup = models.ForeignKey(SessionSetup, on_delete=models.CASCADE)
+    setup = models.ForeignKey(SessionSetup, on_delete=models.CASCADE, limit_choices_to={'is_template': True})
     server = models.ForeignKey('Server', on_delete=models.CASCADE)
 
 
@@ -172,7 +172,7 @@ class SetupQueueEntry(models.Model):
         ordering = ('server', 'order', )
         verbose_name_plural = "Queued setups"
     order = models.IntegerField(help_text='Index of setup in order')
-    setup = models.ForeignKey(SessionSetup, on_delete=models.CASCADE)
+    setup = models.ForeignKey(SessionSetup, on_delete=models.CASCADE, limit_choices_to={'is_template': True})
     server = models.ForeignKey('Server', on_delete=models.CASCADE)
 
 
@@ -183,11 +183,11 @@ class Server(models.Model):
     name = models.CharField(max_length=50, unique=True,
                             help_text='To successfully rename a server you will need to change it\'s settings too')
 
-    setup_rotation = models.ManyToManyField(SessionSetup, limit_choices_to={'is_template': True},
+    setup_rotation = models.ManyToManyField(SessionSetup,
                                             related_name='rotated_in_server', through=SetupRotationEntry,
                                             help_text="Setups that will be used on this server's rotation")
 
-    setup_queue = models.ManyToManyField(SessionSetup, limit_choices_to={'is_template': True},
+    setup_queue = models.ManyToManyField(SessionSetup,
                                          related_name='queued_in_server', through=SetupQueueEntry,
                                          blank=True,
                                          help_text="If set, this will be the next setup used")
