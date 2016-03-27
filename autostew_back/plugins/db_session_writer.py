@@ -69,12 +69,13 @@ def event(server: DServer, event: (BaseEvent, ParticipantEvent)):
             snapshot.race_position = event.race_position
             snapshot.current_lap = (event.lap + 1)
             snapshot.current_sector = 1
-            snapshot.sector1_time = td_to_milli(event.sector1_time)
-            snapshot.sector2_time = td_to_milli(event.sector2_time)
-            snapshot.sector3_time = td_to_milli(event.sector3_time)
-            snapshot.last_lap_time = td_to_milli(event.lap_time)
-            if td_to_milli(event.lap_time) < snapshot.fastest_lap_time or not snapshot.fastest_lap_time:
-                snapshot.fastest_lap_time = td_to_milli(event.lap_time)
+            if event.count_this_lap_times:
+                snapshot.sector1_time = td_to_milli(event.sector1_time)
+                snapshot.sector2_time = td_to_milli(event.sector2_time)
+                snapshot.sector3_time = td_to_milli(event.sector3_time)
+                snapshot.last_lap_time = td_to_milli(event.lap_time)
+                if td_to_milli(event.lap_time) < snapshot.fastest_lap_time or not snapshot.fastest_lap_time:
+                    snapshot.fastest_lap_time = td_to_milli(event.lap_time)
             snapshot.save()
 
     # Stores each sector
