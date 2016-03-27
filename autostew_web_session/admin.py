@@ -72,7 +72,14 @@ admin.site.register(Member)
 admin.site.register(MemberSnapshot)
 admin.site.register(Participant)
 admin.site.register(ParticipantSnapshot)
-admin.site.register(Event)
+
+
+@admin.register(Event)
+class EventAdmin(admin.ModelAdmin):
+    list_filter = ['definition']
+    list_display = ['id', 'session', 'definition', 'timestamp', 'raw']
+    search_fields = ['raw']
+
 admin.site.register(RaceLapSnapshot)
 admin.site.register(Lap)
 admin.site.register(Sector)
