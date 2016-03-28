@@ -54,7 +54,7 @@
                 <td>{{ lap.participant__name }}</td>
                 <td>{{ lap.participant__vehicle__name }}</td>
                 <td>{{ lap.fastest_lap_time|milli_to_nicetime }}</td>
-                <td>{{ lap.fastest_lap_time|substract:laps.0.fastest_lap_time|milli_to_nicetime }}</td>
+                <td>{{ lap.fastest_lap_time|subtract:laps.0.fastest_lap_time|milli_to_nicetime }}</td>
             </tr>
         {% endfor %}
     </table>
