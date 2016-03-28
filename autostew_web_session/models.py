@@ -192,13 +192,13 @@ class Server(models.Model):
                                          blank=True,
                                          help_text="If set, this will be the next setup used")
 
-    scheduled_sessions = models.ManyToManyField('Session', limit_choices_to={'planned': True},
+    scheduled_sessions = models.ManyToManyField(Session, limit_choices_to={'planned': True},
                                                 related_name='schedule_at_servers',
                                                 blank=True,
                                                 help_text="These schedule setups will be used (on their scheduled time)")
 
     running = models.BooleanField(help_text="This value should not be changed manually")
-    current_session = models.ForeignKey('Session', null=True, related_name='+', blank=True)
+    current_session = models.ForeignKey(Session, null=True, related_name='+', blank=True)
     last_ping = models.DateTimeField(null=True, blank=True,
                                      help_text="Last time the server reported to be alive")
     average_player_latency = models.IntegerField(null=True, blank=True)

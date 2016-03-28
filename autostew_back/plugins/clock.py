@@ -8,6 +8,7 @@ name = "Race clock"
 
 hour = None
 
+
 def tick(server: Server):
     global hour
     session = server.session
