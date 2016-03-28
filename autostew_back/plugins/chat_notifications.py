@@ -8,21 +8,28 @@ from autostew_back.gameserver.session import SessionStage, SessionState, Session
 name = 'motd'
 
 welcome_message = [
+    "",
     "Welcome {player_name}, current setup is {setup_name}",
 ]
 new_session_starts = [
+    "",
     "This server is connected to autostew.selfhost.eu"
 ]
 race_starts = [
+    "",
+    "",
     " ### RACE IS STARTING ###",
     "Keep the race safe and fair! Good luck!",
     "Be EXTRA CAREFUL on the first turn.",
     "Remind that players who crash too much will be kicked.",
 ]
 leader_in_last_lap = [
+    "",
     "The leader {leader_name} just entered their last lap!"
 ]
 first_player_finished = [
+    "",
+    "",
     "Congratulations to {winner_name} for winning this race!",
     "See this race results and more at autostew.selfhost.eu"
 ]

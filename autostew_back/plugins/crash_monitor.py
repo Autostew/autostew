@@ -41,14 +41,13 @@ def reset_crash_points():
 def add_crash_points(crash_points_increase: int, participant: Participant, server: DedicatedServer):
     steam_id = server.members.get_by_id(participant.refid.get()).steam_id.get()
     crash_points[steam_id] = crash_points.setdefault(steam_id, 0) + crash_points_increase
-    participant.send_chat(
-        "##################################".format(points=crash_points_increase),
-        server
-    )
+
+    participant.send_chat("", server)
     participant.send_chat(
         "CONTACT logged for {points} points.".format(points=crash_points_increase),
         server
     )
+
     if crash_points_limit and crash_points[steam_id] > crash_points_limit:
         participant.kick(server, ban_time)
     elif crash_points and crash_points[steam_id] > warn_at * crash_points_limit:
