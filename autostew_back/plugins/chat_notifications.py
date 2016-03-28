@@ -11,12 +11,18 @@ welcome_message = [
     "Welcome {player_name}",
     "Current setup is {setup_name}",
 ]
+new_session_starts = [
+    "SEE THE SESSION'S RESULTS AND MORE AT AUTOSTEW.SELFHOST.EU"
+]
+race_starts = [
+    " ### RACE IS STARTING ###",
+    "Keep the race safe and fair! Good luck!",
+    "Be EXTRA CAREFUL on the first turn.",
+    "Remind that players who crash too much will be kicked.",
+]
 first_player_finished = [
     "Congratulations to {winner_name} for winning this race!",
     "See this race results and more at autostew.selfhost.eu"
-]
-new_session_starts = [
-    "SEE THE SESSION'S RESULTS AND MORE AT AUTOSTEW.SELFHOST.EU"
 ]
 
 
@@ -36,6 +42,14 @@ def event(server: Server, event:BaseEvent):
 
     if event.type == EventType.state_changed and event.new_state == SessionState.lobby:
         send_new_session_message(server)
+
+    if event.type == EventType.stage_changed and event.new_stage == SessionStage.race1:
+        send_race_start_message(server)
+
+
+def send_race_start_message(server: Server):
+    for message in race_starts:
+        server.api.send_chat(message)
 
 
 def send_new_session_message(server: Server):
