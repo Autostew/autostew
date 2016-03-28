@@ -50,9 +50,8 @@
         </thead>
         {% for lap in laps %}
             <tr>
-                <td><a href="{{ lap.participant.member.steam_user.get_absolute_url }}">{{ lap.participant.member.steam_user }}</a></td>
-                <td><a href="{{ lap.session.get_absolute_url }}">{{ lap.session }}</a></td>
-                <td><a href="{{ lap.parcitipant.vehicle.get_absolute_url }}">{{ lap.participant.vehicle }}</a></td>
+                <td>{{ lap.participant__member__steam_user__display_name }}</td>
+                <td>{{ participant__vehicle__name }}</td>
                 <td>{{ lap.fastest_lap_time }}</td>
             </tr>
         {% endfor %}
