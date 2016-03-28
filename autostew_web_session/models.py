@@ -339,7 +339,7 @@ class SessionSnapshot(models.Model):
     def reorder_by_best_time(self):
         participants_with_fastest_lap_set = self.participantsnapshot_set.filter(fastest_lap_time__gt=0)
         for i, v in enumerate(participants_with_fastest_lap_set.order_by('-fastest_lap_time')):
-            v.race_position = i
+            v.race_position = i + 1
             v.save()
         positions_without_laptime = len(participants_with_fastest_lap_set) + 1
         for v in self.participantsnapshot_set.filter(fastest_lap_time=0):
