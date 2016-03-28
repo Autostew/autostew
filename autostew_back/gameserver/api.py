@@ -32,11 +32,18 @@ class ApiCaller:
                     self.server.settings.api_compatibility[k])
                 )
 
-    def _call(self, path, params={}):  # TODO handle errors
+    def _cleanup_parameters(self, value: str):
+        return str(value).translate({ord(i): None for i in '?&'})
+
+    def _call(self, path: str, params={}):  # TODO handle errors
         url = "{url}/api/{path}?{params}".format(
             url=self.server.settings.url,
             path=path,
-            params='&'.join(["{k}={v}".format(k=k, v=v) for k, v in params.items()])
+            params='&'.join(
+                [
+                    "{k}={v}".format(k=self._cleanup_parameters(k), v=self._cleanup_parameters(v))
+                    for k, v in params.items()
+                ])
         )
         r = requests.get(url)
         if not r.ok:

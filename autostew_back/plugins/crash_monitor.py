@@ -11,7 +11,7 @@ from autostew_back.gameserver.session import SessionState
 name = 'crash monitor'
 
 ban_time = 600
-crash_points_limit = 4000
+crash_points_limit = 4000  # Set to zero to disable kicking
 crash_points = {}
 
 
@@ -41,9 +41,9 @@ def add_crash_points(crash_points_increase: int, participant: Participant, serve
         "CONTACT logged for {points} points.".format(points=crash_points_increase),
         server
     )
-    if crash_points[steam_id] > crash_points_limit:
+    if crash_points_limit and crash_points[steam_id] > crash_points_limit:
         participant.kick(ban_time, server)
-    elif crash_points[steam_id] > crash_points_limit / 3:
+    elif crash_points and crash_points[steam_id] > crash_points_limit / 3:
         participant.send_chat(
             "CONTACT WARNING: You have collected {points} crash points.".format(points=crash_points[steam_id]),
             server
