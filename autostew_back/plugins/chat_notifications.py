@@ -20,6 +20,9 @@ race_starts = [
     "Be EXTRA CAREFUL on the first turn.",
     "Remind that players who crash too much will be kicked.",
 ]
+leader_in_last_lap = [
+    "The leader {leader_name} just entered their last lap!"
+]
 first_player_finished = [
     "Congratulations to {winner_name} for winning this race!",
     "See this race results and more at autostew.selfhost.eu"
@@ -35,7 +38,16 @@ def event(server: Server, event:BaseEvent):
         event.type == EventType.lap and
         event.lap == server.session.race1_length.get() - 1 and
         event.race_position == 1 and
-        server.session.session_stage == SessionStage.race1 and
+        server.session.session_stage.get() == SessionStage.race1 and
+        SessionFlags.timed_race not in server.session.flags.get_flags()
+    ):
+        send_winner_message(event, server)
+
+    if (
+        event.type == EventType.lap and
+        event.lap == server.session.race1_length.get() - 2 and
+        event.race_position == 1 and
+        server.session.session_stage.get() == SessionStage.race1 and
         SessionFlags.timed_race not in server.session.flags.get_flags()
     ):
         send_winner_message(event, server)
@@ -57,9 +69,14 @@ def send_new_session_message(server: Server):
         server.api.send_chat(message)
 
 
-def send_winner_message(event: LapEvent, server: Server):
+def send_leader_in_last_lap_message(event: LapEvent, server: Server):
     for message in first_player_finished:
         server.api.send_chat(message.format(winner_name=event.participant.name.get()))
+
+
+def send_winner_message(event: LapEvent, server: Server):
+    for message in leader_in_last_lap:
+        server.api.send_chat(message.format(leader_name=event.participant.name.get()))
 
 
 def send_welcome_message(event: MemberEvent, server: Server):
