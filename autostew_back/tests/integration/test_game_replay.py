@@ -10,7 +10,7 @@ from autostew_back.gameserver.mocked_api import ApiReplay
 from autostew_back.gameserver.server import Server as DServer
 from autostew_back.plugins import db_session_writer, db_enum_writer, db, db_setup_rotation, clock, laptimes, crash_monitor, chat_notifications
 from autostew_back.tests.test_assets.settings_no_plugins import SettingsWithoutPlugins
-from autostew_back.tests.test_plugin_db_writer import TestDBWriter
+from autostew_back.tests.unit.test_plugin_db_writer import TestDBWriter
 from autostew_web_session.models import Session, RaceLapSnapshot, Server
 
 
