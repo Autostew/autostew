@@ -8,11 +8,10 @@ from autostew_back.gameserver.session import SessionStage, SessionState, Session
 name = 'motd'
 
 welcome_message = [
-    "Welcome {player_name}",
-    "Current setup is {setup_name}",
+    "Welcome {player_name}, current setup is {setup_name}",
 ]
 new_session_starts = [
-    "SEE THE SESSION'S RESULTS AND MORE AT AUTOSTEW.SELFHOST.EU"
+    "This server is connected to autostew.selfhost.eu"
 ]
 race_starts = [
     " ### RACE IS STARTING ###",

@@ -8,10 +8,14 @@ from autostew_back.gameserver.participant import Participant
 from autostew_back.gameserver.server import Server as DedicatedServer
 from autostew_back.gameserver.session import SessionState
 
+
 name = 'crash monitor'
 
-ban_time = 600
-crash_points_limit = 4000  # Set to zero to disable kicking
+
+warn_at = 0.7
+ban_time = 0
+crash_points_limit = 5000  # Set to zero to disable kicking
+environment_crash_multiplier = 4
 crash_points = {}
 
 
@@ -20,7 +24,7 @@ def event(server: DedicatedServer, event: BaseEvent):
         for participant in event.participants:
             if participant.is_player.get():
                 add_crash_points(
-                    event.magnitude if event.human_to_human else int(event.magnitude / 4),
+                    event.magnitude if event.human_to_human else int(event.magnitude / environment_crash_multiplier),
                     participant,
                     server
                 )
@@ -38,17 +42,21 @@ def add_crash_points(crash_points_increase: int, participant: Participant, serve
     steam_id = server.members.get_by_id(participant.refid.get()).steam_id.get()
     crash_points[steam_id] = crash_points.setdefault(steam_id, 0) + crash_points_increase
     participant.send_chat(
+        "##################################".format(points=crash_points_increase),
+        server
+    )
+    participant.send_chat(
         "CONTACT logged for {points} points.".format(points=crash_points_increase),
         server
     )
     if crash_points_limit and crash_points[steam_id] > crash_points_limit:
         participant.kick(server, ban_time)
-    elif crash_points and crash_points[steam_id] > crash_points_limit / 3:
+    elif crash_points and crash_points[steam_id] > warn_at * crash_points_limit:
         participant.send_chat(
-            "CONTACT WARNING: You have collected {points} crash points.".format(points=crash_points[steam_id]),
+            "CONTACT: You have collected {points} crash points.".format(points=crash_points[steam_id]),
             server
         )
         participant.send_chat(
-            "CONTACT WARNING: Disqualification at {max_crash_points} points.".format(max_crash_points=crash_points_limit),
+            "CONTACT: Disqualification at {max_crash_points} points.".format(max_crash_points=crash_points_limit),
             server
         )

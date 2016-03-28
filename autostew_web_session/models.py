@@ -215,6 +215,7 @@ class Server(models.Model):
     name = models.CharField(max_length=50, unique=True,
                             help_text='To successfully rename a server you will need to change it\'s settings too')
 
+    setup_rotation_index = models.IntegerField()
     setup_rotation = models.ManyToManyField(SessionSetup,
                                             related_name='rotated_in_server', through=SetupRotationEntry,
                                             help_text="Setups that will be used on this server's rotation")
@@ -247,12 +248,13 @@ class Server(models.Model):
     def get_absolute_url(self):
         return reverse('session:server', args=[str(self.name)])
 
-    def pop_next_queued_setup(self):
+    def pop_next_queued_setup(self, peek=False):
         ordered_queue = SetupQueueEntry.objects.filter(server=self).order_by('order')
         if len(ordered_queue) == 0:
             return None
         next_setup = ordered_queue[0].setup
-        ordered_queue[0].delete()
+        if not peek:
+            ordered_queue[0].delete()
         return next_setup
 
     def next_scheduled_session(self):

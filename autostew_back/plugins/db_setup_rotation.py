@@ -15,7 +15,6 @@ dependencies = [db]
 setup_rotation = []
 scheduled_session = None
 current_setup = None
-_setup_index = None
 
 
 class NoSessionSetupTemplateAvailable(Exception):
@@ -24,12 +23,12 @@ class NoSessionSetupTemplateAvailable(Exception):
 
 def init(server: Server):
     global setup_rotation
-    global _setup_index
     server.get_current_setup_name = get_current_setup_name
-    load_settings(server)
+    load_settings(
+        server,
+        peek=(server.session.session_state != SessionState.lobby)
+    )
     load_next_setup(server)
-    if server.state != ServerState.running:
-        _setup_index = None
 
 
 def event(server: Server, event: BaseEvent):
@@ -39,7 +38,7 @@ def event(server: Server, event: BaseEvent):
             load_next_setup(server)
 
 
-def load_settings(server: Server):
+def load_settings(server: Server, peek=False):
     global setup_rotation
     global scheduled_session
 
@@ -47,7 +46,7 @@ def load_settings(server: Server):
     if scheduled_session:
         return
 
-    queued_setup = db.server_in_db.pop_next_queued_setup()
+    queued_setup = db.server_in_db.pop_next_queued_setup(peek)
     if queued_setup:
         setup_rotation = [DBSetup(queued_setup)]
         db.server_in_db.save()
@@ -56,24 +55,24 @@ def load_settings(server: Server):
     else:
         setup_rotation = [DBSetup(setup) for setup in db.server_in_db.setup_rotation.all()]
 
+        if not peek:
+            db.server_in_db.setup_rotation_index += 1
+        if db.server_in_db.setup_rotation_index >= len(setup_rotation):
+            db.server_in_db.setup_rotation_index = 0
+        db.server_in_db.save()
+
 
 def load_next_setup(server: Server, force_index=None):
-    global _setup_index
     global current_setup
     if scheduled_session:
         current_setup = DBSetup(scheduled_session.setup_template)
     else:
-        if force_index is None:
-            load_index = 0 if _setup_index is None else _setup_index + 1
-        else:
-            load_index = force_index
-        if load_index >= len(setup_rotation):
-            load_index = 0
         if len(setup_rotation) == 0:
             raise NoSessionSetupTemplateAvailable
-        _setup_index = load_index
-        current_setup = setup_rotation[load_index]
-    logging.info("Loading setup {}: {}".format(load_index, current_setup.name))
+        if force_index is not None and force_index < len(setup_rotation):
+            db.server_in_db.setup_rotation_index = force_index
+        current_setup = setup_rotation[db.server_in_db.setup_rotation_index]
+    logging.info("Loading setup {}: {}".format(db.server_in_db.setup_rotation_index, current_setup.name))
     current_setup.make_setup(server)
 
 
