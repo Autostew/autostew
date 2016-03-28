@@ -1,4 +1,5 @@
 {% extends "autostew_web_home/base.html" %}
+{% load extra_filters %}
 
 {% block content %}
     <h1>{{ track.name }}</h1>
@@ -51,7 +52,7 @@
             <tr>
                 <td>{{ lap.participant__name }}</td>
                 <td>{{ lap.participant__vehicle__name }}</td>
-                <td>{{ lap.fastest_lap_time }}</td>
+                <td>{{ lap.fastest_lap_time|milli_to_nicetime }}</td>
             </tr>
         {% endfor %}
     </table>
