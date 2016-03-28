@@ -25,7 +25,11 @@ def event(server: Server, event:BaseEvent):
 
     if event.type == EventType.authenticated:
         for message in welcome_message:
-            event.member.send_chat(message.format(setup_name=server.get_current_setup_name()))
+            event.member.send_chat(
+                message.format(
+                    setup_name=server.get_current_setup_name()
+                )
+            )
 
     if event.type == EventType.results and event.race_position == 1 and server.session.session_stage == SessionStage.race1:
         for message in first_player_finished:
