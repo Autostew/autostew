@@ -24,7 +24,7 @@ class Track(models.Model):
         return reverse('session:track', args=[str(self.id)])
 
     def get_fastest_laps_by_vehicle(self, vehicle):
-        Lap.objects.filter(
+        return Lap.objects.filter(
             session__setup_actual__track=self,
             participant__vehicle=vehicle,
             count_this_lap=True,
@@ -36,7 +36,7 @@ class Track(models.Model):
         ).annotate(fastest_lap_time=Min('lap_time')).order_by('fastest_lap_time')
 
     def get_fastest_laps_by_vehicle_class(self, vehicle_class):
-        Lap.objects.filter(
+        return Lap.objects.filter(
             session__setup_actual__track=self,
             participant__vehicle__vehicle_class=vehicle_class,
             count_this_lap=True,
