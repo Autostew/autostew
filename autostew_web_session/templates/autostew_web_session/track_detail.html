@@ -2,5 +2,59 @@
 
 {% block content %}
     <h1>{{ track.name }}</h1>
-    <p>with grid size: {{track.grid_size}}</p>
+    <p>Grid size: {{track.grid_size}}</p>
+
+    <h2>Laptimes</h2>
+    <div class="dropdown">
+        <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+            {% if vehicle_class %}
+                {{ vehicle_class }}
+            {% else %}
+                Choose vehicle class
+            {% endif %}
+            <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+            {% for class in vehicle_classes %}
+                <li><a href="{{ track.get_absolute_url }}?vehicle_class={{ class.ingame_id }}">{{ class.name }}</a></li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="dropdown">
+        <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+            {% if vehicle %}
+                {{ vehicle }}
+            {% else %}
+                Choose vehicle
+            {% endif %}
+            <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+            {% for vehicle in vehicles %}
+                <li><a href="{{ track.get_absolute_url }}?vehicle={{ vehicle.ingame_id }}">{{ vehicle.name }}</a></li>
+            {% endfor %}
+        </ul>
+    </div>
+    <a class="btn btn-default" target="_blank" href="
+        http://cars-stats-steam.wmdportal.com/index.php/leaderboard?track={{ track.ingame_id }}&vehicle={% if vehicle %}{{ vehicle.ingame_id }}{% else %}0{% endif %}
+    " role="button">Time trial leaderboards</a>
+
+    <table class="table table-striped table-hover table-condensed">
+        <thead>
+            <tr>
+                <td>Driver</td>
+                <td>Session</td>
+                <td>Vehicle</td>
+                <td>Time</td>
+            </tr>
+        </thead>
+        {% for lap in laps %}
+            <tr>
+                <td><a href="{{ lap.participant.member.steam_user.get_absolute_url }}">{{ lap.participant.member.steam_user }}</a></td>
+                <td><a href="{{ lap.session.get_absolute_url }}">{{ lap.session }}</a></td>
+                <td><a href="{{ lap.parcitipant.vehicle.get_absolute_url }}">{{ lap.participant.vehicle }}</a></td>
+                <td>{{ lap.fastest_lap_time }}</td>
+            </tr>
+        {% endfor %}
+    </table>
 {% endblock %}

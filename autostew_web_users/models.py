@@ -11,6 +11,9 @@ class SteamUser(models.Model):
     def get_absolute_url(self):
         return reverse('users:profile', args=[str(self.steam_id)])
 
+    def __str__(self):
+        return self.display_name
+
 
 class Steward(models.Model):
     pass

@@ -1,11 +1,12 @@
 import logging
 
+from django.db.models.aggregates import Min
 from django.shortcuts import get_object_or_404
 from django.views import generic
 from django.views.generic import FormView
 
 from autostew_web_session import models
-from autostew_web_session.models import Event, Participant, SessionSetup, Server
+from autostew_web_session.models import Event, Participant, SessionSetup, Server, Track, Vehicle, VehicleClass, Lap
 from .models import Session, SessionSnapshot
 from .forms import SessionSetupForm
 
@@ -82,3 +83,31 @@ class ParticipantDetailView(generic.DetailView):
             session__id=self.kwargs['session_id'],
             ingame_id=self.kwargs['participant_id']
         )
+
+
+class TrackDetailView(generic.DetailView):
+    model = Track
+
+    def get_context_data(self, **kwargs):
+        context = super(TrackDetailView, self).get_context_data(**kwargs)
+        context['vehicle_classes'] = VehicleClass.objects.all()
+        context['vehicles'] = Vehicle.objects.all()
+        if self.request.GET.get('vehicle'):
+            context['vehicle'] = get_object_or_404(Vehicle, ingame_id=self.request.GET.get('vehicle'))
+            context['laps'] = Lap.objects.filter(
+                session__setup_actual__track=context['object'],
+                participant__vehicle=context['vehicle'],
+                count_this_lap=True,
+                participant__is_ai=False,
+            ).values('participant').annotate(fastest_lap_time=Min('lap_time'))
+        elif self.request.GET.get('vehicle_class'):
+            context['vehicle_class'] = get_object_or_404(VehicleClass, ingame_id=self.request.GET.get('vehicle_class'))
+            context['laps'] = Lap.objects.filter(
+                session__setup_actual__track=context['object'],
+                participant__vehicle__vehicle_class=context['vehicle_class'],
+                count_this_lap=True,
+                participant__is_ai=False,
+            ).values('participant').annotate(fastest_lap_time=Min('lap_time'))
+        else:
+            context['laps'] = []
+        return context

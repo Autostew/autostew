@@ -152,14 +152,16 @@
     <div class="table-responsive">
         <table class="table table-striped table-hover table-condensed">
             <thead>
-                <td></td>
-                <td>Name</td>
-                <td></td>
-                <td>Lap</td>
-                <td>Last lap</td>
-                <td>Best lap</td>
-                <td>Gap</td>
-                <td>Status</td>
+                <tr>
+                    <td></td>
+                    <td>Name</td>
+                    <td></td>
+                    <td>Lap</td>
+                    <td>Last lap</td>
+                    <td>Best lap</td>
+                    <td>Gap</td>
+                    <td>Status</td>
+                </tr>
             </thead>
             {% for participant in sessionsnapshot.participantsnapshot_set.all %}
                 <tr>
