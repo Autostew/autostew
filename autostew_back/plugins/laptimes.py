@@ -32,12 +32,12 @@ def event(server: Server, event: BaseEvent):
             announce_lap(event, is_fastest_lap, server)
 
 
-def announce_lap(event: BaseEvent, is_fastest_lap: bool, server: Server):
-    message = "{notice}P{position} - {participant} - {notice}".format(
+def announce_lap(event: LapEvent, is_fastest_lap: bool, server: Server):
+    message = "{notice}P{position} - {participant} - {laptime}".format(
+        notice="FASTEST LAP: " if is_fastest_lap else "",
         participant=event.participant.name.get(),
         laptime=std_time_format(event.lap_time),
         position=event.race_position,
-        notice="FASTEST LAP: " if is_fastest_lap else ""
     )
     server.api.send_chat(message)
 
