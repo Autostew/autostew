@@ -42,7 +42,7 @@ def add_crash_points(crash_points_increase: int, participant: Participant, serve
         server
     )
     if crash_points_limit and crash_points[steam_id] > crash_points_limit:
-        participant.kick(ban_time, server)
+        participant.kick(server, ban_time)
     elif crash_points and crash_points[steam_id] > crash_points_limit / 3:
         participant.send_chat(
             "CONTACT WARNING: You have collected {points} crash points.".format(points=crash_points[steam_id]),
