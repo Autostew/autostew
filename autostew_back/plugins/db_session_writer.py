@@ -507,7 +507,7 @@ def _create_member_snapshot(
         snapshot=session_snapshot,
         member=session_models.Member.objects.get(refid=member.refid.get(), session=session),
         still_connected=True,
-        load_state=enum_models.MemberLoadState.objects.get(name=member.load_state.get()),
+        load_state=enum_models.MemberLoadState.objects.get_or_create(name=member.load_state.get())[0],
         ping=member.ping.get(),
         index=member.index.get(),
         state=enum_models.MemberState.objects.get(name=member.state.get()),
