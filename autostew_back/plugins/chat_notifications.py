@@ -1,40 +1,57 @@
 """
 Show a message when a player logs in (and other messages, too)
 """
-from autostew_back.gameserver.event import EventType, BaseEvent
+from autostew_back.gameserver.event import EventType, BaseEvent, LapEvent, MemberEvent
 from autostew_back.gameserver.server import Server
-from autostew_back.gameserver.session import SessionStage, SessionState
+from autostew_back.gameserver.session import SessionStage, SessionState, SessionFlags
 
 name = 'motd'
 
 welcome_message = [
-    "Welcome",
+    "Welcome {player_name}",
     "Current setup is {setup_name}",
 ]
 first_player_finished = [
     "Congratulations to {winner_name} for winning this race!",
-    "See this race results and more about Autostew at autostew.selfhost.eu"
+    "See this race results and more at autostew.selfhost.eu"
 ]
 new_session_starts = [
-    "The next session is starting",
-    "See the session's results and more at autostew.selfhost.eu"
+    "SEE THE SESSION'S RESULTS AND MORE AT AUTOSTEW.SELFHOST.EU"
 ]
 
 
 def event(server: Server, event:BaseEvent):
 
     if event.type == EventType.authenticated:
-        for message in welcome_message:
-            event.member.send_chat(
-                message.format(
-                    setup_name=server.get_current_setup_name()
-                )
-            )
+        send_welcome_message(event, server)
 
-    if event.type == EventType.results and event.race_position == 1 and server.session.session_stage == SessionStage.race1:
-        for message in first_player_finished:
-            server.api.send_chat(message.format(winner_name=event.participant.name.get()))
+    if (
+        event.type == EventType.lap and
+        event.lap == server.session.race1_length.get() - 1 and
+        server.session.session_stage == SessionStage.race1 and
+        SessionFlags.timed_race not in server.session.flags.get_flags()
+    ):
+        send_winner_message(event, server)
 
     if event.type == EventType.state_changed and event.new_state == SessionState.lobby:
-        for message in new_session_starts:
-            server.api.send_chat(message)
+        send_new_session_message(server)
+
+
+def send_new_session_message(server: Server):
+    for message in new_session_starts:
+        server.api.send_chat(message)
+
+
+def send_winner_message(event: LapEvent, server: Server):
+    for message in first_player_finished:
+        server.api.send_chat(message.format(winner_name=event.participant.name.get()))
+
+
+def send_welcome_message(event: MemberEvent, server: Server):
+    for message in welcome_message:
+        event.member.send_chat(
+            message.format(
+                setup_name=server.get_current_setup_name(),
+                player_name=event.member.name.get()
+            )
+        )
