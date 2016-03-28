@@ -43,15 +43,14 @@
         <thead>
             <tr>
                 <td>Driver</td>
-                <td>Session</td>
                 <td>Vehicle</td>
                 <td>Time</td>
             </tr>
         </thead>
         {% for lap in laps %}
             <tr>
-                <td>{{ lap.participant__member__steam_user__display_name }}</td>
-                <td>{{ participant__vehicle__name }}</td>
+                <td>{{ lap.participant__name }}</td>
+                <td>{{ lap.participant__vehicle__name }}</td>
                 <td>{{ lap.fastest_lap_time }}</td>
             </tr>
         {% endfor %}

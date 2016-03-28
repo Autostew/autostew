@@ -113,7 +113,7 @@ class TrackDetailView(generic.DetailView):
                 participant__is_ai=False,
             ).values(
                 'participant',
-                'participant__member__steam_user__display_name',
+                'participant__name',
                 'participant__vehicle__name'
             ).annotate(fastest_lap_time=Min('lap_time')).order_by('fastest_lap_time')
         else:
