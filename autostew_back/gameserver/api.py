@@ -96,7 +96,7 @@ class ApiCaller:
             self.event_offset = result['events'][-1]['index'] + 1
         return result['events']
 
-    def send_chat(self, message, player_refid=None, prefix='###- '):
+    def send_chat(self, message, player_refid=None, prefix='AUTOSTEW- '):
         params = {'message': "{}{}".format(prefix, message)}
         if player_refid is not None:
             params['refid'] = player_refid
