@@ -177,6 +177,15 @@ class SessionSetup(models.Model):
     track_altitude = models.IntegerField(
         help_text="Setting this value won't have any effect")  # TODO this should be on track model
 
+    def get_track_url(self):
+        if self.force_identical_vehicles:
+            get = '?vehicle={}'.format(self.vehicle.ingame_id)
+        elif self.force_same_vehicle_class:
+            get = '?vehicle_class={}'.format(self.vehicle_class.ingame_id)
+        else:
+            get = ''
+        return "{}{}".format(self.track.get_absolute_url(), get)
+
     def __str__(self):
         return "{} ({})".format(self.name, "template" if self.is_template else "instance")
 
