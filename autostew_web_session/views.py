@@ -94,27 +94,10 @@ class TrackDetailView(generic.DetailView):
         context['vehicles'] = Vehicle.objects.all()
         if self.request.GET.get('vehicle'):
             context['vehicle'] = get_object_or_404(Vehicle, ingame_id=self.request.GET.get('vehicle'))
-            context['laps'] = Lap.objects.filter(
-                session__setup_actual__track=context['object'],
-                participant__vehicle=context['vehicle'],
-                count_this_lap=True,
-                participant__is_ai=False,
-            ).values(
-                'participant',
-                'participant__member__steam_user__display_name',
-                'participant__vehicle__name'
-            ).annotate(fastest_lap_time=Min('lap_time')).order_by('fastest_lap_time')
+            context['laps'] = context['object'].get_fastest_laps_by_vehicle(context['vehicle'])
         elif self.request.GET.get('vehicle_class'):
             context['vehicle_class'] = get_object_or_404(VehicleClass, ingame_id=self.request.GET.get('vehicle_class'))
-            context['laps'] = Lap.objects.filter(
-                session__setup_actual__track=context['object'],
-                participant__vehicle__vehicle_class=context['vehicle_class'],
-                count_this_lap=True,
-                participant__is_ai=False,
-            ).values(
-                'participant__name',
-                'participant__vehicle__name'
-            ).annotate(fastest_lap_time=Min('lap_time')).order_by('fastest_lap_time')
+            context['laps'] = context['object'].get_fastest_laps_by_vehicle_class(context['vehicle_class'])
         else:
             context['laps'] = []
         return context

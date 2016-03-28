@@ -23,6 +23,29 @@ class Track(models.Model):
     def get_absolute_url(self):
         return reverse('session:track', args=[str(self.id)])
 
+    def get_fastest_laps_by_vehicle(self, vehicle):
+        Lap.objects.filter(
+            session__setup_actual__track=self,
+            participant__vehicle=vehicle,
+            count_this_lap=True,
+            participant__is_ai=False,
+        ).values(
+            'participant',
+            'participant__member__steam_user__display_name',
+            'participant__vehicle__name'
+        ).annotate(fastest_lap_time=Min('lap_time')).order_by('fastest_lap_time')
+
+    def get_fastest_laps_by_vehicle_class(self, vehicle_class):
+        Lap.objects.filter(
+            session__setup_actual__track=self,
+            participant__vehicle__vehicle_class=vehicle_class,
+            count_this_lap=True,
+            participant__is_ai=False,
+        ).values(
+            'participant__name',
+            'participant__vehicle__name'
+        ).annotate(fastest_lap_time=Min('lap_time')).order_by('fastest_lap_time')
+
 
 class VehicleClass(models.Model):
     class Meta:
