@@ -39,6 +39,7 @@ def announce_lap(event: LapEvent, is_fastest_lap: bool, server: Server):
         laptime=std_time_format(event.lap_time),
         position=event.race_position,
     )
+    server.api.send_chat("")
     server.api.send_chat(message)
 
 
