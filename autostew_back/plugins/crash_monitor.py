@@ -14,7 +14,7 @@ name = 'crash monitor'
 
 warn_at = 0.7
 ban_time = 0
-crash_points_limit = 5000  # Set to zero to disable kicking
+crash_points_limit = 0 # Set to zero to disable kicking
 environment_crash_multiplier = 4
 crash_points = {}
 
@@ -50,7 +50,7 @@ def add_crash_points(crash_points_increase: int, participant: Participant, serve
 
     if crash_points_limit and crash_points[steam_id] > crash_points_limit:
         participant.kick(server, ban_time)
-    elif crash_points and crash_points[steam_id] > warn_at * crash_points_limit:
+    elif crash_points_limit and crash_points[steam_id] > warn_at * crash_points_limit:
         participant.send_chat(
             "CONTACT: You have collected {points} crash points.".format(points=crash_points[steam_id]),
             server
