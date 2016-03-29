@@ -10,10 +10,12 @@ name = 'motd'
 welcome_message = [
     "",
     "Welcome {player_name}, current setup is {setup_name}",
+    "",
 ]
 new_session_starts = [
     "",
     "This server is connected to autostew.selfhost.eu"
+    "",
 ]
 race_starts = [
     "",
