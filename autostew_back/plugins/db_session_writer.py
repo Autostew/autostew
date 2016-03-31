@@ -170,11 +170,12 @@ def event(server: DServer, event: (BaseEvent, ParticipantEvent)):
 
     # Create stage starting snapshots
     if event.type == EventType.stage_changed:
-        snapshot = _create_session_snapshot(server, current_session)
-        stage = _get_or_create_stage(server, event.new_stage.value)
-        stage.starting_snapshot = snapshot
-        stage.save()
-        current_session.save()
+        if current_session.current_snapshot.session_state.name not in ("Returning", "Lobby"):
+            snapshot = _create_session_snapshot(server, current_session)
+            stage = _get_or_create_stage(server, event.new_stage.value)
+            stage.starting_snapshot = snapshot
+            stage.save()
+            current_session.save()
 
     # Insert event
     # some events can happen while there is no session, we ignore them

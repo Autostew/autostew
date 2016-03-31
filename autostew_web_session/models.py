@@ -3,6 +3,7 @@ import datetime
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.db.models.aggregates import Sum, Max, Min
+from django.db.models.query import QuerySet
 from django.utils import timezone
 
 from autostew_web_enums import models as enum_models
@@ -302,12 +303,22 @@ class Session(models.Model):
     def __str__(self):
         return "{} - {}".format(self.id, self.setup_actual.name)
 
-    def members_who_finished_race(self):
-        results_stage = SessionStage.objects.get(
-            session=self,
-            stage__name="Race1"
-        )
-        return [x.member for x in results_stage.result_snapshot.member_snapshots.all()]
+    def get_members_who_finished_race(self) -> QuerySet:
+        results_stage = self.get_race_stage()
+        if results_stage is None:
+            return None
+        snapshots = results_stage.result_snapshot.member_snapshots.all()
+        return Member.objects.filter(membersnapshot__in=snapshots)
+
+    def get_race_stage(self):
+        try:
+            results_stage = SessionStage.objects.get(
+                session=self,
+                stage__name="Race1"
+            )
+            return results_stage
+        except SessionStage.DoesNotExist:
+            return None
 
 
 class SessionSnapshot(models.Model):
@@ -426,6 +437,15 @@ class Member(models.Model):
     aid_driving_line = models.BooleanField()
     valid = models.BooleanField()  # idk what this means
 
+    def finishing_position(self):
+        race_stage = self.session.get_race_stage()
+        if race_stage is None or race_stage.result_snapshot is None:
+            return None
+        try:
+            return race_stage.result_snapshot.member_snapshots.get(member=self).get_participant_snapshot().race_position
+        except MemberSnapshot.DoesNotExist:
+            return None
+
 
 class MemberSnapshot(models.Model):
     class Meta:
@@ -440,6 +460,11 @@ class MemberSnapshot(models.Model):
     state = models.ForeignKey(enum_models.MemberState)
     join_time = models.IntegerField()
     host = models.BooleanField()
+
+    def get_participant_snapshot(self):
+        return self.snapshot.participantsnapshot_set.get(participant__member=self.member)
+
+
 
 
 class Participant(models.Model):
@@ -489,6 +514,9 @@ class ParticipantSnapshot(models.Model):
     position_z = models.IntegerField()
     orientation = models.IntegerField()
     total_time = models.IntegerField()
+
+    def get_member_snapshot(self):
+        return self.snapshot.member_snapshots.get(member=self.participant.member)
 
     def last_lap_is_fastest_in_shapshot(self):
         try:

@@ -2,6 +2,9 @@
 
 {% block content %}
     <h1>{{ steamuser.display_name }}</h1>
+    <p>
+        Performance points: {{ steamuser.get_performance_rating }}
+    </p>
 
     <h2>Sessions</h2>
     <ul>

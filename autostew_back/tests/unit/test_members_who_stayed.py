@@ -4,9 +4,11 @@ import pytz
 from django.test.testcases import TestCase
 from django.utils import timezone
 
+from autostew_back.plugins.db_session_writer_libs import db_elo_rating
 from autostew_back.tests.unit.test_plugin_db_writer import TestDBWriter
+from autostew_web_enums.models import ParticipantState
 from autostew_web_session.models import Server, SessionSetup, Session, Member, Vehicle, VehicleClass, Livery, \
-    SessionStage, SessionSnapshot, MemberSnapshot
+    SessionStage, SessionSnapshot, MemberSnapshot, Participant, ParticipantSnapshot
 from autostew_web_users.models import SteamUser
 from autostew_web_enums import models as enum_models
 
@@ -43,6 +45,7 @@ class TestMembersWhoStayed(TestCase):
         server.save()
         user1 = SteamUser.objects.create(display_name='player1')
         user2 = SteamUser.objects.create(display_name='player2')
+        user3 = SteamUser.objects.create(display_name='player3')
         vehicle = Vehicle.objects.create(
             name="FooCar",
             ingame_id=1,
@@ -55,6 +58,19 @@ class TestMembersWhoStayed(TestCase):
         )
         member1 = self.create_test_member("Alice", session, user1, vehicle, livery)
         member2 = self.create_test_member("Bob", session, user2, vehicle, livery)
+        member3 = self.create_test_member("Carol", session, user3, vehicle, livery)
+        participant1 = Participant(
+            member=member1,
+            session=session,
+            still_connected=True,
+            ingame_id=1,
+            refid=1,
+            name="Alice",
+            is_ai=False,
+            vehicle=vehicle,
+            livery=livery
+        )
+        participant1.save()
         final_snapshot = SessionSnapshot.objects.create(
             session=session,
             is_result=True,
@@ -100,10 +116,51 @@ class TestMembersWhoStayed(TestCase):
             host=False
         )
         membersnapshot.save()
+        participant_snapshot = ParticipantSnapshot(
+            snapshot=final_snapshot,
+            participant=participant1,
+            still_connected=True,
+            grid_position=0,
+            race_position=1,
+            current_lap=0,
+            current_sector=0,
+            sector1_time=0,
+            sector2_time=0,
+            sector3_time=0,
+            last_lap_time=0,
+            fastest_lap_time=0,
+            state = ParticipantState.objects.create(name="State"),
+            headlights=0,
+            wipers=0,
+            speed=0,
+            gear=0,
+            rpm=0,
+            position_x=0,
+            position_y=0,
+            position_z=0,
+            orientation=0,
+            total_time=0,
+        )
+        participant_snapshot.save()
 
-        self.assertEqual(len(session.members_who_finished_race()), 1)
-        self.assertEqual(session.members_who_finished_race()[0].name, "Alice")
-        self.assertEqual(len(session.member_set.all()), 2)
+        self.assertEqual(len(session.get_members_who_finished_race()), 1)
+        self.assertEqual(session.get_members_who_finished_race()[0].name, "Alice")
+        self.assertEqual(len(session.member_set.all()), 3)
+        self.assertEqual(db_elo_rating._versus_result(session, member1, member2), 1)
+        self.assertEqual(db_elo_rating._versus_result(session, member1, member3), 1)
+        self.assertEqual(db_elo_rating._versus_result(session, member2, member1), 0)
+        self.assertEqual(db_elo_rating._versus_result(session, member3, member1), 0)
+        self.assertEqual(db_elo_rating._versus_result(session, member2, member3), 0.5)
+        self.assertEqual(db_elo_rating._versus_result(session, member3, member2), 0.5)
+        self.assertEqual(session.get_race_stage(), final_stage)
+        self.assertEqual(member1.finishing_position(), 1)
+        db_elo_rating.update_ratings_after_race_end(session)
+        user1.refresh_from_db()
+        user2.refresh_from_db()
+        user3.refresh_from_db()
+        self.assertEqual(user1.elo_rating, 520)
+        self.assertEqual(user2.elo_rating, 490)
+        self.assertEqual(user3.elo_rating, 490)
 
     def create_test_member(self, name, session, user1, vehicle, livery) -> Member:
         return Member.objects.create(
