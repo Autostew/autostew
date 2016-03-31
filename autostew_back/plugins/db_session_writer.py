@@ -10,6 +10,7 @@ from autostew_back.gameserver.participant import Participant as SessionParticipa
 from autostew_back.gameserver.server import ServerState, Server as DServer
 from autostew_back.gameserver.session import SessionFlags, Privacy, SessionState, SessionStage
 from autostew_back.plugins import db, db_setup_rotation
+from autostew_back.plugins.db_session_writer_libs import db_elo_rating, db_safety_rating
 from autostew_back.utils import td_to_milli
 from autostew_web_enums import models as enum_models
 from autostew_web_session import models as session_models
@@ -208,6 +209,8 @@ def _close_current_session():
     current_session.running = False
     current_session.finished = True
     current_session.save()
+    db_safety_rating.update_ratings_after_race_end(current_session)
+    db_elo_rating.update_ratings_after_race_end(current_session)
     current_session = None
     db.server_in_db.current_session = None
     db.server_in_db.save()

@@ -18,7 +18,9 @@ from autostew_web_session.models import Session, SessionSetup, Participant, Sess
 
 class TestDBWriter(TestCase):
     @classmethod
-    def make_test_setup(cls):
+    def make_test_setup(cls) -> SessionSetup:
+        cls.enum_defaults = defaults = {'ingame_id': 0}
+        vehicle_class = VehicleClass.objects.get_or_create(name="GT3", defaults=cls.enum_defaults)[0]
         return SessionSetup(
             name='test',
             is_template=True,
@@ -52,14 +54,18 @@ class TestDBWriter(TestCase):
             race2_length=0,
             public=True,
             friends_can_join=False,
-            damage=DamageDefinition.objects.get(name="FULL"),
-            tire_wear=TireWearDefinition.objects.get(name="X2"),
-            fuel_usage=FuelUsageDefinition.objects.get(name="STANDARD"),
-            penalties=PenaltyDefinition.objects.get(name="FULL"),
-            allowed_views=AllowedViewsDefinition.objects.get(name="Any"),
-            track=Track.objects.get(name="Hockenheim GP"),
-            vehicle_class=VehicleClass.objects.get(name="GT3"),
-            vehicle=Vehicle.objects.get(name="McLaren 12C GT3"),
+            damage=DamageDefinition.objects.get_or_create(name="FULL", defaults=cls.enum_defaults)[0],
+            tire_wear=TireWearDefinition.objects.get_or_create(name="X2", defaults=cls.enum_defaults)[0],
+            fuel_usage=FuelUsageDefinition.objects.get_or_create(name="STANDARD", defaults=cls.enum_defaults)[0],
+            penalties=PenaltyDefinition.objects.get_or_create(name="FULL", defaults=cls.enum_defaults)[0],
+            allowed_views=AllowedViewsDefinition.objects.get_or_create(name="Any", defaults=cls.enum_defaults)[0],
+            track=Track.objects.get_or_create(name="Hockenheim GP", defaults={'ingame_id': 1, 'grid_size': 24})[0],
+            vehicle_class=vehicle_class,
+            vehicle=Vehicle.objects.get_or_create(
+                name="McLaren 12C GT3",
+                vehicle_class=vehicle_class,
+                defaults=cls.enum_defaults
+            )[0],
             date_year=2016,
             date_month=1,
             date_day=1,
@@ -68,11 +74,11 @@ class TestDBWriter(TestCase):
             date_progression=1,
             weather_progression=1,
             weather_slots=1,
-            weather_1=WeatherDefinition.objects.get(name="Clear"),
+            weather_1=WeatherDefinition.objects.get_or_create(name="Clear", defaults=cls.enum_defaults)[0],
             weather_2=WeatherDefinition.objects.get(name="Clear"),
             weather_3=WeatherDefinition.objects.get(name="Clear"),
             weather_4=WeatherDefinition.objects.get(name="Clear"),
-            game_mode=GameModeDefinition.objects.get(name="MP_Race"),
+            game_mode=GameModeDefinition.objects.get_or_create(name="MP_Race", defaults=cls.enum_defaults)[0],
             track_latitude=0,
             track_longitude=0,
             track_altitude=0,

@@ -302,6 +302,13 @@ class Session(models.Model):
     def __str__(self):
         return "{} - {}".format(self.id, self.setup_actual.name)
 
+    def members_who_finished_race(self):
+        results_stage = SessionStage.objects.get(
+            session=self,
+            stage__name="Race1"
+        )
+        return [x.member for x in results_stage.result_snapshot.member_snapshots.all()]
+
 
 class SessionSnapshot(models.Model):
     class Meta:
@@ -425,7 +432,7 @@ class MemberSnapshot(models.Model):
         ordering = ['member__name']
 
     member = models.ForeignKey(Member)
-    snapshot = models.ForeignKey(SessionSnapshot)
+    snapshot = models.ForeignKey(SessionSnapshot, related_name='member_snapshots')
     still_connected = models.BooleanField()
     load_state = models.ForeignKey(enum_models.MemberLoadState)
     ping = models.IntegerField()
