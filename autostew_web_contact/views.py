@@ -8,7 +8,7 @@ from autostew_web_contact.forms import ContactForm
 class ContactFormView(FormView):
     template_name = 'autostew_web_contact/contact.html'
     form_class = ContactForm
-    success_url = reverse_lazy('home')
+    success_url = reverse_lazy('home:home')
 
     def form_valid(self, form):
         form.save()

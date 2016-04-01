@@ -19,7 +19,7 @@ class TestContact(TestCase):
                 'message': 'One love'
             }
         )
-        self.assertRedirects(response, reverse('home'))
+        self.assertRedirects(response, reverse('home:home'))
         contact_messages = ContactMessage.objects.all()
         self.assertEqual(len(contact_messages), 1)
         self.assertEqual(contact_messages[0].name, 'Robert Marley')
@@ -34,24 +34,24 @@ class TestContact(TestCase):
                 'email': 'bob@babylon.net'
             }
         )
-        self.assertRedirects(response, reverse('home'))
+        self.assertRedirects(response, reverse('home:home'))
         contact_messages = ContactMessage.objects.all()
         self.assertEqual(len(contact_messages), 2)
         self.assertEqual(contact_messages[1].name, 'Robert Marley')
         self.assertEqual(contact_messages[1].message, 'One love')
         self.assertEqual(contact_messages[1].email, 'bob@babylon.net')
 
-        response = self.client.get(reverse('home'))
+        response = self.client.get(reverse('home:home'))
         self.assertNotContains(response, 'unread messages')
 
         user = User.objects.create_superuser("su", "admin@localhost", "secret")
         user.save()
         self.client.login(username="su", password="secret")
 
-        response = self.client.get(reverse('home'))
+        response = self.client.get(reverse('home:home'))
         self.assertContains(response, 'There are 2 unread messages')
 
         ContactMessage.objects.all().update(read=True)
 
-        response = self.client.get(reverse('home'))
+        response = self.client.get(reverse('home:home'))
         self.assertNotContains(response, 'unread messages')
