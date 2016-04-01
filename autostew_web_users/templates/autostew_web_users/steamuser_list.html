@@ -23,7 +23,11 @@
                             <a href="{{ user.get_absolute_url }}">{{ user.display_name }}</a>
                         </td>
                         <td>
-                            {{ user.safety_class.name }} ({{ user.safety_rating }})
+                            {% if user.safety_class %}
+                                {{ user.safety_class.name }} ({{ user.safety_rating }})
+                            {% else %}
+                                Unrated
+                            {% endif %}
                         </td>
                         <td>
                             {{ user.elo_rating }}
