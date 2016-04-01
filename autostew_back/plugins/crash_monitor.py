@@ -15,7 +15,7 @@ name = 'crash monitor'
 
 warn_at = 0.7
 ban_time = 0
-crash_points_limit = 0 # Set to zero to disable kicking
+crash_points_limit = 4000  # Set to zero to disable kicking
 environment_crash_multiplier = 4
 crash_points = {}
 
