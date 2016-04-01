@@ -9,9 +9,11 @@ from django.test.client import Client
 from autostew_back.gameserver.mocked_api import ApiReplay
 from autostew_back.gameserver.server import Server as DServer
 from autostew_back.plugins import db_session_writer, db_enum_writer, db, db_setup_rotation, clock, laptimes, crash_monitor, chat_notifications
+from autostew_back.plugins.db_session_writer_libs import db_elo_rating
 from autostew_back.tests.test_assets.settings_no_plugins import SettingsWithoutPlugins
-from autostew_back.tests.test_plugin_db_writer import TestDBWriter
+from autostew_back.tests.unit.test_plugin_db_writer import TestDBWriter
 from autostew_web_session.models import Session, RaceLapSnapshot, Server
+from autostew_web_users.models import SteamUser
 
 
 class TestGameReplay(TestCase):
@@ -47,11 +49,11 @@ class TestGameReplay(TestCase):
             except api.RecordFinished:
                 pass
         server.destroy()
-        # TODO add more tests here!
-        # self.assertEqual(Session.objects.count(), 3)  # not sure about this one
+
         self.assertFalse(Server.objects.filter(running=True).exists())
         self.assertFalse(Session.objects.filter(running=True).exists())
-        self.assertEqual(RaceLapSnapshot.objects.count(), 15)  # 15 laps + result snapshot
+        self.assertEqual(RaceLapSnapshot.objects.count(), 15)  # 15 laps
+        self.assertGreater(SteamUser.objects.get(display_name="blak").elo_rating, db_elo_rating.initial_rating)
         client = Client()
         response = client.get(reverse('session:sessions'))
         self.assertEqual(response.status_code, 200)

@@ -3,13 +3,13 @@ from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
 
 from autostew_web_session.models import Track, Server
-from autostew_web_session.views import ParticipantDetailView, SessionList
+from autostew_web_session.views import ParticipantDetailView, SessionList, TrackDetailView
 from . import views
 
 app_name = 'session'
 urlpatterns = [
     url(r'^tracks/?$', ListView.as_view(model=Track), name='tracks'),
-    url(r'^tracks/(?P<pk>[0-9]+)/?$', DetailView.as_view(model=Track), name='track'),
+    url(r'^tracks/(?P<pk>[0-9]+)/?$', TrackDetailView.as_view(), name='track'),
     url(r'^list/?$', SessionList.as_view(), name='sessions'),
     url(r'^create/?$', views.CreateSessionView.as_view(), name='create_setup'),
     url(r'^servers/?$', ListView.as_view(model=Server), name='servers'),

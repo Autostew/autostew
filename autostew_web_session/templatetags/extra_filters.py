@@ -42,3 +42,8 @@ def percent(value):
 @register.filter
 def in_stage(value, stage):
     return value.filter(session_stage__name=stage)
+
+
+@register.filter
+def subtract(value, arg):
+    return value - arg

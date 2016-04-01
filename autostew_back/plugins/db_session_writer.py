@@ -10,6 +10,7 @@ from autostew_back.gameserver.participant import Participant as SessionParticipa
 from autostew_back.gameserver.server import ServerState, Server as DServer
 from autostew_back.gameserver.session import SessionFlags, Privacy, SessionState, SessionStage
 from autostew_back.plugins import db, db_setup_rotation
+from autostew_back.plugins.db_session_writer_libs import db_elo_rating, db_safety_rating
 from autostew_back.utils import td_to_milli
 from autostew_web_enums import models as enum_models
 from autostew_web_session import models as session_models
@@ -48,12 +49,11 @@ def event(server: DServer, event: (BaseEvent, ParticipantEvent)):
 
     # Stores each lap
     if event.type == EventType.lap:
+        participant = _get_or_create_participant(current_session, event.participant)
         session_models.Lap(
             session=current_session,
             session_stage=enum_models.SessionStage.objects.get(name=server.session.session_stage.get()),
-            participant=session_models.Participant.objects.get(ingame_id=event.participant.id.get(),
-                                                               refid=event.participant.refid.get(),
-                                                               session=current_session),
+            participant=participant,
             lap=event.lap + 1,
             count_this_lap=event.count_this_lap_times,
             lap_time=td_to_milli(event.lap_time),
@@ -63,6 +63,9 @@ def event(server: DServer, event: (BaseEvent, ParticipantEvent)):
             sector3_time=td_to_milli(event.sector3_time),
             distance_travelled=event.distance_travelled,
         ).save()
+
+        if event.count_this_lap_times and not participant.is_ai:
+            db_safety_rating.lap_completed(participant.member.steam_user)
 
         if not current_session.current_snapshot.session_stage.name.startswith("Race"):
             _get_or_create_participant_snapshot(
@@ -169,11 +172,12 @@ def event(server: DServer, event: (BaseEvent, ParticipantEvent)):
 
     # Create stage starting snapshots
     if event.type == EventType.stage_changed:
-        snapshot = _create_session_snapshot(server, current_session)
-        stage = _get_or_create_stage(server, event.new_stage.value)
-        stage.starting_snapshot = snapshot
-        stage.save()
-        current_session.save()
+        if current_session.current_snapshot.session_state.name not in ("Returning", "Lobby"):
+            snapshot = _create_session_snapshot(server, current_session)
+            stage = _get_or_create_stage(server, event.new_stage.value)
+            stage.starting_snapshot = snapshot
+            stage.save()
+            current_session.save()
 
     # Insert event
     # some events can happen while there is no session, we ignore them
@@ -208,6 +212,7 @@ def _close_current_session():
     current_session.running = False
     current_session.finished = True
     current_session.save()
+    db_elo_rating.update_ratings_after_race_end(current_session)
     current_session = None
     db.server_in_db.current_session = None
     db.server_in_db.save()
@@ -329,8 +334,10 @@ def _get_or_create_steam_user(member: SessionMember) -> SteamUser:
     except SteamUser.DoesNotExist:
         steam_user = SteamUser(
             steam_id=member.steam_id.get(),
-            display_name=member.name.get()
+            display_name=member.name.get(),
+            safety_rating=db_safety_rating.initial_safety_rating
         )
+        steam_user.update_safety_class()
         steam_user.save()
     return steam_user
 
@@ -507,7 +514,7 @@ def _create_member_snapshot(
         snapshot=session_snapshot,
         member=session_models.Member.objects.get(refid=member.refid.get(), session=session),
         still_connected=True,
-        load_state=enum_models.MemberLoadState.objects.get(name=member.load_state.get()),
+        load_state=enum_models.MemberLoadState.objects.get_or_create(name=member.load_state.get())[0],
         ping=member.ping.get(),
         index=member.index.get(),
         state=enum_models.MemberState.objects.get(name=member.state.get()),

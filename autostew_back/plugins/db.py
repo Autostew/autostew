@@ -24,7 +24,7 @@ def init(server: DedicatedServer):
     try:
         server_in_db = models.Server.objects.get(name=server.settings.server_name)
     except models.Server.DoesNotExist:
-        server_in_db = models.Server(name=server.settings.server_name, running=True)
+        server_in_db = models.Server(name=server.settings.server_name, running=True, setup_rotation_index=0)
     server_in_db.running = True
     server_in_db.state = server.state
     if not server_in_db.id:

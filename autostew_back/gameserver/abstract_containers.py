@@ -66,9 +66,9 @@ class AbstractAttributeLinkedToList(AbstractAttribute):
         elif len(candidates) == 1:
             self._nice_value = candidates[0].raw[self._list_key_nice_value]
         elif len(candidates) == 0:
-            raise Exception("No matching values for {name}, value {value}".format(self.name, self._value))
+            self._nice_value = None
         elif len(candidates) > 1:
-            raise Exception("Too many matching values for {name}, value {value}".format(self.name, self._value))
+            raise Exception("Too many matching values for {name}, value {value}".format(name=self.name, value=self._value))
 
 
 class AbstractAttributeLinkedToEnum(AbstractAttribute):

@@ -3,6 +3,7 @@ import datetime
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.db.models.aggregates import Sum, Max, Min
+from django.db.models.query import QuerySet
 from django.utils import timezone
 
 from autostew_web_enums import models as enum_models
@@ -22,6 +23,29 @@ class Track(models.Model):
 
     def get_absolute_url(self):
         return reverse('session:track', args=[str(self.id)])
+
+    def get_fastest_laps_by_vehicle(self, vehicle):
+        return Lap.objects.filter(
+            session__setup_actual__track=self,
+            participant__vehicle=vehicle,
+            count_this_lap=True,
+            participant__is_ai=False,
+        ).values(
+            'participant',
+            'participant__member__steam_user__display_name',
+            'participant__vehicle__name'
+        ).annotate(fastest_lap_time=Min('lap_time')).order_by('fastest_lap_time')
+
+    def get_fastest_laps_by_vehicle_class(self, vehicle_class):
+        return Lap.objects.filter(
+            session__setup_actual__track=self,
+            participant__vehicle__vehicle_class=vehicle_class,
+            count_this_lap=True,
+            participant__is_ai=False,
+        ).values(
+            'participant__name',
+            'participant__vehicle__name'
+        ).annotate(fastest_lap_time=Min('lap_time')).order_by('fastest_lap_time')
 
 
 class VehicleClass(models.Model):
@@ -154,6 +178,15 @@ class SessionSetup(models.Model):
     track_altitude = models.IntegerField(
         help_text="Setting this value won't have any effect")  # TODO this should be on track model
 
+    def get_track_url(self):
+        if self.force_identical_vehicles:
+            get = '?vehicle={}'.format(self.vehicle.ingame_id)
+        elif self.force_same_vehicle_class:
+            get = '?vehicle_class={}'.format(self.vehicle_class.ingame_id)
+        else:
+            get = ''
+        return "{}{}".format(self.track.get_absolute_url(), get)
+
     def __str__(self):
         return "{} ({})".format(self.name, "template" if self.is_template else "instance")
 
@@ -183,6 +216,7 @@ class Server(models.Model):
     name = models.CharField(max_length=50, unique=True,
                             help_text='To successfully rename a server you will need to change it\'s settings too')
 
+    setup_rotation_index = models.IntegerField()
     setup_rotation = models.ManyToManyField(SessionSetup,
                                             related_name='rotated_in_server', through=SetupRotationEntry,
                                             help_text="Setups that will be used on this server's rotation")
@@ -215,12 +249,13 @@ class Server(models.Model):
     def get_absolute_url(self):
         return reverse('session:server', args=[str(self.name)])
 
-    def pop_next_queued_setup(self):
+    def pop_next_queued_setup(self, peek=False):
         ordered_queue = SetupQueueEntry.objects.filter(server=self).order_by('order')
         if len(ordered_queue) == 0:
             return None
         next_setup = ordered_queue[0].setup
-        ordered_queue[0].delete()
+        if not peek:
+            ordered_queue[0].delete()
         return next_setup
 
     def next_scheduled_session(self):
@@ -268,6 +303,23 @@ class Session(models.Model):
     def __str__(self):
         return "{} - {}".format(self.id, self.setup_actual.name)
 
+    def get_members_who_finished_race(self) -> QuerySet:
+        results_stage = self.get_race_stage()
+        if results_stage is None:
+            return None
+        snapshots = results_stage.result_snapshot.member_snapshots.all()
+        return Member.objects.filter(membersnapshot__in=snapshots)
+
+    def get_race_stage(self):
+        try:
+            results_stage = SessionStage.objects.get(
+                session=self,
+                stage__name="Race1"
+            )
+            return results_stage
+        except SessionStage.DoesNotExist:
+            return None
+
 
 class SessionSnapshot(models.Model):
     class Meta:
@@ -306,11 +358,11 @@ class SessionSnapshot(models.Model):
 
     def reorder_by_best_time(self):
         participants_with_fastest_lap_set = self.participantsnapshot_set.filter(fastest_lap_time__gt=0)
-        for i, v in enumerate(participants_with_fastest_lap_set.order_by('-fastest_lap_time')):
-            v.race_position = i
+        for i, v in enumerate(participants_with_fastest_lap_set.order_by('fastest_lap_time')):
+            v.race_position = i + 1
             v.save()
         positions_without_laptime = len(participants_with_fastest_lap_set) + 1
-        for v in self.participantsnapshot_set.filter(fastest_lap_time__gt=0):
+        for v in self.participantsnapshot_set.filter(fastest_lap_time=0):
             v.race_position = positions_without_laptime
             v.save()
 
@@ -385,13 +437,22 @@ class Member(models.Model):
     aid_driving_line = models.BooleanField()
     valid = models.BooleanField()  # idk what this means
 
+    def finishing_position(self):
+        race_stage = self.session.get_race_stage()
+        if race_stage is None or race_stage.result_snapshot is None:
+            return None
+        try:
+            return race_stage.result_snapshot.member_snapshots.get(member=self).get_participant_snapshot().race_position
+        except MemberSnapshot.DoesNotExist:
+            return None
+
 
 class MemberSnapshot(models.Model):
     class Meta:
         ordering = ['member__name']
 
     member = models.ForeignKey(Member)
-    snapshot = models.ForeignKey(SessionSnapshot)
+    snapshot = models.ForeignKey(SessionSnapshot, related_name='member_snapshots')
     still_connected = models.BooleanField()
     load_state = models.ForeignKey(enum_models.MemberLoadState)
     ping = models.IntegerField()
@@ -399,6 +460,11 @@ class MemberSnapshot(models.Model):
     state = models.ForeignKey(enum_models.MemberState)
     join_time = models.IntegerField()
     host = models.BooleanField()
+
+    def get_participant_snapshot(self):
+        return self.snapshot.participantsnapshot_set.get(participant__member=self.member)
+
+
 
 
 class Participant(models.Model):
@@ -448,6 +514,9 @@ class ParticipantSnapshot(models.Model):
     position_z = models.IntegerField()
     orientation = models.IntegerField()
     total_time = models.IntegerField()
+
+    def get_member_snapshot(self):
+        return self.snapshot.member_snapshots.get(member=self.participant.member)
 
     def last_lap_is_fastest_in_shapshot(self):
         try:
