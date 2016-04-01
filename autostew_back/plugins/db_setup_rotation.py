@@ -26,7 +26,7 @@ def init(server: Server):
     server.get_current_setup_name = get_current_setup_name
     load_settings(
         server,
-        peek=(server.session.session_state != SessionState.lobby)
+        peek=(server.session.session_state.name != SessionState.lobby)
     )
     load_next_setup(server)
 
