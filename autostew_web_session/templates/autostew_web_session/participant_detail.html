@@ -11,12 +11,12 @@
             <h2>{{ stage.stage.name }}</h2>
             <table class="table table-striped table-hover table-condensed">
                 <thead>
-                    <td>Lap</td>
-                    <td>Position</td>
-                    <td>Sector 1</td>
-                    <td>Sector 2</td>
-                    <td>Sector 3</td>
-                    <td><b>Time</b></td>
+                    <th>Lap</th>
+                    <th>Position</th>
+                    <th>Sector 1</th>
+                    <th>Sector 2</th>
+                    <th>Sector 3</th>
+                    <th><b>Time</b></th>
                 </thead>
                 {% for lap in participant.lap_set|in_stage:stage.stage.name %}
                     <tr>
