@@ -34,23 +34,22 @@ def init(server: Server):
 def event(server: Server, event: BaseEvent):
     global setup_rotation
     if event.type == EventType.state_changed and event.new_state == SessionState.lobby:
-            load_settings(server)
-            load_next_setup(server)
+            load_next_setup(server, load_settings(server))
 
 
-def load_settings(server: Server, peek=False):
+def load_settings(server: Server, peek=False) -> int:
     global setup_rotation
     global scheduled_session
 
     scheduled_session = db.server_in_db.next_scheduled_session()
     if scheduled_session:
-        return
+        return 0
 
     queued_setup = db.server_in_db.pop_next_queued_setup(peek)
     if queued_setup:
         setup_rotation = [DBSetup(queued_setup)]
         db.server_in_db.save()
-        return
+        return 0
 
     else:
         setup_rotation = [DBSetup(setup) for setup in db.server_in_db.setup_rotation.all()]
@@ -60,6 +59,7 @@ def load_settings(server: Server, peek=False):
         if db.server_in_db.setup_rotation_index >= len(setup_rotation):
             db.server_in_db.setup_rotation_index = 0
         db.server_in_db.save()
+        return None
 
 
 def load_next_setup(server: Server, force_index=None):
@@ -70,9 +70,13 @@ def load_next_setup(server: Server, force_index=None):
         if len(setup_rotation) == 0:
             raise NoSessionSetupTemplateAvailable
         if force_index is not None and force_index < len(setup_rotation):
-            db.server_in_db.setup_rotation_index = force_index
-        current_setup = setup_rotation[db.server_in_db.setup_rotation_index]
-    logging.info("Loading setup {}: {}".format(db.server_in_db.setup_rotation_index, current_setup.name))
+            current_setup = setup_rotation[force_index]
+        else:
+            if not db.server_in_db.setup_rotation_index < len(setup_rotation):
+                db.server_in_db.setup_rotation_index = 0
+                db.server_in_db.save()
+            current_setup = setup_rotation[db.server_in_db.setup_rotation_index]
+    logging.info("Loading setup: {}".format(current_setup.name))
     current_setup.make_setup(server)
 
 
