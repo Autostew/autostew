@@ -187,6 +187,12 @@ class SessionSetup(models.Model):
             get = ''
         return "{}{}".format(self.track.get_absolute_url(), get)
 
+    def get_absolute_url(self):
+        return reverse('session:setup', args=[str(self.id)])
+
+    def get_fields(self):
+        return [(field.verbose_name, field._get_val_from_obj(self)) for field in self.__class__._meta.fields]
+
     def __str__(self):
         return "{} ({})".format(self.name, "template" if self.is_template else "instance")
 

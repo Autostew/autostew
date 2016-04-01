@@ -1,0 +1,17 @@
+{% extends "autostew_web_home/base.html" %}
+
+{% block content %}
+    <div class="page-header">
+        <h1>Setups</h1>
+    </div>
+
+    {% if sessionsetup_list %}
+        <ul>
+            {% for sessionsetup in sessionsetup_list %}
+                <li><a href="{{ sessionsetup.get_absolute_url }}">{{ sessionsetup.name }}</a></li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <h5>No setups are available!</h5>
+    {% endif %}
+{% endblock %}
