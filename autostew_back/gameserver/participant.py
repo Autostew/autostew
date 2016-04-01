@@ -3,6 +3,7 @@ from enum import Enum
 from autostew_back.gameserver.abstract_containers import AbstractAttribute, AbstractAttributeLinkedToList, \
     AbstractStatusTable, StatusList, AbstractAttributeLinkedToEnum
 from autostew_back.gameserver.lists import ListName, AttributeItem
+from autostew_back.gameserver.member import Member
 
 
 class ParticipantState(Enum):
@@ -78,7 +79,7 @@ class Participant(AbstractStatusTable):
         self.position_z = _participant_attribute('PositionZ')
         self.orientation = _participant_attribute('Orientation')
 
-    def get_member(self, server):
+    def get_member(self, server) -> Member:
         return server.members.get_by_id(self.refid.get())
 
     def send_chat(self, message: str, server):

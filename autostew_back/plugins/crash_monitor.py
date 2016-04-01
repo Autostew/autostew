@@ -7,7 +7,8 @@ from autostew_back.gameserver.event import EventType, BaseEvent
 from autostew_back.gameserver.participant import Participant
 from autostew_back.gameserver.server import Server as DedicatedServer
 from autostew_back.gameserver.session import SessionState
-
+from autostew_back.plugins.db_session_writer_libs import db_safety_rating
+from autostew_web_users.models import SteamUser
 
 name = 'crash monitor'
 
@@ -41,6 +42,14 @@ def reset_crash_points():
 def add_crash_points(crash_points_increase: int, participant: Participant, server: DedicatedServer):
     steam_id = server.members.get_by_id(participant.refid.get()).steam_id.get()
     crash_points[steam_id] = crash_points.setdefault(steam_id, 0) + crash_points_increase
+
+    try:
+        db_safety_rating.impact(
+            SteamUser.objects.get(steam_id=participant.get_member(server).steam_id.get()),
+            crash_points_increase
+        )
+    except SteamUser.DoesNotExist:
+        pass
 
     participant.send_chat("", server)
     participant.send_chat(

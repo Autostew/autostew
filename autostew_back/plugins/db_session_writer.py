@@ -49,12 +49,11 @@ def event(server: DServer, event: (BaseEvent, ParticipantEvent)):
 
     # Stores each lap
     if event.type == EventType.lap:
+        participant = _get_or_create_participant(current_session, event.participant)
         session_models.Lap(
             session=current_session,
             session_stage=enum_models.SessionStage.objects.get(name=server.session.session_stage.get()),
-            participant=session_models.Participant.objects.get(ingame_id=event.participant.id.get(),
-                                                               refid=event.participant.refid.get(),
-                                                               session=current_session),
+            participant=participant,
             lap=event.lap + 1,
             count_this_lap=event.count_this_lap_times,
             lap_time=td_to_milli(event.lap_time),
@@ -64,6 +63,9 @@ def event(server: DServer, event: (BaseEvent, ParticipantEvent)):
             sector3_time=td_to_milli(event.sector3_time),
             distance_travelled=event.distance_travelled,
         ).save()
+
+        if event.count_this_lap_times and not participant.is_ai:
+            db_safety_rating.lap_completed(participant.member.steam_user)
 
         if not current_session.current_snapshot.session_stage.name.startswith("Race"):
             _get_or_create_participant_snapshot(
@@ -210,7 +212,6 @@ def _close_current_session():
     current_session.running = False
     current_session.finished = True
     current_session.save()
-    db_safety_rating.update_ratings_after_race_end(current_session)
     db_elo_rating.update_ratings_after_race_end(current_session)
     current_session = None
     db.server_in_db.current_session = None
@@ -333,8 +334,10 @@ def _get_or_create_steam_user(member: SessionMember) -> SteamUser:
     except SteamUser.DoesNotExist:
         steam_user = SteamUser(
             steam_id=member.steam_id.get(),
-            display_name=member.name.get()
+            display_name=member.name.get(),
+            safety_rating=db_safety_rating.initial_safety_rating
         )
+        steam_user.update_safety_class()
         steam_user.save()
     return steam_user
 

@@ -1,3 +1,6 @@
 from django.contrib import admin
 
-# Register your models here.
+from autostew_web_users.models import SteamUser, SafetyClass
+
+admin.site.register(SteamUser)
+admin.site.register(SafetyClass)

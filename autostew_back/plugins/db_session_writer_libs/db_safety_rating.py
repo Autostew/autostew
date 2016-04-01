@@ -1,12 +1,22 @@
 """
 Calculates safety ratings
 """
-from autostew_web_session.models import Member, Session
+
+last_lap_weight = 1/50
+initial_safety_rating = 3000
 
 
-def update_ratings_after_race_end(session: Session):
-    pass
+def lap_completed(user):
+    if user.safety_rating is None:
+        user.safety_rating = initial_safety_rating
+    user.safety_rating *= (1-last_lap_weight)
+    user.update_safety_class()
+    user.save()
 
 
-def _calculate_new_player_safety_rating(previous_rating, member: Member):
-    pass
+def impact(user, points: int):
+    if user.safety_rating is None:
+        user.safety_rating = initial_safety_rating
+    user.safety_rating += points
+    user.update_safety_class()
+    user.save()
