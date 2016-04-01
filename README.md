@@ -2,7 +2,7 @@
 
 Autostew - project cars server monitoring and management
 
-Autostew reachable at http://autostew.selfhost.eu
+http://autostew.selfhost.eu
 
 [![Throughput Graph](https://graphs.waffle.io/Autostew/autostew/throughput.svg)](https://waffle.io/Autostew/autostew/metrics)
 

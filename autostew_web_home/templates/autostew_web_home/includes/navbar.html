@@ -2,7 +2,7 @@
 
 {% block content %}
     <center>
-        <a href="{% url 'home' %}">
+        <a href="{% url 'home:home' %}">
             <img src="{% static 'autostew_web_home/img/uberspace_badge_white.png' %}"
              class="responsive-img" style='max-height:100px; margin: 30px 0 30px 0px' alt="Autostew">
         </a>
@@ -13,6 +13,7 @@
             <li><a href='{% url 'session:servers' %}'><span class="glyphicon glyphicon-tasks" style="margin-right: 8%"></span> Servers</a></li>
             <li><a href='{% url 'users:list' %}'><span class="glyphicon glyphicon-user" style="margin-right: 8%"></span> Drivers</a></li>
             <li><a href='{% url 'session:tracks' %}'><span class="glyphicon glyphicon-star" style="margin-right: 8%"></span> Records</a></li>
+            <li><a href='{% url 'home:faq' %}'><span class="glyphicon glyphicon-question-sign" style="margin-right: 8%"></span> Help</a></li>
             <li><a href='{% url 'contact:contact' %}'><span class="glyphicon glyphicon-heart" style="margin-right: 8%"></span> Contact</a></li>
 
             {% if user.is_authenticated %}
