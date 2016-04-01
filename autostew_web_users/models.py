@@ -27,14 +27,14 @@ class SteamUser(models.Model):
         if self.safety_class is None:
             self.safety_class = SafetyClass.objects.get(class_below=None)
         if (
-                    self.safety_rating < self.safety_class.drop_from_this_class_threshold and
+                    self.safety_rating > self.safety_class.drop_from_this_class_threshold and
                     self.safety_class.class_below
         ):
             self.safety_class = self.safety_class.class_below
             self.update_safety_class()
         if (
                     hasattr(self.safety_class, 'class_above') and
-                    self.safety_rating > self.safety_class.class_above.raise_to_this_class_threshold
+                    self.safety_rating < self.safety_class.class_above.raise_to_this_class_threshold
         ):
             self.safety_class = self.safety_class.class_above
             self.update_safety_class()
