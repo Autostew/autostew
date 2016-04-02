@@ -41,8 +41,7 @@
             </p>
 
             <p>
-                Weather:
-                {% if session.setup_actual.weather_slots == 0 %}real{% endif %}
+                {% if session.setup_actual.weather_slots == 0 %}Real weather{% endif %}
                 <span style="font-size: xx-large">
                     {% if session.setup_actual.weather_slots > 0 %}{{ session.setup_actual.weather_1.get_icon_or_name|safe }}{% endif %}
                     {% if session.setup_actual.weather_slots > 1 %}{{ session.setup_actual.weather_2.get_icon_or_name|safe }}{% endif %}
