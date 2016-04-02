@@ -31,7 +31,11 @@
                             {% endif %}
                         </td>
                         <td>
-                            {{ user.elo_rating }}
+                            {% if user.elo_rating %}
+                                {{ user.elo_rating }}
+                            {% else %}
+                                -
+                            {% endif %}
                         </td>
                     </tr>
                 {% endfor %}
