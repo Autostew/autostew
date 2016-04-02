@@ -61,27 +61,27 @@ class PlayerFlagDefinition(models.Model):
 
 class WeatherDefinition(models.Model):
     name_to_icon = {
-        'Random': '<span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span>',
-        'Hazy': '<i class="wi wi-day-haze"></i>',
-        'HeavyFogWithRain': '<i class="wi wi-rain-wind"></i>',
-        'FogWithRain': '<i class="wi wi-day-rain-wind"></i>',
-        'HeavyFog': '<i class="wi wi-fog"></i>',
-        'Foggy': '<i class="wi wi-day-fog"></i>',
-        'ThunderStorm': '<i class="wi wi-thunderstorm"></i>',
-        'Storm': '<i class="wi wi-day-storm-showers"></i>',
-        'Rain': '<i class="wi wi-day-rain"></i>',
-        'LightRain': '<i class="wi wi-day-sleet"></i>',
-        'Overcast': '<i class="wi wi-day-cloudy-high"></i>',
-        'HeavyCloud': '<i class="wi wi-cloudy"></i>',
-        'MediumCloud': '<i class="wi wi-cloud"></i>',
-        'LightCloud': '<i class="wi wi-day-sunny-overcast"></i>',
-        'Clear': '<i class="wi wi-day-sunny"></i>',
+        'Random': '<span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="{}"></span>',
+        'Hazy': '<i class="wi wi-day-haze" title="{}"></i>',
+        'HeavyFogWithRain': '<i class="wi wi-rain-wind" title="{}"></i>',
+        'FogWithRain': '<i class="wi wi-day-rain-wind" title="{}"></i>',
+        'HeavyFog': '<i class="wi wi-fog" title="{}"></i>',
+        'Foggy': '<i class="wi wi-day-fog" title="{}"></i>',
+        'ThunderStorm': '<i class="wi wi-thunderstorm" title="{}"></i>',
+        'Storm': '<i class="wi wi-day-storm-showers" title="{}"></i>',
+        'Rain': '<i class="wi wi-day-rain" title="{}"></i>',
+        'LightRain': '<i class="wi wi-day-sleet" title="{}"></i>',
+        'Overcast': '<i class="wi wi-day-cloudy-high" title="{}"></i>',
+        'HeavyCloud': '<i class="wi wi-cloudy" title="{}"></i>',
+        'MediumCloud': '<i class="wi wi-cloud" title="{}"></i>',
+        'LightCloud': '<i class="wi wi-day-sunny-overcast" title="{}"></i>',
+        'Clear': '<i class="wi wi-day-sunny" title="{}"></i>',
     }
     name = models.CharField(max_length=50, unique=True)
     ingame_id = models.IntegerField(help_text='pCars internal ID')
 
     def get_icon_or_name(self):
-        return WeatherDefinition.name_to_icon.get(self.name, self.name).format(name=self.name)
+        return WeatherDefinition.name_to_icon.get(self.name, self.name).format(self.name)
 
     def __str__(self):
         return self.name
