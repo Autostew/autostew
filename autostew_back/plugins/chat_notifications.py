@@ -5,7 +5,7 @@ from autostew_back.gameserver.event import EventType, BaseEvent, LapEvent, Membe
 from autostew_back.gameserver.server import Server
 from autostew_back.gameserver.session import SessionStage, SessionState, SessionFlags
 
-name = 'motd'
+name = 'chat_notifications'
 
 welcome_message = [
     "",
@@ -37,7 +37,7 @@ first_player_finished = [
 ]
 
 
-def event(server: Server, event:BaseEvent):
+def event(server: Server, event: BaseEvent):
 
     if event.type == EventType.authenticated:
         send_welcome_message(event, server)
@@ -46,7 +46,7 @@ def event(server: Server, event:BaseEvent):
         event.type == EventType.lap and
         event.lap == server.session.race1_length.get() - 1 and
         event.race_position == 1 and
-        server.session.session_stage.get() == SessionStage.race1 and
+        server.session.session_stage.get_nice() == SessionStage.race1 and
         SessionFlags.timed_race not in server.session.flags.get_flags()
     ):
         send_winner_message(event, server)
@@ -55,7 +55,7 @@ def event(server: Server, event:BaseEvent):
         event.type == EventType.lap and
         event.lap == server.session.race1_length.get() - 2 and
         event.race_position == 1 and
-        server.session.session_stage.get() == SessionStage.race1 and
+        server.session.session_stage.get_nice() == SessionStage.race1 and
         SessionFlags.timed_race not in server.session.flags.get_flags()
     ):
         send_winner_message(event, server)
