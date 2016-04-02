@@ -24,7 +24,8 @@
                         </td>
                         <td>
                             {% if user.safety_class %}
-                                {{ user.safety_class.name }} ({{ user.safety_rating }})
+                                <span class="label label-default">{{ user.safety_class.name }}</span>
+                                <small>{{ user.safety_rating }}</small>
                             {% else %}
                                 Unrated
                             {% endif %}
