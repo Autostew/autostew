@@ -4,12 +4,15 @@ Show a message when a player logs in (and other messages, too)
 from autostew_back.gameserver.event import EventType, BaseEvent, LapEvent, MemberEvent
 from autostew_back.gameserver.server import Server
 from autostew_back.gameserver.session import SessionStage, SessionState, SessionFlags
+from autostew_web_users.models import SteamUser
 
 name = 'chat_notifications'
 
 welcome_message = [
     "",
     "Welcome {player_name}, current setup is {setup_name}",
+    "{safety_class_message}",
+    "{elo_rating_message}",
     "",
 ]
 new_session_starts = [
@@ -88,10 +91,34 @@ def send_winner_message(event: LapEvent, server: Server):
 
 
 def send_welcome_message(event: MemberEvent, server: Server):
-    for message in welcome_message:
-        event.member.send_chat(
-            message.format(
-                setup_name=server.get_current_setup_name(),
-                player_name=event.member.name.get()
+    if not event.member:
+        return
+    try:
+        steam_user = SteamUser.objects.get(steam_id=event.member.steam_id.get())
+        if not steam_user.safety_class:
+            safety_class_message = "You will be assigned a safety class"
+        elif steam_user.safety_class.kick_on_impact_threshold:
+            safety_class_message = "Your current safety class is {}. Drive carefully or you will be kicked!".format(
+                steam_user.safety_class.name
             )
-        )
+        else:
+            safety_class_message = "Your current safety class is {}.".format(
+                steam_user.safety_class.name
+            )
+
+        if not steam_user.elo_rating:
+            rating_message = "You are currently unrated"
+        else:
+            rating_message = "Your current rating is {}".format(steam_user.elo_rating)
+
+        for message in welcome_message:
+            event.member.send_chat(
+                message.format(
+                    setup_name=server.get_current_setup_name(),
+                    player_name=event.member.name.get(),
+                    safety_class_message=safety_class_message,
+                    elo_rating_message=rating_message
+                )
+            )
+    except SteamUser.DoesNotExist:
+        pass
