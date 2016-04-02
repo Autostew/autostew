@@ -13,6 +13,7 @@ welcome_message = [
     "Welcome {player_name}, current setup is {setup_name}",
     "{safety_class_message}",
     "{elo_rating_message}",
+    "See more information at autostew.selfhost.eu",
     "",
 ]
 new_session_starts = [
