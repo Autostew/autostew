@@ -305,7 +305,7 @@ class Session(models.Model):
 
     def get_members_who_finished_race(self) -> QuerySet:
         results_stage = self.get_race_stage()
-        if results_stage is None:
+        if results_stage is None or results_stage.result_snapshot is None:
             return None
         snapshots = results_stage.result_snapshot.member_snapshots.all()
         return Member.objects.filter(membersnapshot__in=snapshots)
