@@ -2,6 +2,8 @@
 
 Autostew - project cars server monitoring and management
 
+http://autostew.selfhost.eu
+
 [![Throughput Graph](https://graphs.waffle.io/Autostew/autostew/throughput.svg)](https://waffle.io/Autostew/autostew/metrics)
 
 # Documentation

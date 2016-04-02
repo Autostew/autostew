@@ -53,7 +53,7 @@ class TestGameReplay(TestCase):
         self.assertFalse(Server.objects.filter(running=True).exists())
         self.assertFalse(Session.objects.filter(running=True).exists())
         self.assertEqual(RaceLapSnapshot.objects.count(), 15)  # 15 laps
-        self.assertGreater(SteamUser.objects.get(display_name="blak").elo_rating, db_elo_rating.initial_rating)
+        self.assertEqual(SteamUser.objects.get(display_name="blak").elo_rating, db_elo_rating.initial_rating)
         client = Client()
         response = client.get(reverse('session:sessions'))
         self.assertEqual(response.status_code, 200)

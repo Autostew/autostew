@@ -11,9 +11,9 @@ def update_ratings_after_race_end(session: Session):
     if not session.get_members_who_finished_race():
         return
     _push_ratings(session)
-    for member in session.member_set.all():
+    for member in session.get_members_who_participated():
         member.steam_user.refresh_from_db()
-        for opponent in session.member_set.all():
+        for opponent in session.get_members_who_participated():
             if member == opponent:
                 continue
             member.steam_user.elo_rating += _calculate_elo_rating_delta(

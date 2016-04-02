@@ -311,10 +311,14 @@ class Session(models.Model):
 
     def get_members_who_finished_race(self) -> QuerySet:
         results_stage = self.get_race_stage()
-        if results_stage is None:
+        if results_stage is None or results_stage.result_snapshot is None:
             return None
         snapshots = results_stage.result_snapshot.member_snapshots.all()
         return Member.objects.filter(membersnapshot__in=snapshots)
+
+    def get_members_who_participated(self):
+        participants = Participant.objects.filter(lap__in=self.lap_set.all())
+        return Member.objects.filter(participant__in=participants)
 
     def get_race_stage(self):
         try:
@@ -469,8 +473,6 @@ class MemberSnapshot(models.Model):
 
     def get_participant_snapshot(self):
         return self.snapshot.participantsnapshot_set.get(participant__member=self.member)
-
-
 
 
 class Participant(models.Model):

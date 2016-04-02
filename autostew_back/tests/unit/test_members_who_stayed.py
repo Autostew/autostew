@@ -8,7 +8,7 @@ from autostew_back.plugins.db_session_writer_libs import db_elo_rating
 from autostew_back.tests.unit.test_plugin_db_writer import TestDBWriter
 from autostew_web_enums.models import ParticipantState
 from autostew_web_session.models import Server, SessionSetup, Session, Member, Vehicle, VehicleClass, Livery, \
-    SessionStage, SessionSnapshot, MemberSnapshot, Participant, ParticipantSnapshot
+    SessionStage, SessionSnapshot, MemberSnapshot, Participant, ParticipantSnapshot, Lap
 from autostew_web_users.models import SteamUser
 from autostew_web_enums import models as enum_models
 
@@ -59,7 +59,7 @@ class TestMembersWhoStayed(TestCase):
         member1 = self.create_test_member("Alice", session, user1, vehicle, livery)
         member2 = self.create_test_member("Bob", session, user2, vehicle, livery)
         member3 = self.create_test_member("Carol", session, user3, vehicle, livery)
-        participant1 = Participant(
+        participant1 = Participant.objects.create(
             member=member1,
             session=session,
             still_connected=True,
@@ -70,7 +70,17 @@ class TestMembersWhoStayed(TestCase):
             vehicle=vehicle,
             livery=livery
         )
-        participant1.save()
+        participant2 = Participant.objects.create(
+            member=member2,
+            session=session,
+            still_connected=True,
+            ingame_id=2,
+            refid=1,
+            name="Bob",
+            is_ai=False,
+            vehicle=vehicle,
+            livery=livery
+        )
         final_snapshot = SessionSnapshot.objects.create(
             session=session,
             is_result=True,
@@ -143,6 +153,33 @@ class TestMembersWhoStayed(TestCase):
         )
         participant_snapshot.save()
 
+        lap1 = Lap.objects.create(
+            session=session,
+            session_stage=final_stage.stage,
+            participant=participant1,
+            lap=1,
+            count_this_lap=True,
+            position=1,
+            lap_time=1337,
+            sector1_time=1337,
+            sector2_time=1337,
+            sector3_time=1337,
+            distance_travelled=1337,
+        )
+        lap2 = Lap.objects.create(
+            session=session,
+            session_stage=final_stage.stage,
+            participant=participant2,
+            lap=1,
+            count_this_lap=True,
+            position=1,
+            lap_time=1337,
+            sector1_time=1337,
+            sector2_time=1337,
+            sector3_time=1337,
+            distance_travelled=1337,
+        )
+
         self.assertEqual(len(session.get_members_who_finished_race()), 1)
         self.assertEqual(session.get_members_who_finished_race()[0].name, "Alice")
         self.assertEqual(len(session.member_set.all()), 3)
@@ -158,9 +195,10 @@ class TestMembersWhoStayed(TestCase):
         user1.refresh_from_db()
         user2.refresh_from_db()
         user3.refresh_from_db()
-        self.assertEqual(user1.elo_rating, 520)
+        self.assertEqual(user1.elo_rating, 510)
         self.assertEqual(user2.elo_rating, 490)
-        self.assertEqual(user3.elo_rating, 490)
+        self.assertEqual(user3.elo_rating, 500)
+        self.assertEqual(len(session.get_members_who_participated()), 2)
 
     def create_test_member(self, name, session, user1, vehicle, livery) -> Member:
         return Member.objects.create(

@@ -15,7 +15,7 @@ name = 'crash monitor'
 
 warn_at = 0.7
 ban_time = 0
-crash_points_limit = 0 # Set to zero to disable kicking
+crash_points_limit = 4000  # Set to zero to disable kicking
 environment_crash_multiplier = 4
 crash_points = {}
 
@@ -44,27 +44,35 @@ def add_crash_points(crash_points_increase: int, participant: Participant, serve
     crash_points[steam_id] = crash_points.setdefault(steam_id, 0) + crash_points_increase
 
     try:
-        db_safety_rating.impact(
-            SteamUser.objects.get(steam_id=participant.get_member(server).steam_id.get()),
-            crash_points_increase
-        )
+        steam_user = SteamUser.objects.get(steam_id=participant.get_member(server).steam_id.get())
+        db_safety_rating.impact(steam_user, crash_points_increase)
+        if steam_user.over_class_kick_impact_threshold(crash_points_increase):
+            participant.kick(server, ban_time)
     except SteamUser.DoesNotExist:
         pass
 
+    crash_notification(crash_points_increase, participant, server)
+
+    if crash_points_limit and crash_points[steam_id] > crash_points_limit:
+        participant.kick(server, ban_time)
+    elif crash_points_limit and crash_points[steam_id] > warn_at * crash_points_limit:
+        crash_limit_warning(participant, server, steam_id)
+
+
+def crash_notification(crash_points_increase, participant, server):
     participant.send_chat("", server)
     participant.send_chat(
         "CONTACT logged for {points} points.".format(points=crash_points_increase),
         server
     )
 
-    if crash_points_limit and crash_points[steam_id] > crash_points_limit:
-        participant.kick(server, ban_time)
-    elif crash_points_limit and crash_points[steam_id] > warn_at * crash_points_limit:
-        participant.send_chat(
-            "CONTACT: You have collected {points} crash points.".format(points=crash_points[steam_id]),
-            server
-        )
-        participant.send_chat(
-            "CONTACT: Disqualification at {max_crash_points} points.".format(max_crash_points=crash_points_limit),
-            server
-        )
+
+def crash_limit_warning(participant, server, steam_id):
+    participant.send_chat(
+        "CONTACT: You have collected {points} crash points.".format(points=crash_points[steam_id]),
+        server
+    )
+    participant.send_chat(
+        "CONTACT: Disqualification at {max_crash_points} points.".format(max_crash_points=crash_points_limit),
+        server
+    )
