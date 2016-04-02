@@ -40,7 +40,9 @@ class SteamUser(models.Model):
             self.update_safety_class()
 
     def over_class_kick_impact_threshold(self, crash_magnitude):
-        return self.safety_class and crash_magnitude >= self.safety_class.kick_on_impact_threshold
+        return (self.safety_class and
+                self.safety_class.kick_on_impact_threshold and
+                crash_magnitude >= self.safety_class.kick_on_impact_threshold)
 
     def __str__(self):
         return self.display_name
