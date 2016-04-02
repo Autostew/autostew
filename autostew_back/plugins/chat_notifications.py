@@ -48,7 +48,7 @@ def event(server: Server, event: BaseEvent):
 
     if (
         event.type == EventType.lap and
-        event.lap == server.session.race1_length.get() - 1 and
+        event.lap == server.session.race1_length.get() and
         event.race_position == 1 and
         server.session.session_stage.get_nice() == SessionStage.race1 and
         SessionFlags.timed_race not in server.session.flags.get_flags()
@@ -57,7 +57,7 @@ def event(server: Server, event: BaseEvent):
 
     if (
         event.type == EventType.lap and
-        event.lap == server.session.race1_length.get() - 2 and
+        event.lap == server.session.race1_length.get() - 1 and
         event.race_position == 1 and
         server.session.session_stage.get_nice() == SessionStage.race1 and
         SessionFlags.timed_race not in server.session.flags.get_flags()
@@ -82,12 +82,12 @@ def send_new_session_message(server: Server):
 
 
 def send_leader_in_last_lap_message(event: LapEvent, server: Server):
-    for message in first_player_finished:
+    for message in leader_in_last_lap:
         server.api.send_chat(message.format(winner_name=event.participant.name.get()))
 
 
 def send_winner_message(event: LapEvent, server: Server):
-    for message in leader_in_last_lap:
+    for message in first_player_finished:
         server.api.send_chat(message.format(leader_name=event.participant.name.get()))
 
 
