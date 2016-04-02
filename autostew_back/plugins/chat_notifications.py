@@ -58,7 +58,7 @@ def event(server: Server, event: BaseEvent):
         server.session.session_stage.get_nice() == SessionStage.race1 and
         SessionFlags.timed_race not in server.session.flags.get_flags()
     ):
-        send_winner_message(event, server)
+        send_leader_in_last_lap_message(event, server)
 
     if event.type == EventType.state_changed and event.new_state == SessionState.lobby:
         send_new_session_message(server)
