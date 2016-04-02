@@ -11,6 +11,20 @@
                 {% elif session.planned %}<span class="label label-info">planned</span>
                 {% endif %}
             </h3>
+
+            <h4>
+                <a href="{{ session.setup_actual.get_absolute_url }}">
+                    {{ session.setup_actual.name }}
+                </a>
+            </h4>
+
+            <h4>
+                {{ session.setup_actual.track.name }}
+                <small><a href="{{ session.setup_actual.get_track_url }}" class="btn btn-default">
+                    Leaderboard
+                </a></small>
+            </h4>
+
             <h4>{% if session.setup_actual.force_identical_vehicles %}
                 {{ session.setup_actual.vehicle.name }}
             {% elif session.setup_actual.force_same_vehicle_class %}
@@ -19,14 +33,30 @@
                 No vehicle restriction
             {% endif %}</h4>
 
-            <h4>
-                {{ session.setup_actual.name }}
-            </h4>
+            <p>
+                Real time: {{ sessionsnapshot.timestamp|date }} {{ sessionsnapshot.timestamp|time }}<br>
+                In-game time (x{{ session.setup_actual.date_progression }}):
+                {{ sessionsnapshot.current_year }}-{{ sessionsnapshot.current_month }}-{{ sessionsnapshot.current_day }}
+                {{ sessionsnapshot.current_hour }}:{{ sessionsnapshot.current_minute }}
+            </p>
 
-            Real time: {{ sessionsnapshot.timestamp|date }} {{ sessionsnapshot.timestamp|time }}<br>
-            In-game time (x{{ session.setup_actual.date_progression }}):
-            {{ sessionsnapshot.current_year }}-{{ sessionsnapshot.current_month }}-{{ sessionsnapshot.current_day }}
-            {{ sessionsnapshot.current_hour }}:{{ sessionsnapshot.current_minute }}
+            <p>
+                Weather:
+                <span style="font-size: xx-large">
+                    {% if session.setup_actual.weather_slots > 0 %}{{ session.setup_actual.weather_1.get_icon_or_name|safe }}{% endif %}
+                    {% if session.setup_actual.weather_slots > 1 %}{{ session.setup_actual.weather_2.get_icon_or_name|safe }}{% endif %}
+                    {% if session.setup_actual.weather_slots > 2 %}{{ session.setup_actual.weather_3.get_icon_or_name|safe }}{% endif %}
+                    {% if session.setup_actual.weather_slots > 3 %}{{ session.setup_actual.weather_4.get_icon_or_name|safe }}{% endif %}
+                </span>
+                (x{{ session.setup_actual.weather_progression }})
+            </p>
+            <p>
+                {{ sessionsnapshot.temperature_ambient|temp }} ºC |
+                {{ sessionsnapshot.temperature_track|temp }} ºC |
+                {{ sessionsnapshot.air_pressure|pressure }} hPa
+                <br>
+                Wetness: {{ sessionsnapshot.wetness_avg|percent }}%
+            </p>
         </div>
         <div class="col-xs-12 col-sm-4 placeholder" style="text-align: center">
             <h2>
@@ -42,8 +72,7 @@
             {% if session.setup_actual.warmup_length %}{{ session.setup_actual.warmup_length }} minutes warmup<br>{% endif %}
             <b>{{ session.setup_actual.race1_length }} {% if session.setup_actual.timed_race %}minutes{% else %}laps{% endif %} race</b><br>
             {% if session.setup_actual.enforced_pitstop %}Mandatory pitstop{% endif %}
-        </div>
-        <div class="col-xs-12 col-sm-4 placeholder" style="text-align: center">
+
             <h3>
                 {% if sessionsnapshot.previous_in_session %}
                     <a class="btn btn-default" href="{% url 'session:snapshot' sessionsnapshot.previous_in_session.id %}">
@@ -100,28 +129,7 @@
                 </a>
             </p>
         </div>
-    </div>
-
-    <div class="row">
-        <div class="col-xs-12 col-sm-4 placeholder">
-            <h3>
-                <a href="{{ session.setup_actual.get_track_url }}">
-                    {{ session.setup_actual.track.name }}
-                </a>
-            </h3>
-            Weather (x{{ session.setup_actual.weather_progression }}):
-            {% if session.setup_actual.weather_slots > 0 %}{{ session.setup_actual.weather_1.name }}{% endif %}
-            {% if session.setup_actual.weather_slots > 1 %}{{ session.setup_actual.weather_2.name }}{% endif %}
-            {% if session.setup_actual.weather_slots > 2 %}{{ session.setup_actual.weather_3.name }}{% endif %}
-            {% if session.setup_actual.weather_slots > 3 %}{{ session.setup_actual.weather_4.name }}{% endif %}
-            <br>
-            {{ sessionsnapshot.temperature_ambient|temp }} ºC |
-            {{ sessionsnapshot.temperature_track|temp }} ºC |
-            {{ sessionsnapshot.air_pressure|pressure }} hPa
-            <br>
-            Wetness: {{ sessionsnapshot.wetness_avg|percent }}%
-        </div>
-        <div class="col-xs-12 col-sm-4 placeholder">
+        <div class="col-xs-12 col-sm-4 placeholder" style="text-align: right">
             <h3>Aids</h3>
             {% if not session.setup_actual.allow_custom_vehicle_setup %}<p>Default setup only</p>{% endif %}
             Driving aids:
@@ -137,9 +145,7 @@
             {% if session.setup_actual.mechanical_failures %}failures{% else %}no-failures{% endif %}
             {% if session.setup_actual.auto_start_engine %}autoenginestart{% else %}manualenginestart{% endif %}
             {% if session.setup_actual.ghost_griefers %}ghostgriefers{% else %}noghost{% endif %}
-        </div>
-        <div class="col-xs-12 col-sm-4 placeholder">
-            <h3></h3>
+            <h3>Settings</h3>
             {% if session.setup_actual.rolling_starts %}Rolling start<br>{% endif %}
             {{ session.setup_actual.damage.name|title }} damage<br>
             {{ session.setup_actual.tire_wear.name|title }} tire wear<br>
@@ -148,7 +154,7 @@
             {{ session.setup_actual.allowed_views.name|title }} view
         </div>
     </div>
-    <hr>
+
     <div class="table-responsive">
         <table class="table table-striped table-hover table-condensed">
             <thead>
@@ -175,8 +181,16 @@
                         <br>
                         {% if participant.participant.is_ai %}
                             <span class="label label-default">
-                                <span class="glyphicon glyphicon-cog" aria-hidden="true"></span>{{ session.setup_actual.opponent_difficulty }}
+                                <span class="glyphicon glyphicon-cog" aria-hidden="true"></span>
+                                {{ session.setup_actual.opponent_difficulty }}
                             </span>
+                        {% else %}
+                            {% if participant.member.steam_user.safety_class %}
+                                <span class="label label-default">{{ participant.member.steam_user.safety_class }}</span>
+                            {% endif %}
+                            {% if participant.member.steam_user.elo_rating %}
+                                <span class="label label-default">{{ participant.member.steam_user.elo_rating }}</span>
+                            {% endif %}
                         {% endif %}
                         &nbsp;
                         {{ participant.participant.vehicle.name }}
