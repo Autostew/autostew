@@ -161,7 +161,6 @@
                 <tr>
                     <th></th>
                     <th>Name</th>
-                    <th></th>
                     <th>Lap</th>
                     <th>Last lap</th>
                     <th>Best lap</th>
@@ -174,6 +173,14 @@
                     <td>
                         <div style="font-size: 220%; float: left; clear: left; padding-right: 15px">
                             P{{ participant.race_position }}
+                            <a href="{{ participant.participant.get_absolute_url }}">
+                                <span class="glyphicon glyphicon-list-alt" aria-hidden="true" title="To race results"></span>
+                            </a>
+                            {% if not participant.participant.is_ai %}
+                                <a href="{{ participant.participant.member.steam_user.get_absolute_url }}">
+                                    <span class="glyphicon glyphicon-user" aria-hidden="true" title="To profile"></span>
+                                </a>
+                            {% endif %}
                         </div>
                     </td>
                     <td>
@@ -194,16 +201,6 @@
                         {% endif %}
                         &nbsp;
                         {{ participant.participant.vehicle.name }}
-                    </td>
-                    <td>
-                        <a href="{{ participant.participant.get_absolute_url }}">
-                            <span class="glyphicon glyphicon-list" aria-hidden="true"></span>
-                        </a>
-                        {% if not participant.participant.is_ai %}
-                            <a href="{{ participant.participant.member.steam_user.get_absolute_url }}">
-                                <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
-                            </a>
-                        {% endif %}
                     </td>
                     <td>
                         {{ participant.current_lap }}
