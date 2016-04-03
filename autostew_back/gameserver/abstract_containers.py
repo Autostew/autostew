@@ -22,7 +22,7 @@ class AbstractAttribute:
         else:
             self._value = status[self.name]
 
-    def set_to_game(self, value, copy_to_next=True, for_next_session=False):
+    def set_to_game(self, value, copy_to_next=False, for_next_session=False):
         if for_next_session and copy_to_next:
             copy_to_next = False
 
