@@ -3,7 +3,7 @@ Calculates safety ratings
 """
 
 last_lap_weight = 1/50
-initial_safety_rating = 16000
+initial_safety_rating = 10000
 
 
 def lap_completed(user):
