@@ -106,7 +106,7 @@ class Member(AbstractStatusTable):
         self._api.send_chat(message, self.refid.get())
 
     def kick(self, ban_seconds=0):
-        self._api.kick(self.refid, ban_seconds)
+        self._api.kick(self.refid.get(), ban_seconds)
 
 
 class MemberList(StatusList):

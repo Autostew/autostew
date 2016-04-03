@@ -137,7 +137,7 @@ def event(server: DServer, event: (BaseEvent, ParticipantEvent)):
 
     # Creates a member
     if event.type == EventType.authenticated:
-        if current_session is not None:
+        if current_session is not None and event.member is not None:
             _get_or_create_member(current_session, event.member)
 
     # Destroys a member
