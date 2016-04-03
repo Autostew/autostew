@@ -48,7 +48,7 @@ def event(server: Server, event: BaseEvent):
 
     if (
         event.type == EventType.lap and
-        event.lap == server.session.race1_length.get() and
+        event.lap == server.session.race1_length.get() - 1 and
         event.race_position == 1 and
         server.session.session_stage.get_nice() == SessionStage.race1 and
         SessionFlags.timed_race not in server.session.flags.get_flags()
@@ -57,7 +57,7 @@ def event(server: Server, event: BaseEvent):
 
     if (
         event.type == EventType.lap and
-        event.lap == server.session.race1_length.get() - 1 and
+        event.lap == server.session.race1_length.get() - 2 and
         event.race_position == 1 and
         server.session.session_stage.get_nice() == SessionStage.race1 and
         SessionFlags.timed_race not in server.session.flags.get_flags()
