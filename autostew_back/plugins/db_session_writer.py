@@ -210,8 +210,9 @@ def _get_or_create_stage(server: DServer, new_stage: str):
 def _close_current_session():
     global current_session
     if current_session:
+        if current_session.current_snapshot.session_stage.is_relevant():
+            current_session.finished = True
         current_session.running = False
-        current_session.finished = True
         current_session.save()
         db_elo_rating.update_ratings_after_race_end(current_session)
     current_session = None

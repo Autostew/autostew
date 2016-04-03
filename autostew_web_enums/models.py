@@ -184,6 +184,9 @@ class SessionStage(models.Model):
     def __str__(self):
         return self.name
 
+    def is_relevant(self):
+        return self.name in ("Race1", "Race2", "Qualifying")
+
 
 class SessionPhase(models.Model):
     name = models.CharField(max_length=50)

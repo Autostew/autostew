@@ -77,4 +77,7 @@ class TestGameReplay(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, test_setup.name)
         for session in Session.objects.all():
-            self.assertContains(response, session.get_absolute_url())
+            if session.finished:
+                self.assertContains(response, session.get_absolute_url())
+            else:
+                self.assertNotContains(response, session.get_absolute_url())
