@@ -209,10 +209,11 @@ def _get_or_create_stage(server: DServer, new_stage: str):
 
 def _close_current_session():
     global current_session
-    current_session.running = False
-    current_session.finished = True
-    current_session.save()
-    db_elo_rating.update_ratings_after_race_end(current_session)
+    if current_session:
+        current_session.running = False
+        current_session.finished = True
+        current_session.save()
+        db_elo_rating.update_ratings_after_race_end(current_session)
     current_session = None
     db.server_in_db.current_session = None
     db.server_in_db.save()
@@ -331,6 +332,8 @@ def _create_session_setup(server):
 def _get_or_create_steam_user(member: SessionMember) -> SteamUser:
     try:
         steam_user = SteamUser.objects.get(steam_id=member.steam_id.get())
+        steam_user.display_name = member.name.get()
+        steam_user.save()
     except SteamUser.DoesNotExist:
         steam_user = SteamUser(
             steam_id=member.steam_id.get(),
