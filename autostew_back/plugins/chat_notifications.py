@@ -14,6 +14,7 @@ welcome_message = [
     "{safety_class_message}",
     "{elo_rating_message}",
     "See more information at autostew.selfhost.eu",
+    "THIS IS AN OPEN ALPHA RELEASE OF AUTOSTEW",
     "",
 ]
 new_session_starts = [
