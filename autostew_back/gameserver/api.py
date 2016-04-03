@@ -33,7 +33,7 @@ class ApiCaller:
                 )
 
     def _cleanup_parameters(self, value: str):
-        return str(value).translate({ord(i): None for i in '?&'})
+        return str(value).translate({ord(i): None for i in '?&#'})
 
     def _call(self, path: str, params={}):  # TODO handle errors
         url = "{url}/api/{path}?{params}".format(
