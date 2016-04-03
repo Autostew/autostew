@@ -7,7 +7,7 @@ from django.db.models.query import QuerySet
 from django.utils import timezone
 
 from autostew_web_enums import models as enum_models
-from autostew_web_users.models import SteamUser
+from autostew_web_users import models as user_models
 
 
 class Track(models.Model):
@@ -419,7 +419,7 @@ class Member(models.Model):
     class Meta:
         ordering = ['name']
 
-    steam_user = models.ForeignKey(SteamUser)
+    steam_user = models.ForeignKey(user_models.SteamUser)
     session = models.ForeignKey(Session)
     still_connected = models.BooleanField()
 
