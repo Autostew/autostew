@@ -83,13 +83,15 @@ def send_new_session_message(server: Server):
 
 
 def send_leader_in_last_lap_message(event: LapEvent, server: Server):
-    for message in leader_in_last_lap:
-        server.api.send_chat(message.format(leader_name=event.participant.name.get()))
+    if event.participant:
+        for message in leader_in_last_lap:
+            server.api.send_chat(message.format(leader_name=event.participant.name.get()))
 
 
 def send_winner_message(event: LapEvent, server: Server):
-    for message in first_player_finished:
-        server.api.send_chat(message.format(winner_name=event.participant.name.get()))
+    if event.participant:
+        for message in first_player_finished:
+            server.api.send_chat(message.format(winner_name=event.participant.name.get()))
 
 
 def send_welcome_message(event: MemberEvent, server: Server):
