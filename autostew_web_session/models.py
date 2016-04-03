@@ -7,7 +7,6 @@ from django.db.models.query import QuerySet
 from django.utils import timezone
 
 from autostew_web_enums import models as enum_models
-from autostew_web_users import models as user_models
 
 
 class Track(models.Model):
