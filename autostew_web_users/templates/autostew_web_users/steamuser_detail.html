@@ -3,16 +3,27 @@
 {% block content %}
     <h1>{{ steamuser.display_name }}</h1>
     <p>
-        Performance points: {{ steamuser.get_performance_rating }}
+        Safety class:
+        {% if steamuser.safety_class %}
+            <span class="label label-default">{{ steamuser.safety_class.name }}</span>
+            ({{ steamuser.safety_rating }})
+        {% else %}
+            none yet
+        {% endif %}
     </p>
     <p>
-        Safety class: {{ steamuser.safety_class.name }}
+        Rating:
+        {% if steamuser.get_performance_rating %}
+            {{ steamuser.get_performance_rating }}
+        {% else %}
+            none yet
+        {% endif %}
     </p>
 
     <h2>Sessions</h2>
     <ul>
-        {% for member in steamuser.member_set.all %}
-            <li><a href="{{ member.session.get_absolute_url }}">Session {{ member.session_id }}</a></li>
+        {% for session in steamuser.sessions_participated_in %}
+            <li><a href="{{ session.get_absolute_url }}">Session {{ session }}</a></li>
         {% endfor %}
     </ul>
 {% endblock %}

@@ -585,7 +585,7 @@ class Lap(models.Model):
     class Meta:
         ordering = ['session_id', 'lap']
 
-    session = models.ForeignKey(Session)
+    session = models.ForeignKey(Session, related_name='lap_set')
     session_stage = models.ForeignKey(enum_models.SessionStage)
     participant = models.ForeignKey(Participant)
     lap = models.IntegerField()
