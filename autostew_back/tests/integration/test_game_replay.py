@@ -9,11 +9,11 @@ from django.test.client import Client
 from autostew_back.gameserver.mocked_api import ApiReplay
 from autostew_back.gameserver.server import Server as DServer
 from autostew_back.plugins import db_session_writer, db_enum_writer, db, db_setup_rotation, clock, laptimes, crash_monitor, chat_notifications
-from autostew_back.plugins.db_session_writer_libs import db_elo_rating
+from autostew_back.plugins.db_session_writer_libs import db_elo_rating, db_safety_rating
 from autostew_back.tests.test_assets.settings_no_plugins import SettingsWithoutPlugins
 from autostew_back.tests.unit.test_plugin_db_writer import TestDBWriter
 from autostew_web_session.models import Session, RaceLapSnapshot, Server
-from autostew_web_users.models import SteamUser
+from autostew_web_users.models import SteamUser, SafetyClass
 
 
 class TestGameReplay(TestCase):
@@ -37,6 +37,24 @@ class TestGameReplay(TestCase):
             crash_monitor,
             chat_notifications,
         ]
+
+        b = SafetyClass.objects.create(
+            order=1,
+            name='B',
+            raise_to_this_class_threshold=0,
+            drop_from_this_class_threshold=0,
+            kick_on_impact_threshold=900,
+            initial_class=True,
+        )
+
+        SafetyClass.objects.create(
+            order=0,
+            name='A',
+            class_below=b,
+            raise_to_this_class_threshold=db_safety_rating.initial_safety_rating - 500,
+            drop_from_this_class_threshold=db_safety_rating.initial_safety_rating,
+            kick_on_impact_threshold=0,
+        )
 
         with mock.patch.object(requests, 'get', api.fake_request):
             server = DServer(settings)

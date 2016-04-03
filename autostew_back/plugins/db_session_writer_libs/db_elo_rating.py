@@ -3,8 +3,10 @@ Calculates Elo ratings for drivers once a race is finished
 """
 from autostew_web_session.models import Session, Member
 
-initial_rating = 500
-default_k = 20
+minimum_rating = 0
+
+initial_rating = 1000
+default_k = 5
 
 
 def update_ratings_after_race_end(session: Session):
@@ -53,7 +55,7 @@ def _push_ratings(session: Session):
 
 
 def _calculate_new_player_elo_rating(player_rating: int, opponent_rating: int, won: float, k: int):
-    return max(0, player_rating + _calculate_elo_rating_delta(player_rating, opponent_rating, won, k))
+    return max(minimum_rating, player_rating + _calculate_elo_rating_delta(player_rating, opponent_rating, won, k))
 
 
 def _calculate_elo_rating_delta(player_rating: int, opponent_rating: int, won: float, k: int):

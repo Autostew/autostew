@@ -25,7 +25,7 @@ class SteamUser(models.Model):
         if not SafetyClass.objects.exists():
             return
         if self.safety_class is None:
-            self.safety_class = SafetyClass.objects.get(class_below=None)
+            self.safety_class = SafetyClass.objects.get(initial_class=True)
         if (
                     self.safety_rating > self.safety_class.drop_from_this_class_threshold and
                     self.safety_class.class_below
@@ -57,6 +57,7 @@ class SafetyClass(models.Model):
     raise_to_this_class_threshold = models.IntegerField()
     drop_from_this_class_threshold = models.IntegerField()
     kick_on_impact_threshold = models.IntegerField(null=True, blank=True)
+    initial_class = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name

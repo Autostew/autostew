@@ -195,9 +195,9 @@ class TestMembersWhoStayed(TestCase):
         user1.refresh_from_db()
         user2.refresh_from_db()
         user3.refresh_from_db()
-        self.assertEqual(user1.elo_rating, 510)
-        self.assertEqual(user2.elo_rating, 490)
-        self.assertEqual(user3.elo_rating, 500)
+        self.assertEqual(user1.elo_rating, 1002)
+        self.assertEqual(user2.elo_rating, 998)
+        self.assertEqual(user3.elo_rating, 1000)
         self.assertEqual(len(session.get_members_who_participated()), 2)
 
     def create_test_member(self, name, session, user1, vehicle, livery) -> Member:

@@ -90,7 +90,8 @@ class Server:
             plugin.env_init(self)
 
     def poll_loop(self, event_offset=None, only_one_run=False, one_by_one=False):
-        logging.info("Entering event loop")
+        if not only_one_run:
+            logging.info("Entering event loop")
         if event_offset is None:
             self.api.reset_event_offset()
         else:

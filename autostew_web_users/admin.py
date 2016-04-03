@@ -20,8 +20,8 @@ class SteamUserAdmin(admin.ModelAdmin):
 class SafetyClassAdmin(admin.ModelAdmin):
     list_display = [
         'name',
-        'order',
         'class_below',
+        'initial_class',
         'raise_to_this_class_threshold',
         'drop_from_this_class_threshold'
     ]
