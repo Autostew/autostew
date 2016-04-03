@@ -23,7 +23,7 @@ crash_points = {}
 def event(server: DedicatedServer, event: BaseEvent):
     if event.type == EventType.impact:
         for participant in event.participants:
-            if participant.is_player.get():
+            if participant and participant.is_player.get():
                 add_crash_points(
                     event.magnitude if event.human_to_human else int(event.magnitude / environment_crash_multiplier),
                     participant,
