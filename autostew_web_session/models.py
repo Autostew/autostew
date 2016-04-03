@@ -419,7 +419,7 @@ class Member(models.Model):
     class Meta:
         ordering = ['name']
 
-    steam_user = models.ForeignKey(user_models.SteamUser)
+    steam_user = models.ForeignKey('autostew_web_users.SteamUser')
     session = models.ForeignKey(Session)
     still_connected = models.BooleanField()
 
