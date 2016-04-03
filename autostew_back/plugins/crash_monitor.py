@@ -40,6 +40,8 @@ def reset_crash_points():
 
 
 def add_crash_points(crash_points_increase: int, participant: Participant, server: DedicatedServer):
+    if not participant:
+        return
     steam_id = server.members.get_by_id(participant.refid.get()).steam_id.get()
     crash_points[steam_id] = crash_points.setdefault(steam_id, 0) + crash_points_increase
 
