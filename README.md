@@ -4,7 +4,13 @@ Autostew - project cars server monitoring and management
 
 http://autostew.selfhost.eu
 
+# Task board
+
 [![Throughput Graph](https://graphs.waffle.io/Autostew/autostew/throughput.svg)](https://waffle.io/Autostew/autostew/metrics)
+
+[![Stories ready](https://badge.waffle.io/Autostew/autostew.svg?label=ready&title=Ready)](http://waffle.io/Autostew/autostew)
+[![Stories in progress](https://badge.waffle.io/Autostew/autostew.svg?label=in%20progress&title=In%20progress)](http://waffle.io/Autostew/autostew)
+[![Stories in review](https://badge.waffle.io/Autostew/autostew.svg?label=in%20review&title=In%20review)](http://waffle.io/Autostew/autostew)
 
 # Documentation
 * [Project Cars Dedicated Server How-To](http://forum.projectcarsgame.com/showthread.php?22370-Dedicated-Server-HowTo-(Work-in-Progress))
