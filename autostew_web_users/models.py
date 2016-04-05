@@ -65,6 +65,7 @@ class SafetyClass(models.Model):
     drop_from_this_class_threshold = models.IntegerField()
     kick_on_impact_threshold = models.IntegerField(null=True, blank=True)
     initial_class = models.BooleanField(default=False)
+    impact_weight = models.IntegerField(default=1)
 
     def __str__(self):
         return self.name

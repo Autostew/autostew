@@ -8,7 +8,7 @@ from autostew_back.gameserver.participant import Participant
 from autostew_back.gameserver.server import Server as DedicatedServer
 from autostew_back.gameserver.session import SessionState
 from autostew_back.plugins.db_session_writer_libs import db_safety_rating
-from autostew_web_users.models import SteamUser
+from autostew_web_users.models import SteamUser, SafetyClass
 
 name = 'crash monitor'
 
@@ -39,19 +39,44 @@ def reset_crash_points():
     crash_points = {}
 
 
-def add_crash_points(crash_points_increase: int, participant: Participant, server: DedicatedServer):
+def add_crash_points(
+        crash_points_increase: int,
+        participant: Participant,
+        server: DedicatedServer,
+        opponent: Participant=None
+):
     if not participant:
         return
     steam_id = server.members.get_by_id(participant.refid.get()).steam_id.get()
     crash_points[steam_id] = crash_points.setdefault(steam_id, 0) + crash_points_increase
 
+    opponent_user = None
+    if opponent and opponent.get_member(server):
+        try:
+            opponent_user = SteamUser.objects.get(steam_id=opponent.get_member(server).steam_id.get())
+        except SteamUser.DoesNotExist:
+            pass
+
     try:
         steam_user = SteamUser.objects.get(steam_id=participant.get_member(server).steam_id.get())
-        db_safety_rating.impact(steam_user, crash_points_increase)
-        if steam_user.over_class_kick_impact_threshold(crash_points_increase):
-            participant.kick(server, ban_time)
     except SteamUser.DoesNotExist:
-        pass
+        steam_user = None
+
+    if (
+            opponent_user and
+            opponent_user.safety_class and
+            opponent_user.safety_class.impact_weight and
+            steam_user.safety_class and
+            steam_user.safety_class.impact_weight and
+            steam_user.safety_class.impact_weight < opponent_user.safety_class.impact_weight
+    ):
+        crash_points_increase *= (
+            steam_user.safety_class.impact_weight / opponent_user.safety_class.impact_weight
+        )
+
+    db_safety_rating.impact(steam_user, crash_points_increase)
+    if steam_user.over_class_kick_impact_threshold(crash_points_increase):
+        participant.kick(server, ban_time)
 
     crash_notification(crash_points_increase, participant, server)
 
