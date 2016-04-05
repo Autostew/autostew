@@ -11,6 +11,14 @@
                 <li>
                     {% if server.is_up %}
                         <span class="label label-success">Up</span>
+                    {% else %}
+                        <span class="label label-danger">Down</span>
+                    {% endif %}
+                    <a href="{{ server.get_absolute_url }}">{{ server.name }}</a>
+                    {% if server.current_session %}
+                        <a href="{{ server.current_session.get_absolute_url }}">{{ server.current_session }}</a>
+                    {% endif %}
+                    {% if server.is_up %}
                         <span class="label
                             {% if server.average_player_latency < 50 %}label-success
                             {% elif server.average_player_latency < 100 %}label-info
@@ -19,12 +27,6 @@
                             {% else %}label-default
                             {% endif %}
                         ">{{ server.average_player_latency }} ms</span>
-                    {% else %}
-                        <span class="label label-danger">Down</span>
-                    {% endif %}
-                    <a href="{{ server.get_absolute_url }}">{{ server.name }}</a>
-                    {% if server.current_session %}
-                        <a href="{{ server.current_session.get_absolute_url }}">{{ server.current_session }}</a>
                     {% endif %}
                 </li>
             {% endfor %}
