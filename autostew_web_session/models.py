@@ -245,6 +245,10 @@ class Server(models.Model):
     # TODO state = server.state!!
 
     @property
+    def is_up(self):
+        return self.running and self.time_since_last_ping < 120
+
+    @property
     def time_since_last_ping(self):
         return int((timezone.now() - self.last_ping).total_seconds())
 

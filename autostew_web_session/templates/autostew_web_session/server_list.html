@@ -9,8 +9,8 @@
         <ul>
             {% for server in server_list %}
                 <li>
-                    {% if server.running %}
-                        <span class="label label-success">Running</span>
+                    {% if server.is_up %}
+                        <span class="label label-success">Up</span>
                         <span class="label
                             {% if server.average_player_latency < 50 %}label-success
                             {% elif server.average_player_latency < 100 %}label-info
@@ -20,14 +20,11 @@
                             {% endif %}
                         ">{{ server.average_player_latency }} ms</span>
                     {% else %}
-                        <span class="label label-danger">Not running</span>
+                        <span class="label label-danger">Down</span>
                     {% endif %}
                     <a href="{{ server.get_absolute_url }}">{{ server.name }}</a>
                     {% if server.current_session %}
                         <a href="{{ server.current_session.get_absolute_url }}">{{ server.current_session }}</a>
-                    {% endif %}
-                    {% if server.running and server.time_since_last_ping >= 30 %}
-                        <span class="label label-danger">last ping {{ server.time_since_last_ping }} seconds ago</span>
                     {% endif %}
                 </li>
             {% endfor %}
