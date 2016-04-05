@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 import argparse
+import importlib
 import logging
 import sys
 
@@ -9,7 +10,6 @@ from unittest import mock
 
 from autostew_back.gameserver.mocked_api import ApiReplay
 from autostew_back.gameserver.server import Server
-from autostew_back.settings import Settings
 
 description = """Autostew - A stuff doer for the Project Cars dedicated server"""
 epilog = """Don't use --env-init on productive servers!"""
@@ -27,7 +27,8 @@ def main(args):
 
     logging.info("Starting autostew")
 
-    settings = Settings()
+    settings_module = importlib.import_module('autostew_back.{}'.format(args.settings))
+    settings = settings_module.Settings()
     try:
         if args.api_replay:
             logging.warning("Mocking gameserver API with {}".format(args.api_replay))
@@ -52,6 +53,7 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=description, epilog=epilog)
+    parser.add_argument('--settings', '-s', default='settings', help="Settings module")
     parser.add_argument('--env-init', default=False, action='store_true',
                         help="Initialize environment")
     parser.add_argument('--api-record', nargs='?', const=True, default=False,
