@@ -91,7 +91,7 @@ def event(server: DServer, event: (BaseEvent, ParticipantEvent)):
         ).save()
 
     # Writes results as a new snapshot
-    if event.type == EventType.results:
+    if event.type == EventType.results and event.participant:
         try:
             result_snapshot = session_models.SessionSnapshot.objects.get(
                 session=current_session,
@@ -119,7 +119,7 @@ def event(server: DServer, event: (BaseEvent, ParticipantEvent)):
 
     # Creates or updates participant
     # Creating the participants when the session starts is not enough, as at that point not all information may be there
-    if event.type == EventType.participant_created:
+    if event.type == EventType.participant_created and event.participant:
         participant = _get_or_create_participant(current_session, event.participant)
         participant.name = event.name
         participant.is_ai = not event.is_player
