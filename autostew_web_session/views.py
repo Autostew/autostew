@@ -1,5 +1,6 @@
 import logging
 
+from django.core.urlresolvers import reverse_lazy
 from django.shortcuts import get_object_or_404
 from django.views import generic
 from django.views.generic import FormView
@@ -13,7 +14,7 @@ from .forms import SessionSetupForm
 class CreateSessionView(FormView):
     template_name = 'autostew_web_session/create_form.html'
     form_class = SessionSetupForm
-    success_url = '/session/all'
+    success_url = reverse_lazy('session:setups')
 
     def form_valid(self, form):
         logging.debug("valid form data for session setup has been posted.")

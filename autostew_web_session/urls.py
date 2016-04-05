@@ -19,7 +19,6 @@ urlpatterns = [
     url(r'^(?P<pk>[0-9]+)/(?P<stage_name>[A-Za-z0-9]+)/?$', views.session_stage, name='session_stage'),
     url(r'^snapshot/(?P<pk>[0-9]+)/?$', views.SnapshotView.as_view(), name='snapshot'),
     url(r'^setup/create/?$', views.CreateSessionView.as_view(), name='create_setup'),
-    url(r'^setup/list/?$', ListView.as_view(model=SessionSetup), name='setups'),
+    url(r'^setup/list/?$', ListView.as_view(model=SessionSetup, queryset=SessionSetup.objects.filter(is_template=True)), name='setups'),
     url(r'^setup/(?P<pk>[0-9]+)/?$', DetailView.as_view(model=SessionSetup), name='setup'),
 ]
-
