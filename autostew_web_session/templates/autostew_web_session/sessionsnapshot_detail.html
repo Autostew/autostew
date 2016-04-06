@@ -51,11 +51,11 @@
                 (x{{ session.setup_actual.weather_progression }})
             </p>
             <p>
-                {{ sessionsnapshot.temperature_ambient|temp }} ºC |
-                {{ sessionsnapshot.temperature_track|temp }} ºC |
-                {{ sessionsnapshot.air_pressure|pressure }} hPa
+                <i class="wi wi-thermometer" title="Ambient temperature"></i> {{ sessionsnapshot.temperature_ambient|temp }} ºC |
+                <span class="glyphicon glyphicon-road" title="Track temperature"></span> {{ sessionsnapshot.temperature_track|temp }} ºC |
+                <i class="wi wi-barometer" title="Air pressure"></i> {{ sessionsnapshot.air_pressure|pressure }} hPa
                 <br>
-                Wetness: {{ sessionsnapshot.wetness_avg|percent }}%
+                Track wetness: {{ sessionsnapshot.wetness_avg|percent }}%
             </p>
         </div>
         <div class="col-xs-12 col-sm-4 placeholder" style="text-align: center">
