@@ -111,18 +111,24 @@
             </p>
 
             <p>
-                <div class="btn-group">
-                  <button type="button" class="btn btn-default">Lap {{ sessionsnapshot.racelapsnapshot_set.first.lap|add:1 }}</button>
-                  <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <span class="caret"></span>
-                    <span class="sr-only">Toggle Dropdown</span>
-                  </button>
-                  <ul class="dropdown-menu">
-                    {% for lap in session.racelapsnapshot_set.all %}
-                        <li><a href="{{ lap.get_absolute_url }}">{{ lap.lap|add:1 }}</a></li>
-                    {% endfor %}
-                  </ul>
-                </div>
+                {% if session.racelapsnapshot_set.exists %}
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            {% if sessionsnapshot.racelapsnapshot_set.first.exists %}
+                                Lap {{ sessionsnapshot.racelapsnapshot_set.first.lap }}
+                            {% else %}
+                                Go to lap
+                            {% endif %}
+                            <span class="caret"></span>
+                            <span class="sr-only">Toggle Dropdown</span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            {% for lap in session.racelapsnapshot_set.all %}
+                                <li><a href="{{ lap.get_absolute_url }}">{{ lap.lap }}</a></li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
                 <a class="btn btn-{% if sessionsnapshot == session.current_snapshot %}primary{% else %}default{% endif %}"
                    href="{% url 'session:session' session.id %}">
                     Latest
