@@ -2,7 +2,8 @@ from django.conf.urls import url
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
 
-from autostew_web_session.models.models import Track, Server, SessionSetup
+from autostew_web_session.models.models import Track, SessionSetup
+from autostew_web_session.models.server import Server
 from autostew_web_session.views import ParticipantDetailView, SessionList, TrackDetailView
 from . import views
 

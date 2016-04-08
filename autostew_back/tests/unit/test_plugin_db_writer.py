@@ -3,6 +3,7 @@ from unittest import mock
 import requests
 from django.test import TestCase
 
+import autostew_web_session.models.server
 from autostew_back.gameserver.member import MemberLoadState, MemberState
 from autostew_back.gameserver.mocked_api import FakeApi
 from autostew_back.gameserver.participant import ParticipantState
@@ -113,7 +114,7 @@ class TestDBWriter(TestCase):
         settings.plugins = [db, db_setup_rotation, db_session_writer]
         with mock.patch.object(requests, 'get', api.fake_request):
             server = DServer(settings)
-        self.assertEqual(models.Server.objects.count(), 1)
+        self.assertEqual(autostew_web_session.models.server.Server.objects.count(), 1)
         self.assertEqual(SessionSetup.objects.count(), 2)
         self.assertEqual(Session.objects.count(), 1)
         self.assertEqual(SessionSnapshot.objects.count(), 1)
@@ -122,7 +123,7 @@ class TestDBWriter(TestCase):
         self.assertEqual(Participant.objects.count(), 0)
         self.assertEqual(ParticipantSnapshot.objects.count(), 0)
 
-        server_in_db = models.Server.objects.all()[0]
+        server_in_db = autostew_web_session.models.server.Server.objects.all()[0]
         self.assertEqual(server_in_db.name, settings.server_name)
         self.assertTrue(server_in_db.running)
 
@@ -238,7 +239,7 @@ class TestDBWriter(TestCase):
         settings.plugins = [db, db_setup_rotation, db_session_writer]
         with mock.patch.object(requests, 'get', api.fake_request):
             server = DServer(settings)
-        self.assertEqual(models.Server.objects.count(), 1)
+        self.assertEqual(autostew_web_session.models.server.Server.objects.count(), 1)
         self.assertEqual(SessionSetup.objects.count(), 2)
         self.assertEqual(Session.objects.count(), 1)
         self.assertEqual(SessionSnapshot.objects.count(), 1)
@@ -247,7 +248,7 @@ class TestDBWriter(TestCase):
         self.assertEqual(Participant.objects.count(), 16)
         self.assertEqual(ParticipantSnapshot.objects.count(), 16)
 
-        server_in_db = models.Server.objects.all()[0]
+        server_in_db = autostew_web_session.models.server.Server.objects.all()[0]
         self.assertEqual(server_in_db.name, settings.server_name)
         self.assertTrue(server_in_db.running)
 

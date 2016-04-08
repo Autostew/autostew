@@ -4,6 +4,7 @@ import logging
 from django.db import transaction
 from django.utils import timezone
 
+import autostew_web_session.models.server
 from autostew_back.gameserver.event import EventType, BaseEvent, ParticipantEvent
 from autostew_back.gameserver.member import MemberFlags, Member as SessionMember
 from autostew_back.gameserver.participant import Participant as SessionParticipant
@@ -220,7 +221,7 @@ def _close_current_session():
     db.server_in_db.save()
 
 
-def _get_or_create_session(server: DServer, server_in_db: session_models.Server) -> session_models.Session:
+def _get_or_create_session(server: DServer, server_in_db: autostew_web_session.models.server.Server) -> session_models.Session:
     actual_setup = _create_session_setup(server)
     actual_setup.save()
 

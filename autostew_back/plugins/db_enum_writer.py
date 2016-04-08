@@ -11,7 +11,8 @@ from autostew_back.gameserver.participant import ParticipantState
 from autostew_back.gameserver.session import SessionState, SessionStage, SessionPhase
 from autostew_back.plugins import db
 from autostew_web_enums import models
-from autostew_web_session.models.models import Server, Track, VehicleClass, Vehicle, Livery
+from autostew_web_session.models.models import Track, VehicleClass, Vehicle, Livery
+from autostew_web_session.models.server import Server
 from autostew_web_enums.models import EventDefinition, GameModeDefinition, TireWearDefinition, PenaltyDefinition, \
     FuelUsageDefinition, AllowedViewsDefinition, PlayerFlagDefinition, WeatherDefinition, DamageDefinition, \
     SessionFlagDefinition, SessionAttributeDefinition, MemberAttributeDefinition, ParticipantAttributeDefinition

@@ -5,6 +5,7 @@ from django.utils import timezone
 from django.core.wsgi import get_wsgi_application
 
 # This line has to happen before importing models
+import autostew_web_session.models.server
 
 get_wsgi_application()
 
@@ -22,9 +23,9 @@ last_ping = None
 def init(server: DedicatedServer):
     global server_in_db
     try:
-        server_in_db = models.Server.objects.get(name=server.settings.server_name)
-    except models.Server.DoesNotExist:
-        server_in_db = models.Server(name=server.settings.server_name, running=True, setup_rotation_index=0)
+        server_in_db = autostew_web_session.models.server.Server.objects.get(name=server.settings.server_name)
+    except autostew_web_session.models.server.Server.DoesNotExist:
+        server_in_db = autostew_web_session.models.server.Server(name=server.settings.server_name, running=True, setup_rotation_index=0)
     server_in_db.running = True
     server_in_db.state = server.state
     if not server_in_db.id:
