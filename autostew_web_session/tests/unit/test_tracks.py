@@ -1,7 +1,7 @@
 from django.test import TestCase
 from django.core.urlresolvers import reverse
 
-from autostew_web_session.models import Track
+from autostew_web_session.models.models import Track
 
 
 def create_track(ingame_id=-1337, name='testtrack', grid_size=42):

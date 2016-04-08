@@ -7,7 +7,7 @@ from autostew_back.gameserver.event import EventType, BaseEvent
 from autostew_back.gameserver.server import Server, ServerState
 from autostew_back.gameserver.session import Privacy, SessionFlags, SessionState
 from autostew_back.plugins import db
-from autostew_web_session.models import SessionSetup
+from autostew_web_session.models.models import SessionSetup
 
 name = 'DB setup rotation'
 dependencies = [db]

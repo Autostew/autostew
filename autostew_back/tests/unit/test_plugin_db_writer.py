@@ -11,8 +11,8 @@ from autostew_back.plugins import db_enum_writer, db, db_session_writer, db_setu
 from autostew_back.tests.test_assets.settings_no_plugins import SettingsWithoutPlugins
 from autostew_web_enums.models import DamageDefinition, TireWearDefinition, FuelUsageDefinition, PenaltyDefinition, \
     AllowedViewsDefinition, WeatherDefinition, GameModeDefinition
-from autostew_web_session import models
-from autostew_web_session.models import Session, SessionSetup, Participant, SessionSnapshot, Member, MemberSnapshot, \
+from autostew_web_session.models import models
+from autostew_web_session.models.models import Session, SessionSetup, Participant, SessionSnapshot, Member, MemberSnapshot, \
     ParticipantSnapshot, Track, VehicleClass, Vehicle
 
 

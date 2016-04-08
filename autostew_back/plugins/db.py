@@ -9,8 +9,8 @@ from django.core.wsgi import get_wsgi_application
 get_wsgi_application()
 
 from autostew_back.gameserver.server import Server as DedicatedServer
-from autostew_web_session import models
-from autostew_web_session.models import SetupRotationEntry
+from autostew_web_session.models import models
+from autostew_web_session.models.models import SetupRotationEntry
 
 name = 'DB'
 ping_interval = 10

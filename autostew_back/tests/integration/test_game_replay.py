@@ -12,7 +12,7 @@ from autostew_back.plugins import db_session_writer, db_enum_writer, db, db_setu
 from autostew_back.plugins.db_session_writer_libs import db_elo_rating, db_safety_rating
 from autostew_back.tests.test_assets.settings_no_plugins import SettingsWithoutPlugins
 from autostew_back.tests.unit.test_plugin_db_writer import TestDBWriter
-from autostew_web_session.models import Session, RaceLapSnapshot, Server
+from autostew_web_session.models.models import Session, RaceLapSnapshot, Server
 from autostew_web_users.models import SteamUser, SafetyClass
 
 

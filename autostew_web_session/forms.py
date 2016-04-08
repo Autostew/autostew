@@ -2,7 +2,7 @@ import logging
 
 from django.forms import ModelForm
 
-from autostew_web_session.models import SessionSetup, Server
+from autostew_web_session.models.models import SessionSetup, Server
 
 
 class SessionSetupForm(ModelForm):

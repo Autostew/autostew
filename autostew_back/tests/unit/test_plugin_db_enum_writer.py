@@ -10,7 +10,7 @@ from autostew_back.plugins import db_enum_writer, db, db_session_writer
 from autostew_back.tests.test_assets.settings_no_plugins import SettingsWithoutPlugins
 from autostew_web_enums.models import FuelUsageDefinition, SessionAttributeDefinition, MemberAttributeDefinition, \
     ParticipantAttributeDefinition
-from autostew_web_session.models import VehicleClass, Vehicle, Track
+from autostew_web_session.models.models import VehicleClass, Vehicle, Track
 
 
 class TestEnumWriter(TestCase):

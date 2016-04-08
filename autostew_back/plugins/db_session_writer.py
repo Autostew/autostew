@@ -13,7 +13,7 @@ from autostew_back.plugins import db, db_setup_rotation
 from autostew_back.plugins.db_session_writer_libs import db_elo_rating, db_safety_rating
 from autostew_back.utils import td_to_milli
 from autostew_web_enums import models as enum_models
-from autostew_web_session import models as session_models
+from autostew_web_session.models import models as session_models
 from autostew_web_users.models import SteamUser
 
 name = 'DB writer'
