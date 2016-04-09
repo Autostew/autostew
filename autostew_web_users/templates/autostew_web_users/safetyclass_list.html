@@ -22,7 +22,7 @@
                 <p><b>Players in this class will be kicked on a crash that awards {{ class.kick_on_impact_threshold }}
                     or more points.</b></p>
             {% endif %}
-            {{ class.description }}
+            {{ class.description|safe }}
         {% endfor %}
     {% else %}
         <p>No safety classes found!</p>
