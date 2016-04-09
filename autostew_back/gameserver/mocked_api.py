@@ -31,6 +31,7 @@ class MockedRequestsResult:
 class MockedServer:
     def __init__(self):
         self.settings = MockedSettings()
+        self.api_url = "http://localhost:9000"
 
 
 class FakeApi:
@@ -42,7 +43,7 @@ class FakeApi:
         self.status_result = status_result
         self.events_result = events_result
 
-    def fake_request(self, url):
+    def fake_request(self, url: str):
         if url == "http://localhost:9000/api/list/all?":
             with open('autostew_back/tests/test_assets/lists.json') as file_input:
                 return MockedRequestsResult(file_input.read(), True)

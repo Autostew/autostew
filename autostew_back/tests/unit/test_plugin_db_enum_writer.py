@@ -5,9 +5,10 @@ import requests
 from django.test import TestCase
 
 from autostew_back.gameserver.mocked_api import FakeApi
-from autostew_back.gameserver.server import Server, UnmetPluginDependency
+from autostew_back.tests.unit.test_plugin_db_writer import TestDBWriter
+from autostew_web_session.models.server import UnmetPluginDependency, Server
 from autostew_back.plugins import db_enum_writer, db, db_session_writer
-from autostew_back.tests.test_assets.settings_no_plugins import SettingsWithoutPlugins
+from autostew_back.tests.test_assets import settings_db_enum_writer, settings_fail_dependencies
 from autostew_web_enums.models import FuelUsageDefinition, SessionAttributeDefinition, MemberAttributeDefinition, \
     ParticipantAttributeDefinition
 from autostew_web_session.models.models import VehicleClass, Vehicle, Track
@@ -16,10 +17,9 @@ from autostew_web_session.models.models import VehicleClass, Vehicle, Track
 class TestEnumWriter(TestCase):
     def test_dependency(self):
         api = FakeApi()
-        settings = SettingsWithoutPlugins()
-        settings.plugins = [db_session_writer]
+        server = TestDBWriter.make_test_server()
         with mock.patch.object(requests, 'get', api.fake_request):
-            self.assertRaises(UnmetPluginDependency, Server, settings, False)
+            self.assertRaises(UnmetPluginDependency, server.back_start, settings_fail_dependencies, False)
 
     def test_deletion(self):
         FuelUsageDefinition(name='FOO', ingame_id=1337).save(True)
@@ -55,10 +55,9 @@ class TestEnumWriter(TestCase):
             )
             # TODO add test for true enums
         api = FakeApi()
-        settings = SettingsWithoutPlugins()
-        settings.plugins = [db, db_enum_writer]
+        server = TestDBWriter.make_test_server()
         with mock.patch.object(requests, 'get', api.fake_request):
-            server = Server(settings, False)
+            server.back_start(settings_db_enum_writer, False)
             db_enum_writer._create_enums(server)
         with open('autostew_back/tests/test_assets/lists.json') as f:
             lists = json.load(f)

@@ -2,7 +2,7 @@
 Show a message when a fastest lap is finished.
 """
 from autostew_back.gameserver.event import EventType, BaseEvent, LapEvent
-from autostew_back.gameserver.server import Server
+from autostew_web_session.models.server import Server
 from autostew_back.utils import std_time_format
 
 name = 'laptime announcements'

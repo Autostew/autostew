@@ -8,13 +8,14 @@ import autostew_web_session.models.server
 from autostew_back.gameserver.event import EventType, BaseEvent, ParticipantEvent
 from autostew_back.gameserver.member import MemberFlags, Member as SessionMember
 from autostew_back.gameserver.participant import Participant as SessionParticipant
-from autostew_back.gameserver.server import ServerState, Server as DServer
+from autostew_web_session.models.server import ServerState
 from autostew_back.gameserver.session import SessionFlags, Privacy, SessionState, SessionStage
 from autostew_back.plugins import db, db_setup_rotation
 from autostew_back.plugins.db_session_writer_libs import db_elo_rating, db_safety_rating
 from autostew_back.utils import td_to_milli
 from autostew_web_enums import models as enum_models
 from autostew_web_session.models import models as session_models
+from autostew_web_session.models.server import Server
 from autostew_web_users.models import SteamUser
 
 name = 'DB writer'
@@ -24,14 +25,14 @@ current_session = None
 
 
 @transaction.atomic
-def init(server: DServer):
+def init(server: Server):
     global current_session
     if server.state == ServerState.running:
-        current_session = _get_or_create_session(server, db.server_in_db)
+        current_session = _get_or_create_session(server)
 
 
 @transaction.atomic
-def destroy(server: DServer):
+def destroy(server: Server):
     global current_session
     if current_session:
         current_session.running = False
@@ -40,7 +41,7 @@ def destroy(server: DServer):
 
 
 @transaction.atomic
-def event(server: DServer, event: (BaseEvent, ParticipantEvent)):
+def event(server: Server, event: (BaseEvent, ParticipantEvent)):
     global current_session
 
     # Creates snapshot and RaceLapSnapshot on each lap in the race by the leader
@@ -152,13 +153,13 @@ def event(server: DServer, event: (BaseEvent, ParticipantEvent)):
 
     # Destroys the session
     if event.type == EventType.session_destroyed:
-        _close_current_session()
+        _close_current_session(server)
 
     # When session enters lobby, destroys current session if any and creates a new one.
     if event.type == EventType.state_changed and event.new_state == SessionState.lobby:
             if current_session is not None:
-                _close_current_session()
-            current_session = _get_or_create_session(server, db.server_in_db)
+                _close_current_session(server)
+            current_session = _get_or_create_session(server)
 
     # When session enters track, makes snapshot
     if event.type == EventType.state_changed and event.new_state == SessionState.race:
@@ -193,7 +194,7 @@ def event(server: DServer, event: (BaseEvent, ParticipantEvent)):
         ).save()
 
 
-def _get_or_create_stage(server: DServer, new_stage: str):
+def _get_or_create_stage(server: Server, new_stage: str):
     try:
         return session_models.SessionStage.objects.get(
             session=current_session,
@@ -208,7 +209,7 @@ def _get_or_create_stage(server: DServer, new_stage: str):
         return stage
 
 
-def _close_current_session():
+def _close_current_session(server:Server):
     global current_session
     if current_session:
         if current_session.current_snapshot.session_stage.is_relevant():
@@ -217,16 +218,16 @@ def _close_current_session():
         current_session.save()
         db_elo_rating.update_ratings_after_race_end(current_session)
     current_session = None
-    db.server_in_db.current_session = None
-    db.server_in_db.save()
+    server.current_session = None
+    server.save()
 
 
-def _get_or_create_session(server: DServer, server_in_db: autostew_web_session.models.server.Server) -> session_models.Session:
+def _get_or_create_session(server: Server) -> session_models.Session:
     actual_setup = _create_session_setup(server)
     actual_setup.save()
 
     session = session_models.Session(
-        server=server_in_db,
+        server=server,
         setup_template=db_setup_rotation.current_setup.setup,
         setup_actual=actual_setup,
         lobby_id=server.lobby_id,
@@ -251,8 +252,8 @@ def _get_or_create_session(server: DServer, server_in_db: autostew_web_session.m
     snapshot = _create_session_snapshot(server, session)
     session.first_snapshot = snapshot
     session.save()
-    server_in_db.current_session = session
-    server_in_db.save()
+    server.current_session = session
+    server.save()
     return session
 
 
@@ -410,7 +411,7 @@ def _get_or_create_participant(session: session_models.Session, participant: Ses
     return participant
 
 
-def _create_session_snapshot(server: DServer, session: session_models.Session) -> session_models.SessionSnapshot:
+def _create_session_snapshot(server: Server, session: session_models.Session) -> session_models.SessionSnapshot:
     logging.info("Creating session snapshot")
     session_snapshot = session_models.SessionSnapshot(
         session=session,

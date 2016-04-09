@@ -7,17 +7,27 @@ import autostew_web_session.models.server
 from autostew_back.gameserver.member import MemberLoadState, MemberState
 from autostew_back.gameserver.mocked_api import FakeApi
 from autostew_back.gameserver.participant import ParticipantState
-from autostew_back.gameserver.server import Server as DServer, UnmetPluginDependency
+from autostew_web_session.models.server import UnmetPluginDependency, Server
 from autostew_back.plugins import db_enum_writer, db, db_session_writer, db_setup_rotation
-from autostew_back.tests.test_assets.settings_no_plugins import SettingsWithoutPlugins
+from autostew_back.tests.test_assets import settings_no_plugins, settings_db_enum_writer, settings_fail_dependencies, \
+    settings_db_session_writer
 from autostew_web_enums.models import DamageDefinition, TireWearDefinition, FuelUsageDefinition, PenaltyDefinition, \
     AllowedViewsDefinition, WeatherDefinition, GameModeDefinition
 from autostew_web_session.models import models
 from autostew_web_session.models.models import Session, SessionSetup, Participant, SessionSnapshot, Member, MemberSnapshot, \
-    ParticipantSnapshot, Track, VehicleClass, Vehicle
+    ParticipantSnapshot, Track, VehicleClass, Vehicle, SetupRotationEntry
 
 
 class TestDBWriter(TestCase):
+    @classmethod
+    def make_test_server(cls):
+        return Server.objects.create(
+            name="TestServer",
+            running=False,
+            setup_rotation_index=0,
+            api_url='http://localhost:9000'
+        )
+
     @classmethod
     def make_test_setup(cls) -> SessionSetup:
         cls.enum_defaults = defaults = {'ingame_id': 0}
@@ -90,30 +100,27 @@ class TestDBWriter(TestCase):
         Tests if the dependencies of the db_writer plugin are correctly handled
         """
         api = FakeApi()
-        settings = SettingsWithoutPlugins()
+        server = TestDBWriter.make_test_server()
         with mock.patch.object(requests, 'get', api.fake_request):
-            settings.plugins = [db_session_writer]
-            self.assertRaises(UnmetPluginDependency, DServer, settings, False)
-        with mock.patch.object(requests, 'get', api.fake_request):
-            settings.plugins = [db, db_session_writer]
-            self.assertRaises(UnmetPluginDependency, DServer, settings, False)
-        with mock.patch.object(requests, 'get', api.fake_request):
-            settings.plugins = [db_enum_writer, db_session_writer]
-            self.assertRaises(UnmetPluginDependency, DServer, settings, False)
+            self.assertRaises(UnmetPluginDependency, server.back_start, settings_fail_dependencies, False)
 
     def test_create_session_in_lobby(self):
         """
         Tests writing a basic session into the database
         """
         api = FakeApi('autostew_back/tests/test_assets/session_in_lobby_one_player.json')
-        settings = SettingsWithoutPlugins()
-        settings.plugins = [db_enum_writer]
+        server = TestDBWriter.make_test_server()
         with mock.patch.object(requests, 'get', api.fake_request):
-            server = DServer(settings, True)
-        self.make_test_setup().save(True)
-        settings.plugins = [db, db_setup_rotation, db_session_writer]
+            server.back_start(settings_db_enum_writer, True)
+        test_setup = self.make_test_setup()
+        test_setup.save(True)
+        SetupRotationEntry.objects.create(
+            order=0,
+            server=server,
+            setup=test_setup
+        )
         with mock.patch.object(requests, 'get', api.fake_request):
-            server = DServer(settings)
+            server.back_start(settings_db_session_writer)
         self.assertEqual(autostew_web_session.models.server.Server.objects.count(), 1)
         self.assertEqual(SessionSetup.objects.count(), 2)
         self.assertEqual(Session.objects.count(), 1)
@@ -124,7 +131,6 @@ class TestDBWriter(TestCase):
         self.assertEqual(ParticipantSnapshot.objects.count(), 0)
 
         server_in_db = autostew_web_session.models.server.Server.objects.all()[0]
-        self.assertEqual(server_in_db.name, settings.server_name)
         self.assertTrue(server_in_db.running)
 
         session_setup = models.SessionSetup.objects.get(is_template=False)
@@ -231,14 +237,18 @@ class TestDBWriter(TestCase):
         Tests writing an in-qualifying session into the db
         """
         api = FakeApi('autostew_back/tests/test_assets/session_in_quali_two_players_14ai.json')
-        settings = SettingsWithoutPlugins()
-        settings.plugins = [db_enum_writer]
+        server = TestDBWriter.make_test_server()
         with mock.patch.object(requests, 'get', api.fake_request):
-            server = DServer(settings, True)
-        self.make_test_setup().save(True)
-        settings.plugins = [db, db_setup_rotation, db_session_writer]
+            server.back_start(settings_db_enum_writer, True)
+        test_setup = self.make_test_setup()
+        test_setup.save(True)
+        SetupRotationEntry.objects.create(
+            order=0,
+            server=server,
+            setup=test_setup
+        )
         with mock.patch.object(requests, 'get', api.fake_request):
-            server = DServer(settings)
+            server.back_start(settings_db_session_writer)
         self.assertEqual(autostew_web_session.models.server.Server.objects.count(), 1)
         self.assertEqual(SessionSetup.objects.count(), 2)
         self.assertEqual(Session.objects.count(), 1)
@@ -249,7 +259,6 @@ class TestDBWriter(TestCase):
         self.assertEqual(ParticipantSnapshot.objects.count(), 16)
 
         server_in_db = autostew_web_session.models.server.Server.objects.all()[0]
-        self.assertEqual(server_in_db.name, settings.server_name)
         self.assertTrue(server_in_db.running)
 
         session_setup = models.SessionSetup.objects.get(is_template=False)

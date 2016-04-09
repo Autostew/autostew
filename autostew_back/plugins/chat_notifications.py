@@ -2,8 +2,8 @@
 Show a message when a player logs in (and other messages, too)
 """
 from autostew_back.gameserver.event import EventType, BaseEvent, LapEvent, MemberEvent
-from autostew_back.gameserver.server import Server
 from autostew_back.gameserver.session import SessionStage, SessionState, SessionFlags
+from autostew_web_session.models.server import Server
 from autostew_web_users.models import SteamUser
 
 name = 'chat_notifications'

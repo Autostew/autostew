@@ -4,10 +4,10 @@ import logging
 from django.utils import timezone
 
 from autostew_back.gameserver.event import EventType, BaseEvent
-from autostew_back.gameserver.server import Server, ServerState
 from autostew_back.gameserver.session import Privacy, SessionFlags, SessionState
 from autostew_back.plugins import db
 from autostew_web_session.models.models import SessionSetup
+from autostew_web_session.models.server import Server
 
 name = 'DB setup rotation'
 dependencies = [db]
@@ -41,24 +41,24 @@ def load_settings(server: Server, peek=False) -> int:
     global setup_rotation
     global scheduled_session
 
-    scheduled_session = db.server_in_db.next_scheduled_session()
+    scheduled_session = server.next_scheduled_session()
     if scheduled_session:
         return 0
 
-    queued_setup = db.server_in_db.pop_next_queued_setup(peek)
+    queued_setup = server.pop_next_queued_setup(peek)
     if queued_setup:
         setup_rotation = [DBSetup(queued_setup)]
-        db.server_in_db.save()
+        server.save()
         return 0
 
     else:
-        setup_rotation = [DBSetup(setup) for setup in db.server_in_db.setup_rotation.all()]
+        setup_rotation = [DBSetup(setup) for setup in server.setup_rotation.all()]
 
         if not peek:
-            db.server_in_db.setup_rotation_index += 1
-        if db.server_in_db.setup_rotation_index >= len(setup_rotation):
-            db.server_in_db.setup_rotation_index = 0
-        db.server_in_db.save()
+            server.setup_rotation_index += 1
+        if server.setup_rotation_index >= len(setup_rotation):
+            server.setup_rotation_index = 0
+        server.save()
         return None
 
 
@@ -72,10 +72,10 @@ def load_next_setup(server: Server, force_index=None):
         if force_index is not None and force_index < len(setup_rotation):
             current_setup = setup_rotation[force_index]
         else:
-            if not db.server_in_db.setup_rotation_index < len(setup_rotation):
-                db.server_in_db.setup_rotation_index = 0
-                db.server_in_db.save()
-            current_setup = setup_rotation[db.server_in_db.setup_rotation_index]
+            if not server.setup_rotation_index < len(setup_rotation):
+                server.setup_rotation_index = 0
+                server.save()
+            current_setup = setup_rotation[server.setup_rotation_index]
     logging.info("Loading setup: {}".format(current_setup.name))
     current_setup.make_setup(server)
 
@@ -150,5 +150,5 @@ class DBSetup:
         server.session.warmup_length.set_to_game(self.setup.warmup_length)
         server.session.race1_length.set_to_game(self.setup.race1_length)
         server.session.race2_length.set_to_game(self.setup.race2_length)
-        server.fetch_status()
+        server.back_fetch_status()
 

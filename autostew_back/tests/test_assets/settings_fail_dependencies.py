@@ -13,4 +13,4 @@ setup_rotation = [
     prl_s4_r2_zolder_casual
 ]
 
-plugins = [local_setup_rotation]
+plugins = [db_session_writer]

@@ -7,9 +7,10 @@ from django.test import TestCase
 from autostew_back.gameserver.event import event_factory, BaseEvent, EventType, PlayerJoinedEvent, MemberEvent, \
     StateChangedEvent
 from autostew_back.gameserver.mocked_api import FakeApi
-from autostew_back.gameserver.server import Server
 from autostew_back.gameserver.session import SessionState
-from autostew_back.tests.test_assets.settings_no_plugins import SettingsWithoutPlugins
+from autostew_back.tests.test_assets import settings_no_plugins
+from autostew_back.tests.unit.test_plugin_db_writer import TestDBWriter
+from autostew_web_session.models.server import Server
 
 
 class FakePlugin:
@@ -34,15 +35,15 @@ class TestEvents(TestCase):
         fake_plugin.env_init = env_init
 
         api = FakeApi()
-        settings = SettingsWithoutPlugins()
-        settings.plugins = [fake_plugin]
+        settings_no_plugins.plugins = [fake_plugin]
         with mock.patch.object(requests, 'get', api.fake_request):
+            server = TestDBWriter.make_test_server()
             self.assertFalse(has_done_init)
             self.assertFalse(has_done_env_init)
-            server = Server(settings, False)
+            server.back_start(settings_no_plugins, False)
             self.assertTrue(has_done_init)
             self.assertFalse(has_done_env_init)
-            server = Server(settings, True)
+            server.back_start(settings_no_plugins, True)
             self.assertTrue(has_done_init)
             self.assertTrue(has_done_env_init)
             self.assertEqual(server.api.event_offset, 0)
@@ -64,18 +65,18 @@ class TestEvents(TestCase):
         fake_plugin.event = event
 
         api = FakeApi()
-        settings = SettingsWithoutPlugins()
-        settings.plugins = [fake_plugin]
+        settings_no_plugins.plugins = [fake_plugin]
         with mock.patch.object(requests, 'get', api.fake_request):
+            server = TestDBWriter.make_test_server()
             self.assertEqual(tick_count, 0)
             self.assertEqual(event_count, 0)
-            server = Server(settings, False)
+            server.back_start(settings_no_plugins, False)
             self.assertEqual(tick_count, 0)
             self.assertEqual(event_count, 0)
-            server.poll_loop(only_one_run=True)
+            server._back_poll_loop(only_one_run=True)
             self.assertEqual(tick_count, 1)
             self.assertEqual(event_count, 0)
-            server.poll_loop(only_one_run=True)
+            server._back_poll_loop(only_one_run=True)
             self.assertEqual(tick_count, 2)
             self.assertEqual(event_count, 0)
 
@@ -97,20 +98,20 @@ class TestEvents(TestCase):
 
         api = FakeApi()
         api.events_result = 'autostew_back/tests/test_assets/events_after_one_player_joined.json'
-        settings = SettingsWithoutPlugins()
-        settings.plugins = [fake_plugin]
+        settings_no_plugins.plugins = [fake_plugin]
+        server = TestDBWriter.make_test_server()
         with mock.patch.object(requests, 'get', api.fake_request):
             self.assertEqual(event_count, 0)
-            server = Server(settings, False)
+            server.back_start(settings_no_plugins, False)
             self.assertEqual(event_count, 0)
-            server.poll_loop(only_one_run=True)
+            server._back_poll_loop(only_one_run=True)
             self.assertEqual(event_count, 4)
 
     def test_event_factory(self):
         api = FakeApi('autostew_back/tests/test_assets/session_after_one_player_joined.json')
-        settings = SettingsWithoutPlugins()
         with mock.patch.object(requests, 'get', api.fake_request):
-            server = Server(settings, False)
+            server = TestDBWriter.make_test_server()
+            server.back_start(settings_no_plugins, False)
             with open('autostew_back/tests/test_assets/events_after_one_player_joined.json') as f:
                 event_json = json.load(f)
 

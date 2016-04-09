@@ -37,7 +37,7 @@ class ApiCaller:
 
     def _call(self, path: str, params={}):  # TODO handle errors
         url = "{url}/api/{path}?{params}".format(
-            url=self.server.settings.url,
+            url=self.server.api_url,
             path=path,
             params='&'.join(
                 [
