@@ -9,26 +9,53 @@
         of races you recently participated in.
     </p>
     <hr>
-    <h3>How is the driver rating calculated?</h3>
+    <h3>How are drivers rated?</h3>
+    <p>
+        Drivers have two independent ratings: the <b>safety class</b> and the <b>performance rating</b>.
+    </p>
+    <p>
+        First and most important is the safety class. It describes how safe a driver is. The performance rating
+        describes how much a driver wins or loses against other drivers.
+    </p>
+    <hr>
+    <h3>How is the driver safety class calculated?</h3>
+    <p>
+        <a href="{% url 'users:safety_class_list' %}">See here a description of each safety class.</a>
+    </p>
+    <p>
+        The Project CARS dedicated server reports impacts during the race, including the magnitude of them. Each time
+        you have a collision, it's magnitude gets added to your safety rating, so a higher rating means a more unsafe
+        driver. Collisions against the environment yield a maximum of 250 points, collisions against human drivers
+        yield a maximum of 1.000 points. Collisions against AI drivers are not considered.
+    </p>
+    <p>
+        For each clean lap you complete, your safety rating will improve. Complete many clean laps, and you will get
+        a good safety rating.
+    </p>
+    <p>
+        If a driver crashes excessively, she or he may be kicked from the game. That driver may rejoin immediately to
+        the game if the event is still joinable (you will not be able to rejoin if the race is in progress). Eventually,
+        an unsafe driver will reach the lowest safety class. Autostew will be strict with crashes by drivers in the
+        lowest class until their behaviour improves.
+    </p>
+    <p>
+        Crashes among human drivers will be weighted according to their safety class. Therefore if a driver with a bad
+        rating crashes with a driver with a good rating, the well-rated driver will be automatically considered "less
+        at fault" and will be awarded less crash points. The worse rated driver will always be awarded the full points
+        count. A crash between two drivers of the same class will award both the full crash points.
+    </p>
+    <hr>
+    <h3>How is the driver performance rating calculated?</h3>
     <p>
         We use the <a href="https://en.wikipedia.org/wiki/Elo_rating_system">Elo rating system</a>. You will be
         considered a winner over every driver who finished in a worse position than yours, but also over all drivers
         who completed a lap in any stage of the race but did not finish the race itself.
     </p>
     <hr>
-    <h3>How is the driver safety class calculated?</h3>
+    <h3>Autostew logs crashes in a wierd way!</h3>
     <p>
-        The Project CARS dedicated server reports impacts during the race, including the magnitude of them. Each time
-        you have a collision, it's magnitude gets added to your safety rating, so a higher rating means a more unsafe
-        driver.
-    </p>
-    <p>
-        For each clean lap you complete, the safety rating will be reduced. Complete many clean laps, and you will get
-        a good safety rating.
-    </p>
-    <hr>
-    <h3>Autostew said I crashed into someone but that is not true!</h3>
-    <p>
-        Text
+        Autostew cannot distinguish who is at fault in a crash. Also, as you will be playing online, it may happen that
+        in your screen no crash happened, but the dedicated server still logs a crash. Even with its quirks, the system
+        should in the long term assign good ratings to safe drivers and bad ratings to unsafe drivers.
     </p>
 {% endblock %}
