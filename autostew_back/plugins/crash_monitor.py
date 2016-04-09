@@ -47,7 +47,7 @@ def add_crash_points(
 ):
     if not participant:
         return
-    steam_id = server.members.get_by_id(participant.refid.get()).steam_id.get()
+    steam_id = server.members_api.get_by_id(participant.refid.get()).steam_id.get()
     crash_points[steam_id] = crash_points.setdefault(steam_id, 0) + crash_points_increase
 
     opponent_user = None

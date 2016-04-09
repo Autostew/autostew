@@ -247,10 +247,10 @@ def _get_or_create_session(server: Server) -> autostew_web_session.models.sessio
         session.planned = False
     session.save()
 
-    for member in server.members.elements:
+    for member in server.members_api.elements:
         _get_or_create_member(session, member)
 
-    for participant in server.participants.elements:
+    for participant in server.participants_api.elements:
         _get_or_create_participant(session, participant)
 
     snapshot = _create_session_snapshot(server, session)
@@ -450,11 +450,11 @@ def _create_session_snapshot(server: Server, session: autostew_web_session.model
     )
     session_snapshot.save()
 
-    for it in server.members.elements:
+    for it in server.members_api.elements:
         _get_or_create_member(session, it)
         _create_member_snapshot(it, session, session_snapshot)
 
-    for it in server.participants.elements:
+    for it in server.participants_api.elements:
         _get_or_create_participant(session, it)
         _get_or_create_participant_snapshot(it, session, session_snapshot)
 

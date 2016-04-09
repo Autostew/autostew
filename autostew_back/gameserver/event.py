@@ -48,7 +48,7 @@ class BaseEvent:
 class MemberEvent(BaseEvent):
     def __init__(self, raw, server):
         BaseEvent.__init__(self, raw, server)
-        self.member = self.server.members.get_by_id(raw['refid'])
+        self.member = self.server.members_api.get_by_id(raw['refid'])
         self.refid = raw['refid']
 
 
@@ -158,7 +158,7 @@ class ServerChatEvent(BaseEvent):
     def __init__(self, raw, server):
         BaseEvent.__init__(self, raw, server)
         self.message = raw['attributes']['Message']
-        self.recipient = self.server.members.get_by_id(raw['attributes']['RefId'])
+        self.recipient = self.server.members_api.get_by_id(raw['attributes']['RefId'])
 
 
 class ResultsEvent(ParticipantEvent):

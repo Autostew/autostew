@@ -119,8 +119,8 @@ class Server(models.Model):
         )
         self.lists = ListGenerator(self.api).generate_all()
         self.session_api = Session(self.lists[ListName.session_attributes], self.lists, self.api)
-        self.members = MemberList(self.lists[ListName.member_attributes], self.lists, self.api)
-        self.participants = ParticipantList(self.lists[ListName.participant_attributes], self.lists, self.api)
+        self.members_api = MemberList(self.lists[ListName.member_attributes], self.lists, self.api)
+        self.participants_api = ParticipantList(self.lists[ListName.participant_attributes], self.lists, self.api)
         self.back_fetch_status()
         self._back_init_plugins(env_init)
 
@@ -131,8 +131,8 @@ class Server(models.Model):
         self.joinable = status['joinable']
         self.max_member_count = status['max_member_count']
         self.session_api.update_from_game(status['attributes'])
-        self.members.update_from_game(status['members'])
-        self.participants.update_from_game(status['participants'])
+        self.members_api.update_from_game(status['members'])
+        self.participants_api.update_from_game(status['participants'])
         self.last_status_update_time = time()
 
     def _back_init_plugins(self, env_init):

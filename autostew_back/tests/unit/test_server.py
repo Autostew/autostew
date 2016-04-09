@@ -52,8 +52,8 @@ def status_empty(test_case, server):
     test_case.assertIn(SessionFlags.force_same_vehicle_class, flags)
     test_case.assertIn(SessionFlags.ghost_griefers, flags)
 
-    test_case.assertEquals(len(server.members.elements), 0)
-    test_case.assertEquals(len(server.participants.elements), 0)
+    test_case.assertEquals(len(server.members_api.elements), 0)
+    test_case.assertEquals(len(server.participants_api.elements), 0)
     test_case.assertEquals(server.session_api.number_of_ai_players(), 14)
 
 
@@ -90,8 +90,8 @@ def status_in_lobby(test_case, server):
     test_case.assertIn(SessionFlags.force_realistic_driving_aids, flags)
     test_case.assertIn(SessionFlags.force_same_vehicle_class, flags)
     test_case.assertIn(SessionFlags.ghost_griefers, flags)
-    test_case.assertEquals(len(server.members.elements), 1)
-    test_case.assertEquals(len(server.participants.elements), 0)
+    test_case.assertEquals(len(server.members_api.elements), 1)
+    test_case.assertEquals(len(server.participants_api.elements), 0)
     test_case.assertEquals(server.session_api.number_of_ai_players(), 14)
     test_case.assertEqual(server.session_api.opponent_difficulty.get(), 100)
     test_case.assertEqual(server.session_api.practice1_length.get(), 0)
@@ -147,7 +147,7 @@ def members_one_player_lobby(test_case, server):
     """
     Checks members after loading session_in_lobby_one_player.json
     """
-    member = server.members.elements[0]
+    member = server.members_api.elements[0]
     test_case.assertEqual(member.index.get(), 0)
     test_case.assertEqual(member.refid.get(), 26752)
     test_case.assertEqual(member.steam_id.get(), '76561197969382874')
@@ -202,8 +202,8 @@ def status_quali(test_case, server):
     test_case.assertIn(SessionFlags.force_same_vehicle_class, flags)
     test_case.assertIn(SessionFlags.ghost_griefers, flags)
 
-    test_case.assertEquals(len(server.members.elements), 2)
-    test_case.assertEquals(len(server.participants.elements), 16)
+    test_case.assertEquals(len(server.members_api.elements), 2)
+    test_case.assertEquals(len(server.participants_api.elements), 16)
     test_case.assertEquals(server.session_api.number_of_ai_players(), 14)
 
     test_case.assertEqual(server.session_api.opponent_difficulty.get(), 100)
@@ -255,12 +255,12 @@ def status_quali(test_case, server):
     test_case.assertEqual(server.session_api.temperature_track.get(), 39835)
     test_case.assertEqual(server.session_api.air_pressure.get(), 100760)
 
-    test_case.assertEqual(server.members.elements[1], server.members.get_by_id(193))
-    test_case.assertEqual(server.members.elements[1], server.members.get_by_property('steam_id', '76561198096164868'))
+    test_case.assertEqual(server.members_api.elements[1], server.members_api.get_by_id(193))
+    test_case.assertEqual(server.members_api.elements[1], server.members_api.get_by_property('steam_id', '76561198096164868'))
 
 
 def members_in_quali(test_case, server):
-    member = server.members.elements[0]
+    member = server.members_api.elements[0]
     test_case.assertEqual(member.index.get(), 0)
     test_case.assertEqual(member.refid.get(), 26752)
     test_case.assertEqual(member.steam_id.get(), '76561197969382874')
@@ -299,7 +299,7 @@ def members_in_quali(test_case, server):
     # test_case.assertEqual(member.livery.get_nice(), "McLaren #59") TODO but not so important
     test_case.assertEqual(member.livery.get(), 51)
 
-    member = server.members.elements[1]
+    member = server.members_api.elements[1]
     test_case.assertEqual(member.index.get(), 1)
     test_case.assertEqual(member.refid.get(), 193)
     test_case.assertEqual(member.steam_id.get(), '76561198096164868')
@@ -339,15 +339,15 @@ def members_in_quali(test_case, server):
 
 
 def participants_in_quali(test_case, server):
-    test_case.assertEqual(server.participants.get_by_id(0), server.participants.elements[0])
-    test_case.assertEqual(server.participants.get_by_id(1), server.participants.elements[1])
-    test_case.assertEqual(server.participants.get_by_property('refid', 193), server.participants.elements[1])
-    test_case.assertEqual(server.participants.get_by_property('name', 'blak'), server.participants.elements[0])
-    test_case.assertIn(server.participants.elements[0], server.participants.get_by_property('is_player', True, unique=False))
-    test_case.assertIn(server.participants.elements[1], server.participants.get_by_property('is_player', True, unique=False))
-    test_case.assertNotIn(server.participants.elements[2], server.participants.get_by_property('is_player', True, unique=False))
+    test_case.assertEqual(server.participants_api.get_by_id(0), server.participants_api.elements[0])
+    test_case.assertEqual(server.participants_api.get_by_id(1), server.participants_api.elements[1])
+    test_case.assertEqual(server.participants_api.get_by_property('refid', 193), server.participants_api.elements[1])
+    test_case.assertEqual(server.participants_api.get_by_property('name', 'blak'), server.participants_api.elements[0])
+    test_case.assertIn(server.participants_api.elements[0], server.participants_api.get_by_property('is_player', True, unique=False))
+    test_case.assertIn(server.participants_api.elements[1], server.participants_api.get_by_property('is_player', True, unique=False))
+    test_case.assertNotIn(server.participants_api.elements[2], server.participants_api.get_by_property('is_player', True, unique=False))
 
-    participant = server.participants.get_by_id(0)
+    participant = server.participants_api.get_by_id(0)
     test_case.assertEqual(participant.refid.get(), 26752)
     test_case.assertEqual(participant.name.get(), 'blak')
     test_case.assertEqual(participant.is_player.get(), True)
@@ -373,7 +373,7 @@ def participants_in_quali(test_case, server):
     test_case.assertEqual(participant.position_z.get(), 166000)
     test_case.assertEqual(participant.orientation.get(), 182)
 
-    participant = server.participants.get_by_id(2)
+    participant = server.participants_api.get_by_id(2)
     test_case.assertEqual(participant.refid.get(), 26752)
     test_case.assertEqual(participant.name.get(), 'Carlos Eduardo de Araujo')
     test_case.assertEqual(participant.is_player.get(), False)
@@ -499,5 +499,5 @@ class TestServer(TestCase):
             self.assertEqual(server.session_api.session_state.get_nice(), SessionState.race)
             self.assertEqual(server.session_api.session_stage.get_nice(), SessionStage.race1)
             self.assertEqual(server.session_api.session_phase.get_nice(), SessionPhase.green)
-            self.assertEqual(len(server.members.elements), 1)
-            self.assertEqual(len(server.participants.elements), 15)
+            self.assertEqual(len(server.members_api.elements), 1)
+            self.assertEqual(len(server.participants_api.elements), 15)

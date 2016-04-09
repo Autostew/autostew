@@ -40,9 +40,9 @@ def destroy(server: Server):
 def _ping(server: Server):
     global last_ping
     server.last_ping = timezone.make_aware(datetime.datetime.now())
-    if len(server.members.elements) == 0:
+    if len(server.members_api.elements) == 0:
         server.average_player_latency = None
     else:
-        server.average_player_latency = sum([member.ping.get() for member in server.members.elements]) / len(server.members.elements)
+        server.average_player_latency = sum([member.ping.get() for member in server.members_api.elements]) / len(server.members_api.elements)
     last_ping = time.time()
     server.save()
