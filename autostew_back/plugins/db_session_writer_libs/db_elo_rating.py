@@ -1,7 +1,8 @@
 """
 Calculates Elo ratings for drivers once a race is finished
 """
-from autostew_web_session.models.models import Session, Member
+from autostew_web_session.models.models import Session
+from autostew_web_session.models.member import Member
 
 minimum_rating = 0
 

@@ -7,8 +7,9 @@ from django.utils import timezone
 from autostew_back.plugins.db_session_writer_libs import db_elo_rating
 from autostew_back.tests.unit.test_plugin_db_writer import TestDBWriter
 from autostew_web_enums.models import ParticipantState
-from autostew_web_session.models.models import SessionSetup, Session, Member, Vehicle, VehicleClass, Livery, \
-    SessionStage, SessionSnapshot, MemberSnapshot, Participant, ParticipantSnapshot, Lap
+from autostew_web_session.models.models import SessionSetup, Session, Vehicle, VehicleClass, Livery, \
+    SessionStage, SessionSnapshot, Participant, ParticipantSnapshot, Lap
+from autostew_web_session.models.member import Member, MemberSnapshot
 from autostew_web_session.models.server import Server
 from autostew_web_users.models import SteamUser
 from autostew_web_enums import models as enum_models

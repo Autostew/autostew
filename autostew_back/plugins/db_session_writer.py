@@ -4,6 +4,7 @@ import logging
 from django.db import transaction
 from django.utils import timezone
 
+import autostew_web_session.models.member
 import autostew_web_session.models.server
 from autostew_back.gameserver.event import EventType, BaseEvent, ParticipantEvent
 from autostew_back.gameserver.member import MemberFlags, Member as SessionMember
@@ -145,10 +146,10 @@ def event(server: Server, event: (BaseEvent, ParticipantEvent)):
     # Destroys a member
     if event.type == EventType.player_left:
         try:
-            member = session_models.Member.objects.get(refid=event.refid, session=current_session)
+            member = autostew_web_session.models.member.Member.objects.get(refid=event.refid, session=current_session)
             member.still_connected = False
             member.save()
-        except session_models.Member.DoesNotExist:
+        except autostew_web_session.models.member.Member.DoesNotExist:
             pass
 
     # Destroys the session
@@ -348,15 +349,15 @@ def _get_or_create_steam_user(member: SessionMember) -> SteamUser:
     return steam_user
 
 
-def _get_or_create_member(session: session_models.Session, member: SessionMember) -> session_models.Member:
+def _get_or_create_member(session: session_models.Session, member: SessionMember) -> autostew_web_session.models.member.Member:
     member_flags = member.race_stat_flags.get_flags()
     vehicle = session_models.Vehicle.objects.get(
         ingame_id=member.vehicle.get()) if member.vehicle.get() is not None else None
     steam_user = _get_or_create_steam_user(member)
     try:
-        member_in_db = session_models.Member.objects.get(session=session, steam_id=member.steam_id.get())
-    except session_models.Member.DoesNotExist:
-        member_in_db = session_models.Member(session=session, steam_id=member.steam_id.get())
+        member_in_db = autostew_web_session.models.member.Member.objects.get(session=session, steam_id=member.steam_id.get())
+    except autostew_web_session.models.member.Member.DoesNotExist:
+        member_in_db = autostew_web_session.models.member.Member(session=session, steam_id=member.steam_id.get())
     member_in_db.steam_user = steam_user
     member_in_db.still_connected = True
     member_in_db.vehicle = vehicle
@@ -386,8 +387,8 @@ def _get_or_create_member(session: session_models.Session, member: SessionMember
 
 
 def _get_or_create_participant(session: session_models.Session, participant: SessionParticipant) -> session_models.Participant:
-    member = session_models.Member.objects.get(refid=participant.refid.get(),
-                                               session=session) if participant.is_player.get() else None
+    member = autostew_web_session.models.member.Member.objects.get(refid=participant.refid.get(),
+                                                                   session=session) if participant.is_player.get() else None
     try:
         participant = session_models.Participant.objects.get(session=session, ingame_id=participant.id.get(),
                                                              member=member)
@@ -515,10 +516,10 @@ def _create_member_snapshot(
         member: SessionParticipant,
         session: session_models.Session,
         session_snapshot: session_models.SessionSnapshot
-) -> session_models.MemberSnapshot:
-    member_snapshot = session_models.MemberSnapshot(
+) -> autostew_web_session.models.member.MemberSnapshot:
+    member_snapshot = autostew_web_session.models.member.MemberSnapshot(
         snapshot=session_snapshot,
-        member=session_models.Member.objects.get(refid=member.refid.get(), session=session),
+        member=autostew_web_session.models.member.Member.objects.get(refid=member.refid.get(), session=session),
         still_connected=True,
         load_state=enum_models.MemberLoadState.objects.get_or_create(name=member.load_state.get())[0],
         ping=member.ping.get(),

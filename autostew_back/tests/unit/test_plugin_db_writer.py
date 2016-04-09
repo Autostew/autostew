@@ -8,14 +8,14 @@ from autostew_back.gameserver.member import MemberLoadState, MemberState
 from autostew_back.gameserver.mocked_api import FakeApi
 from autostew_back.gameserver.participant import ParticipantState
 from autostew_web_session.models.server import UnmetPluginDependency, Server
-from autostew_back.plugins import db_enum_writer, db, db_session_writer, db_setup_rotation
-from autostew_back.tests.test_assets import settings_no_plugins, settings_db_enum_writer, settings_fail_dependencies, \
+from autostew_back.tests.test_assets import settings_db_enum_writer, settings_fail_dependencies, \
     settings_db_session_writer
 from autostew_web_enums.models import DamageDefinition, TireWearDefinition, FuelUsageDefinition, PenaltyDefinition, \
     AllowedViewsDefinition, WeatherDefinition, GameModeDefinition
 from autostew_web_session.models import models
-from autostew_web_session.models.models import Session, SessionSetup, Participant, SessionSnapshot, Member, MemberSnapshot, \
+from autostew_web_session.models.models import Session, SessionSetup, Participant, SessionSnapshot, \
     ParticipantSnapshot, Track, VehicleClass, Vehicle, SetupRotationEntry
+from autostew_web_session.models.member import Member, MemberSnapshot
 
 
 class TestDBWriter(TestCase):
