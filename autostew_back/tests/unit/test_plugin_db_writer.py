@@ -4,6 +4,7 @@ import requests
 from django.test import TestCase
 
 import autostew_web_session.models.server
+import autostew_web_session.models.session
 from autostew_back.gameserver.member import MemberLoadState, MemberState
 from autostew_back.gameserver.mocked_api import FakeApi
 from autostew_back.gameserver.participant import ParticipantState
@@ -13,8 +14,9 @@ from autostew_back.tests.test_assets import settings_db_enum_writer, settings_fa
 from autostew_web_enums.models import DamageDefinition, TireWearDefinition, FuelUsageDefinition, PenaltyDefinition, \
     AllowedViewsDefinition, WeatherDefinition, GameModeDefinition
 from autostew_web_session.models import models
-from autostew_web_session.models.models import Session, SessionSetup, Participant, SessionSnapshot, \
+from autostew_web_session.models.models import Session, Participant, SessionSnapshot, \
     ParticipantSnapshot, Track, VehicleClass, Vehicle, SetupRotationEntry
+from autostew_web_session.models.session import SessionSetup, Session, SessionSnapshot
 from autostew_web_session.models.member import Member, MemberSnapshot
 
 
@@ -133,7 +135,7 @@ class TestDBWriter(TestCase):
         server_in_db = autostew_web_session.models.server.Server.objects.all()[0]
         self.assertTrue(server_in_db.running)
 
-        session_setup = models.SessionSetup.objects.get(is_template=False)
+        session_setup = autostew_web_session.models.session.SessionSetup.objects.get(is_template=False)
         self.assertTrue(session_setup.server_controls_setup)
         self.assertTrue(session_setup.server_controls_track)
         self.assertFalse(session_setup.server_controls_vehicle)
@@ -261,7 +263,7 @@ class TestDBWriter(TestCase):
         server_in_db = autostew_web_session.models.server.Server.objects.all()[0]
         self.assertTrue(server_in_db.running)
 
-        session_setup = models.SessionSetup.objects.get(is_template=False)
+        session_setup = autostew_web_session.models.session.SessionSetup.objects.get(is_template=False)
         self.assertTrue(session_setup.server_controls_setup)
         self.assertTrue(session_setup.server_controls_track)
         self.assertFalse(session_setup.server_controls_vehicle)

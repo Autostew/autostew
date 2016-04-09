@@ -6,7 +6,7 @@ from django.utils import timezone
 from autostew_back.gameserver.event import EventType, BaseEvent
 from autostew_back.gameserver.session import Privacy, SessionFlags, SessionState
 from autostew_back.plugins import db
-from autostew_web_session.models.models import SessionSetup
+from autostew_web_session.models.session import SessionSetup
 from autostew_web_session.models.server import Server
 
 name = 'DB setup rotation'

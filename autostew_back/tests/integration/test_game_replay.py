@@ -11,7 +11,8 @@ from autostew_back.gameserver.mocked_api import ApiReplay
 from autostew_back.plugins.db_session_writer_libs import db_elo_rating, db_safety_rating
 from autostew_back.tests.test_assets import settings_db_enum_writer
 from autostew_back.tests.unit.test_plugin_db_writer import TestDBWriter
-from autostew_web_session.models.models import Session, RaceLapSnapshot, SetupRotationEntry
+from autostew_web_session.models.models import RaceLapSnapshot, SetupRotationEntry
+from autostew_web_session.models.session import Session
 from autostew_web_session.models.server import Server
 from autostew_web_users.models import SteamUser, SafetyClass
 

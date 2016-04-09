@@ -1,4 +1,3 @@
-from collections import Set
 from enum import Enum
 
 from autostew_back.gameserver.abstract_containers import AbstractAttribute, AbstractAttributeLinkedToList, \

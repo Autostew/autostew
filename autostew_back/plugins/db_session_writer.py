@@ -6,6 +6,7 @@ from django.utils import timezone
 
 import autostew_web_session.models.member
 import autostew_web_session.models.server
+import autostew_web_session.models.session
 from autostew_back.gameserver.event import EventType, BaseEvent, ParticipantEvent
 from autostew_back.gameserver.member import MemberFlags, Member as SessionMember
 from autostew_back.gameserver.participant import Participant as SessionParticipant
@@ -96,12 +97,12 @@ def event(server: Server, event: (BaseEvent, ParticipantEvent)):
     # Writes results as a new snapshot
     if event.type == EventType.results and event.participant:
         try:
-            result_snapshot = session_models.SessionSnapshot.objects.get(
+            result_snapshot = autostew_web_session.models.session.SessionSnapshot.objects.get(
                 session=current_session,
                 is_result=True,
                 session_stage__name=server.session.session_stage.get()
             )
-        except session_models.SessionSnapshot.DoesNotExist:
+        except autostew_web_session.models.session.SessionSnapshot.DoesNotExist:
             result_snapshot = _create_session_snapshot(server, current_session)
             result_snapshot.is_result = True
             result_snapshot.save()
@@ -197,12 +198,12 @@ def event(server: Server, event: (BaseEvent, ParticipantEvent)):
 
 def _get_or_create_stage(server: Server, new_stage: str):
     try:
-        return session_models.SessionStage.objects.get(
+        return autostew_web_session.models.session.SessionStage.objects.get(
             session=current_session,
             stage__name=new_stage
         )
-    except session_models.SessionStage.DoesNotExist:
-        stage = session_models.SessionStage(
+    except autostew_web_session.models.session.SessionStage.DoesNotExist:
+        stage = autostew_web_session.models.session.SessionStage(
             session=current_session,
             stage=enum_models.SessionStage.objects.get(name=new_stage)
         )
@@ -223,11 +224,11 @@ def _close_current_session(server:Server):
     server.save()
 
 
-def _get_or_create_session(server: Server) -> session_models.Session:
+def _get_or_create_session(server: Server) -> autostew_web_session.models.session.Session:
     actual_setup = _create_session_setup(server)
     actual_setup.save()
 
-    session = session_models.Session(
+    session = autostew_web_session.models.session.Session(
         server=server,
         setup_template=db_setup_rotation.current_setup.setup,
         setup_actual=actual_setup,
@@ -260,7 +261,7 @@ def _get_or_create_session(server: Server) -> session_models.Session:
 
 def _create_session_setup(server):
     flags = server.session.flags.get_flags()
-    return session_models.SessionSetup(
+    return autostew_web_session.models.session.SessionSetup(
         name=db_setup_rotation.current_setup.setup.name,
         is_template=False,
         server_controls_setup=server.session.server_controls_setup.get(),
@@ -349,7 +350,7 @@ def _get_or_create_steam_user(member: SessionMember) -> SteamUser:
     return steam_user
 
 
-def _get_or_create_member(session: session_models.Session, member: SessionMember) -> autostew_web_session.models.member.Member:
+def _get_or_create_member(session: autostew_web_session.models.session.Session, member: SessionMember) -> autostew_web_session.models.member.Member:
     member_flags = member.race_stat_flags.get_flags()
     vehicle = session_models.Vehicle.objects.get(
         ingame_id=member.vehicle.get()) if member.vehicle.get() is not None else None
@@ -386,7 +387,7 @@ def _get_or_create_member(session: session_models.Session, member: SessionMember
     return member_in_db
 
 
-def _get_or_create_participant(session: session_models.Session, participant: SessionParticipant) -> session_models.Participant:
+def _get_or_create_participant(session: autostew_web_session.models.session.Session, participant: SessionParticipant) -> session_models.Participant:
     member = autostew_web_session.models.member.Member.objects.get(refid=participant.refid.get(),
                                                                    session=session) if participant.is_player.get() else None
     try:
@@ -412,9 +413,9 @@ def _get_or_create_participant(session: session_models.Session, participant: Ses
     return participant
 
 
-def _create_session_snapshot(server: Server, session: session_models.Session) -> session_models.SessionSnapshot:
+def _create_session_snapshot(server: Server, session: autostew_web_session.models.session.Session) -> autostew_web_session.models.session.SessionSnapshot:
     logging.info("Creating session snapshot")
-    session_snapshot = session_models.SessionSnapshot(
+    session_snapshot = autostew_web_session.models.session.SessionSnapshot(
         session=session,
         is_result=False,
         session_state=enum_models.SessionState.objects.get(
@@ -462,8 +463,8 @@ def _create_session_snapshot(server: Server, session: session_models.Session) ->
 
 def _get_or_create_participant_snapshot(
         participant: SessionParticipant,
-        session: session_models.Session,
-        session_snapshot: session_models.SessionSnapshot,
+        session: autostew_web_session.models.session.Session,
+        session_snapshot: autostew_web_session.models.session.SessionSnapshot,
         overwrite=False
 ) -> session_models.ParticipantSnapshot:
     participant_snapshot = None
@@ -514,8 +515,8 @@ def _get_or_create_participant_snapshot(
 
 def _create_member_snapshot(
         member: SessionParticipant,
-        session: session_models.Session,
-        session_snapshot: session_models.SessionSnapshot
+        session: autostew_web_session.models.session.Session,
+        session_snapshot: autostew_web_session.models.session.SessionSnapshot
 ) -> autostew_web_session.models.member.MemberSnapshot:
     member_snapshot = autostew_web_session.models.member.MemberSnapshot(
         snapshot=session_snapshot,
