@@ -6,10 +6,10 @@ from django.views import generic
 from django.views.generic import FormView
 
 from autostew_web_session import models
-from autostew_web_session.models.models import Event, Participant, Track, Vehicle, VehicleClass, Lap
+from autostew_web_session.models.models import Event, Track, Vehicle, VehicleClass
+from autostew_web_session.models.participant import Participant
 from autostew_web_session.models.session import SessionSetup, Session, SessionSnapshot
 from autostew_web_session.models.server import Server
-from .models.models import Session, SessionSnapshot
 from .forms import SessionSetupForm
 
 

@@ -1,7 +1,9 @@
 from django.contrib import admin
 
 from autostew_web_session.models.member import MemberSnapshot, Member
+from autostew_web_session.models.participant import ParticipantSnapshot, Participant
 from autostew_web_session.models.server import Server
+from autostew_web_session.models.session import SessionSetup, SessionSnapshot, Session
 from .models.models import *
 
 

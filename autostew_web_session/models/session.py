@@ -2,6 +2,7 @@ from django.core.urlresolvers import reverse
 from django.db import models
 from django.db.models import QuerySet, Max, Min
 
+import autostew_web_session.models.participant
 from autostew_web_enums import models as enum_models
 from autostew_web_session.models.member import Member, MemberSnapshot
 from autostew_web_session.models import models as session_models
@@ -159,7 +160,7 @@ class Session(models.Model):
         return Member.objects.filter(membersnapshot__in=snapshots)
 
     def get_members_who_participated(self):
-        participants = session_models.Participant.objects.filter(lap__in=self.lap_set.all())
+        participants = autostew_web_session.models.participant.Participant.objects.filter(lap__in=self.lap_set.all())
         return Member.objects.filter(participant__in=participants)
 
     def get_race_stage(self):

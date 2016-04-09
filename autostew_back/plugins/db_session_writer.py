@@ -5,6 +5,7 @@ from django.db import transaction
 from django.utils import timezone
 
 import autostew_web_session.models.member
+import autostew_web_session.models.participant
 import autostew_web_session.models.server
 import autostew_web_session.models.session
 from autostew_back.gameserver.event import EventType, BaseEvent, ParticipantEvent
@@ -85,9 +86,9 @@ def event(server: Server, event: (BaseEvent, ParticipantEvent)):
         session_models.Sector(
             session=current_session,
             session_stage=enum_models.SessionStage.objects.get(name=server.session.session_stage.get()),
-            participant=session_models.Participant.objects.get(ingame_id=event.participant.id.get(),
-                                                               refid=event.participant.refid.get(),
-                                                               session=current_session),
+            participant=autostew_web_session.models.participant.Participant.objects.get(ingame_id=event.participant.id.get(),
+                                                                                        refid=event.participant.refid.get(),
+                                                                                        session=current_session),
             lap=event.lap,
             count_this_lap=event.count_this_lap,
             sector=event.sector,
@@ -107,7 +108,7 @@ def event(server: Server, event: (BaseEvent, ParticipantEvent)):
             result_snapshot.is_result = True
             result_snapshot.save()
 
-        participant = session_models.ParticipantSnapshot.objects.get(
+        participant = autostew_web_session.models.participant.ParticipantSnapshot.objects.get(
             snapshot=result_snapshot,
             participant__ingame_id=event.participant_id
         )
@@ -134,8 +135,8 @@ def event(server: Server, event: (BaseEvent, ParticipantEvent)):
 
     # Destroy a participant
     if event.type == EventType.participant_destroyed:
-        participant = session_models.Participant.objects.get(ingame_id=event.raw['participantid'],
-                                                             session=current_session)
+        participant = autostew_web_session.models.participant.Participant.objects.get(ingame_id=event.raw['participantid'],
+                                                                                      session=current_session)
         participant.still_connected = False
         participant.save()
 
@@ -387,18 +388,18 @@ def _get_or_create_member(session: autostew_web_session.models.session.Session, 
     return member_in_db
 
 
-def _get_or_create_participant(session: autostew_web_session.models.session.Session, participant: SessionParticipant) -> session_models.Participant:
+def _get_or_create_participant(session: autostew_web_session.models.session.Session, participant: SessionParticipant) -> autostew_web_session.models.participant.Participant:
     member = autostew_web_session.models.member.Member.objects.get(refid=participant.refid.get(),
                                                                    session=session) if participant.is_player.get() else None
     try:
-        participant = session_models.Participant.objects.get(session=session, ingame_id=participant.id.get(),
-                                                             member=member)
-    except session_models.Participant.DoesNotExist:
+        participant = autostew_web_session.models.participant.Participant.objects.get(session=session, ingame_id=participant.id.get(),
+                                                                                      member=member)
+    except autostew_web_session.models.participant.Participant.DoesNotExist:
         vehicle = session_models.Vehicle.objects.get(
             ingame_id=participant.vehicle.get()) if participant.vehicle.get() is not None else None
         livery = session_models.Livery.objects.get(id_for_vehicle=participant.livery.get(),
                                                    vehicle=vehicle) if participant.livery.get() is not None else None
-        participant = session_models.Participant(
+        participant = autostew_web_session.models.participant.Participant(
             member=member,
             session=session,
             still_connected=True,
@@ -466,25 +467,25 @@ def _get_or_create_participant_snapshot(
         session: autostew_web_session.models.session.Session,
         session_snapshot: autostew_web_session.models.session.SessionSnapshot,
         overwrite=False
-) -> session_models.ParticipantSnapshot:
+) -> autostew_web_session.models.participant.ParticipantSnapshot:
     participant_snapshot = None
     try:
-        participant_snapshot = session_models.ParticipantSnapshot.objects.get(
+        participant_snapshot = autostew_web_session.models.participant.ParticipantSnapshot.objects.get(
             snapshot=session_snapshot,
             participant__ingame_id=participant.id.get()
         )
         if not overwrite:
             return participant_snapshot
-    except session_models.ParticipantSnapshot.DoesNotExist:
+    except autostew_web_session.models.participant.ParticipantSnapshot.DoesNotExist:
         pass
 
     try:
-        parent = session_models.Participant.objects.get(ingame_id=participant.id.get(), session=session)
-    except session_models.Participant.DoesNotExist:
+        parent = autostew_web_session.models.participant.Participant.objects.get(ingame_id=participant.id.get(), session=session)
+    except autostew_web_session.models.participant.Participant.DoesNotExist:
         parent = _get_or_create_participant(session, participant)
 
     if not participant_snapshot:
-        participant_snapshot = session_models.ParticipantSnapshot()
+        participant_snapshot = autostew_web_session.models.participant.ParticipantSnapshot()
 
     participant_snapshot.snapshot = session_snapshot
     participant_snapshot.participant = parent

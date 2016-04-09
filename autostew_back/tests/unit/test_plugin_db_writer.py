@@ -14,8 +14,8 @@ from autostew_back.tests.test_assets import settings_db_enum_writer, settings_fa
 from autostew_web_enums.models import DamageDefinition, TireWearDefinition, FuelUsageDefinition, PenaltyDefinition, \
     AllowedViewsDefinition, WeatherDefinition, GameModeDefinition
 from autostew_web_session.models import models
-from autostew_web_session.models.models import Session, Participant, SessionSnapshot, \
-    ParticipantSnapshot, Track, VehicleClass, Vehicle, SetupRotationEntry
+from autostew_web_session.models.models import Track, VehicleClass, Vehicle, SetupRotationEntry
+from autostew_web_session.models.participant import Participant, ParticipantSnapshot
 from autostew_web_session.models.session import SessionSetup, Session, SessionSnapshot
 from autostew_web_session.models.member import Member, MemberSnapshot
 
