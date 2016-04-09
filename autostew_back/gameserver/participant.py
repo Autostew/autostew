@@ -80,7 +80,7 @@ class Participant(AbstractStatusTable):
         self.orientation = _participant_attribute('Orientation')
 
     def get_member(self, server) -> Member:
-        return server.members.get_by_id(self.refid.get())
+        return server.members_api.get_by_id(self.refid.get())
 
     def send_chat(self, message: str, server):
         member = self.get_member(server)

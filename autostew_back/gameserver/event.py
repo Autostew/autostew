@@ -55,7 +55,7 @@ class MemberEvent(BaseEvent):
 class ParticipantEvent(MemberEvent):
     def __init__(self, raw, server):
         MemberEvent.__init__(self, raw, server)
-        self.participant = self.server.participants.get_by_id(raw['participantid'])
+        self.participant = self.server.participants_api.get_by_id(raw['participantid'])
         self.refid = raw['refid']
         self.participant_id = raw['participantid']
 
@@ -175,7 +175,7 @@ class ResultsEvent(ParticipantEvent):
 class ImpactEvent(ParticipantEvent):
     def __init__(self, raw, server):
         ParticipantEvent.__init__(self, raw, server)
-        self.other_participant = self.server.participants.get_by_id(raw['attributes']['OtherParticipantId'])
+        self.other_participant = self.server.participants_api.get_by_id(raw['attributes']['OtherParticipantId'])
         self.magnitude = raw['attributes']['CollisionMagnitude']
 
         self.participants = [self.participant]
