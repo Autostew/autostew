@@ -1,6 +1,7 @@
 import datetime
 from enum import Enum
 
+import autostew_web_session.models.session_enums
 from autostew_back.gameserver import session
 from autostew_back.gameserver.participant import ParticipantState
 
@@ -79,15 +80,15 @@ class PlayerJoinedEvent(MemberEvent):
 class StateChangedEvent(BaseEvent):
     def __init__(self, raw, server):
         BaseEvent.__init__(self, raw, server)
-        self.previous_state = session.SessionState(raw['attributes']['PreviousState'])
-        self.new_state = session.SessionState(raw['attributes']['NewState'])
+        self.previous_state = autostew_web_session.models.session_enums.SessionState(raw['attributes']['PreviousState'])
+        self.new_state = autostew_web_session.models.session_enums.SessionState(raw['attributes']['NewState'])
 
 
 class StageChangedEvent(BaseEvent):
     def __init__(self, raw, server):
         BaseEvent.__init__(self, raw, server)
-        self.previous_stage = session.SessionStage(raw['attributes']['PreviousStage'])
-        self.new_stage = session.SessionStage(raw['attributes']['NewStage'])
+        self.previous_stage = autostew_web_session.models.session_enums.SessionStage(raw['attributes']['PreviousStage'])
+        self.new_stage = autostew_web_session.models.session_enums.SessionStage(raw['attributes']['NewStage'])
         self.new_stage_length = raw['attributes']['Length']
 
 

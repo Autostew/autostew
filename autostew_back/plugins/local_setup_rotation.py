@@ -1,7 +1,7 @@
 import logging
 
 from autostew_back.gameserver.event import EventType, BaseEvent
-from autostew_back.gameserver.session import SessionState
+from autostew_web_session.models.session_enums import SessionState
 from autostew_web_session.models.server import Server
 
 name = 'Local setup rotation'

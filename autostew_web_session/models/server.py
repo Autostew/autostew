@@ -118,7 +118,7 @@ class Server(models.Model):
             record_destination=settings.api_record_destination if api_record is True else api_record
         )
         self.lists = ListGenerator(self.api).generate_all()
-        self.session = Session(self.lists[ListName.session_attributes], self.lists, self.api)
+        self.session_api = Session(self.lists[ListName.session_attributes], self.lists, self.api)
         self.members = MemberList(self.lists[ListName.member_attributes], self.lists, self.api)
         self.participants = ParticipantList(self.lists[ListName.participant_attributes], self.lists, self.api)
         self.back_fetch_status()
@@ -130,7 +130,7 @@ class Server(models.Model):
         self.lobby_id = status['lobbyid']
         self.joinable = status['joinable']
         self.max_member_count = status['max_member_count']
-        self.session.update_from_game(status['attributes'])
+        self.session_api.update_from_game(status['attributes'])
         self.members.update_from_game(status['members'])
         self.participants.update_from_game(status['participants'])
         self.last_status_update_time = time()

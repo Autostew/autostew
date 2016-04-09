@@ -12,7 +12,8 @@ from autostew_back.gameserver.event import EventType, BaseEvent, ParticipantEven
 from autostew_back.gameserver.member import MemberFlags, Member as SessionMember
 from autostew_back.gameserver.participant import Participant as SessionParticipant
 from autostew_web_session.models.server import ServerState
-from autostew_back.gameserver.session import SessionFlags, Privacy, SessionState, SessionStage
+from autostew_back.gameserver.session import Privacy, SessionState, SessionStage
+from autostew_web_session.models.session_enums import SessionFlags, SessionState, SessionStage, Privacy
 from autostew_back.plugins import db, db_setup_rotation
 from autostew_back.plugins.db_session_writer_libs import db_elo_rating, db_safety_rating
 from autostew_back.utils import td_to_milli
@@ -48,7 +49,7 @@ def event(server: Server, event: (BaseEvent, ParticipantEvent)):
     global current_session
 
     # Creates snapshot and RaceLapSnapshot on each lap in the race by the leader
-    if event.type == EventType.lap and event.race_position == 1 and server.session.session_stage.get_nice() == SessionStage.race1:
+    if event.type == EventType.lap and event.race_position == 1 and server.session_api.session_stage.get_nice() == SessionStage.race1:
         snapshot = _create_session_snapshot(server, current_session)
         session_models.RaceLapSnapshot(lap=event.lap + 1, snapshot=snapshot, session=current_session).save()
 
@@ -57,7 +58,7 @@ def event(server: Server, event: (BaseEvent, ParticipantEvent)):
         participant = _get_or_create_participant(current_session, event.participant)
         session_models.Lap(
             session=current_session,
-            session_stage=enum_models.SessionStage.objects.get(name=server.session.session_stage.get()),
+            session_stage=enum_models.SessionStage.objects.get(name=server.session_api.session_stage.get()),
             participant=participant,
             lap=event.lap + 1,
             count_this_lap=event.count_this_lap_times,
@@ -85,7 +86,7 @@ def event(server: Server, event: (BaseEvent, ParticipantEvent)):
     if event.type == EventType.sector and event.lap > 0:
         session_models.Sector(
             session=current_session,
-            session_stage=enum_models.SessionStage.objects.get(name=server.session.session_stage.get()),
+            session_stage=enum_models.SessionStage.objects.get(name=server.session_api.session_stage.get()),
             participant=autostew_web_session.models.participant.Participant.objects.get(ingame_id=event.participant.id.get(),
                                                                                         refid=event.participant.refid.get(),
                                                                                         session=current_session),
@@ -101,7 +102,7 @@ def event(server: Server, event: (BaseEvent, ParticipantEvent)):
             result_snapshot = autostew_web_session.models.session.SessionSnapshot.objects.get(
                 session=current_session,
                 is_result=True,
-                session_stage__name=server.session.session_stage.get()
+                session_stage__name=server.session_api.session_stage.get()
             )
         except autostew_web_session.models.session.SessionSnapshot.DoesNotExist:
             result_snapshot = _create_session_snapshot(server, current_session)
@@ -118,7 +119,7 @@ def event(server: Server, event: (BaseEvent, ParticipantEvent)):
         participant.race_position = event.race_position
         participant.total_time = td_to_milli(event.total_time)
         participant.save()
-        current_stage = _get_or_create_stage(server, server.session.session_stage.get())
+        current_stage = _get_or_create_stage(server, server.session_api.session_stage.get())
         current_stage.result_snapshot = result_snapshot
         current_stage.save()
 
@@ -171,7 +172,7 @@ def event(server: Server, event: (BaseEvent, ParticipantEvent)):
             final_setup.save(force_update=True)
             current_session.starting_snapshot_to_track = _create_session_snapshot(server, current_session)
             current_session.save()
-            stage = _get_or_create_stage(server, server.session.session_stage.get())
+            stage = _get_or_create_stage(server, server.session_api.session_stage.get())
             stage.starting_snapshot = current_session.starting_snapshot_to_track
             stage.save()
 
@@ -261,17 +262,17 @@ def _get_or_create_session(server: Server) -> autostew_web_session.models.sessio
 
 
 def _create_session_setup(server):
-    flags = server.session.flags.get_flags()
+    flags = server.session_api.flags.get_flags()
     return autostew_web_session.models.session.SessionSetup(
         name=db_setup_rotation.current_setup.setup.name,
         is_template=False,
-        server_controls_setup=server.session.server_controls_setup.get(),
-        server_controls_track=server.session.server_controls_track.get(),
-        server_controls_vehicle_class=server.session.server_controls_vehicle_class.get(),
-        server_controls_vehicle=server.session.server_controls_vehicle.get(),
-        grid_size=server.session.grid_size.get(),
-        max_players=server.session.max_players.get(),
-        opponent_difficulty=server.session.opponent_difficulty.get(),
+        server_controls_setup=server.session_api.server_controls_setup.get(),
+        server_controls_track=server.session_api.server_controls_track.get(),
+        server_controls_vehicle_class=server.session_api.server_controls_vehicle_class.get(),
+        server_controls_vehicle=server.session_api.server_controls_vehicle.get(),
+        grid_size=server.session_api.grid_size.get(),
+        max_players=server.session_api.max_players.get(),
+        opponent_difficulty=server.session_api.opponent_difficulty.get(),
         force_identical_vehicles=SessionFlags.force_identical_vehicles in flags,
         allow_custom_vehicle_setup=SessionFlags.allow_custom_vehicle_setup in flags,
         force_realistic_driving_aids=SessionFlags.force_realistic_driving_aids in flags,
@@ -287,51 +288,51 @@ def _create_session_setup(server):
         timed_race=SessionFlags.timed_race in flags,
         ghost_griefers=SessionFlags.ghost_griefers in flags,
         enforced_pitstop=SessionFlags.enforced_pitstop in flags,
-        practice1_length=server.session.practice1_length.get(),
-        practice2_length=server.session.practice2_length.get(),
-        qualify_length=server.session.qualify_length.get(),
-        warmup_length=server.session.warmup_length.get(),
-        race1_length=server.session.race1_length.get(),
-        race2_length=server.session.race2_length.get(),
-        public=server.session.privacy.get_nice() == Privacy.public,
-        friends_can_join=server.session.privacy.get_nice() in (Privacy.public, Privacy.friends),
+        practice1_length=server.session_api.practice1_length.get(),
+        practice2_length=server.session_api.practice2_length.get(),
+        qualify_length=server.session_api.qualify_length.get(),
+        warmup_length=server.session_api.warmup_length.get(),
+        race1_length=server.session_api.race1_length.get(),
+        race2_length=server.session_api.race2_length.get(),
+        public=server.session_api.privacy.get_nice() == Privacy.public,
+        friends_can_join=server.session_api.privacy.get_nice() in (Privacy.public, Privacy.friends),
         damage=enum_models.DamageDefinition.objects.get(
-            ingame_id=server.session.damage.get()) if server.session.damage.get() is not None else None,
+            ingame_id=server.session_api.damage.get()) if server.session_api.damage.get() is not None else None,
         tire_wear=enum_models.TireWearDefinition.objects.get(
-            ingame_id=server.session.tire_wear.get()) if server.session.tire_wear.get() is not None else None,
+            ingame_id=server.session_api.tire_wear.get()) if server.session_api.tire_wear.get() is not None else None,
         fuel_usage=enum_models.FuelUsageDefinition.objects.get(
-            ingame_id=server.session.fuel_usage.get()) if server.session.fuel_usage.get() is not None else None,
+            ingame_id=server.session_api.fuel_usage.get()) if server.session_api.fuel_usage.get() is not None else None,
         penalties=enum_models.PenaltyDefinition.objects.get(
-            ingame_id=server.session.penalties.get()) if server.session.penalties.get() is not None else None,
+            ingame_id=server.session_api.penalties.get()) if server.session_api.penalties.get() is not None else None,
         allowed_views=enum_models.AllowedViewsDefinition.objects.get(
-            ingame_id=server.session.allowed_views.get()) if server.session.allowed_views.get() is not None else None,
+            ingame_id=server.session_api.allowed_views.get()) if server.session_api.allowed_views.get() is not None else None,
         track=session_models.Track.objects.get(
-            ingame_id=server.session.track.get()) if server.session.track.get() is not None else None,
+            ingame_id=server.session_api.track.get()) if server.session_api.track.get() is not None else None,
         vehicle_class=session_models.VehicleClass.objects.get(
-            ingame_id=server.session.vehicle_class.get()) if server.session.vehicle_class.get() is not None else None,
+            ingame_id=server.session_api.vehicle_class.get()) if server.session_api.vehicle_class.get() is not None else None,
         vehicle=session_models.Vehicle.objects.get(
-            ingame_id=server.session.vehicle.get()) if server.session.vehicle.get() else None,
-        date_year=server.session.date_year.get(),
-        date_month=server.session.date_month.get(),
-        date_day=server.session.date_day.get(),
-        date_hour=server.session.date_hour.get(),
-        date_minute=server.session.date_minute.get(),
-        date_progression=server.session.date_progression.get(),
-        weather_progression=server.session.weather_progression.get(),
-        weather_slots=server.session.weather_slots.get(),
+            ingame_id=server.session_api.vehicle.get()) if server.session_api.vehicle.get() else None,
+        date_year=server.session_api.date_year.get(),
+        date_month=server.session_api.date_month.get(),
+        date_day=server.session_api.date_day.get(),
+        date_hour=server.session_api.date_hour.get(),
+        date_minute=server.session_api.date_minute.get(),
+        date_progression=server.session_api.date_progression.get(),
+        weather_progression=server.session_api.weather_progression.get(),
+        weather_slots=server.session_api.weather_slots.get(),
         weather_1=enum_models.WeatherDefinition.objects.get(
-            ingame_id=server.session.weather_1.get()) if server.session.weather_1.get() else None,
+            ingame_id=server.session_api.weather_1.get()) if server.session_api.weather_1.get() else None,
         weather_2=enum_models.WeatherDefinition.objects.get(
-            ingame_id=server.session.weather_2.get()) if server.session.weather_2.get() else None,
+            ingame_id=server.session_api.weather_2.get()) if server.session_api.weather_2.get() else None,
         weather_3=enum_models.WeatherDefinition.objects.get(
-            ingame_id=server.session.weather_3.get()) if server.session.weather_3.get() else None,
+            ingame_id=server.session_api.weather_3.get()) if server.session_api.weather_3.get() else None,
         weather_4=enum_models.WeatherDefinition.objects.get(
-            ingame_id=server.session.weather_4.get()) if server.session.weather_4.get() else None,
+            ingame_id=server.session_api.weather_4.get()) if server.session_api.weather_4.get() else None,
         game_mode=enum_models.GameModeDefinition.objects.get(
-            ingame_id=server.session.game_mode.get()) if server.session.game_mode.get() else None,
-        track_latitude=server.session.track_latitude.get(),
-        track_longitude=server.session.track_longitude.get(),
-        track_altitude=server.session.track_altitude.get(),
+            ingame_id=server.session_api.game_mode.get()) if server.session_api.game_mode.get() else None,
+        track_latitude=server.session_api.track_latitude.get(),
+        track_longitude=server.session_api.track_longitude.get(),
+        track_altitude=server.session_api.track_altitude.get(),
     )
 
 
@@ -420,32 +421,32 @@ def _create_session_snapshot(server: Server, session: autostew_web_session.model
         session=session,
         is_result=False,
         session_state=enum_models.SessionState.objects.get(
-            name=server.session.session_state.get() if server.session.session_state.get() else None),
+            name=server.session_api.session_state.get() if server.session_api.session_state.get() else None),
         session_stage=enum_models.SessionStage.objects.get(
-            name=server.session.session_stage.get()) if server.session.session_stage.get() else None,
+            name=server.session_api.session_stage.get()) if server.session_api.session_stage.get() else None,
         session_phase=enum_models.SessionPhase.objects.get(
-            name=server.session.session_phase.get()) if server.session.session_phase.get() else None,
-        session_time_elapsed=server.session.session_time_elapsed.get(),
-        session_time_duration=server.session.session_time_duration.get(),
-        num_participants_valid=server.session.num_participants_valid.get(),
-        num_participants_disq=server.session.num_participants_disq.get(),
-        num_participants_retired=server.session.num_participants_retired.get(),
-        num_participants_dnf=server.session.num_participants_dnf.get(),
-        num_participants_finished=server.session.num_participants_finished.get(),
-        current_year=server.session.current_year.get(),
-        current_month=server.session.current_month.get(),
-        current_day=server.session.current_day.get(),
-        current_hour=server.session.current_hour.get(),
-        current_minute=server.session.current_minute.get(),
-        rain_density_visual=server.session.rain_density_visual.get(),
-        wetness_path=server.session.wetness_path.get(),
-        wetness_off_path=server.session.wetness_off_path.get(),
-        wetness_avg=server.session.wetness_avg.get(),
-        wetness_predicted_max=server.session.wetness_predicted_max.get(),
-        wetness_max_level=server.session.wetness_max_level.get(),
-        temperature_ambient=server.session.temperature_ambient.get(),
-        temperature_track=server.session.temperature_track.get(),
-        air_pressure=server.session.air_pressure.get(),
+            name=server.session_api.session_phase.get()) if server.session_api.session_phase.get() else None,
+        session_time_elapsed=server.session_api.session_time_elapsed.get(),
+        session_time_duration=server.session_api.session_time_duration.get(),
+        num_participants_valid=server.session_api.num_participants_valid.get(),
+        num_participants_disq=server.session_api.num_participants_disq.get(),
+        num_participants_retired=server.session_api.num_participants_retired.get(),
+        num_participants_dnf=server.session_api.num_participants_dnf.get(),
+        num_participants_finished=server.session_api.num_participants_finished.get(),
+        current_year=server.session_api.current_year.get(),
+        current_month=server.session_api.current_month.get(),
+        current_day=server.session_api.current_day.get(),
+        current_hour=server.session_api.current_hour.get(),
+        current_minute=server.session_api.current_minute.get(),
+        rain_density_visual=server.session_api.rain_density_visual.get(),
+        wetness_path=server.session_api.wetness_path.get(),
+        wetness_off_path=server.session_api.wetness_off_path.get(),
+        wetness_avg=server.session_api.wetness_avg.get(),
+        wetness_predicted_max=server.session_api.wetness_predicted_max.get(),
+        wetness_max_level=server.session_api.wetness_max_level.get(),
+        temperature_ambient=server.session_api.temperature_ambient.get(),
+        temperature_track=server.session_api.temperature_track.get(),
+        air_pressure=server.session_api.air_pressure.get(),
     )
     session_snapshot.save()
 

@@ -2,7 +2,8 @@
 Show a message when a player logs in (and other messages, too)
 """
 from autostew_back.gameserver.event import EventType, BaseEvent, LapEvent, MemberEvent
-from autostew_back.gameserver.session import SessionStage, SessionState, SessionFlags
+from autostew_back.gameserver.session import SessionStage, SessionFlags
+from autostew_web_session.models.session_enums import SessionState, SessionStage
 from autostew_web_session.models.server import Server
 from autostew_web_users.models import SteamUser
 
@@ -49,19 +50,19 @@ def event(server: Server, event: BaseEvent):
 
     if (
         event.type == EventType.lap and
-        event.lap == server.session.race1_length.get() - 1 and
+        event.lap == server.session_api.race1_length.get() - 1 and
         event.race_position == 1 and
-        server.session.session_stage.get_nice() == SessionStage.race1 and
-        SessionFlags.timed_race not in server.session.flags.get_flags()
+        server.session_api.session_stage.get_nice() == SessionStage.race1 and
+        SessionFlags.timed_race not in server.session_api.flags.get_flags()
     ):
         send_winner_message(event, server)
 
     if (
         event.type == EventType.lap and
-        event.lap == server.session.race1_length.get() - 2 and
+        event.lap == server.session_api.race1_length.get() - 2 and
         event.race_position == 1 and
-        server.session.session_stage.get_nice() == SessionStage.race1 and
-        SessionFlags.timed_race not in server.session.flags.get_flags()
+        server.session_api.session_stage.get_nice() == SessionStage.race1 and
+        SessionFlags.timed_race not in server.session_api.flags.get_flags()
     ):
         send_leader_in_last_lap_message(event, server)
 

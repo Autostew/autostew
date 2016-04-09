@@ -8,7 +8,8 @@ from autostew_back.gameserver.event import EventType, LeavingReason
 from autostew_back.gameserver.lists import ListName
 from autostew_back.gameserver.member import MemberLoadState, MemberState
 from autostew_back.gameserver.participant import ParticipantState
-from autostew_back.gameserver.session import SessionState, SessionStage, SessionPhase
+from autostew_back.gameserver.session import SessionStage, SessionPhase
+from autostew_web_session.models.session_enums import SessionState, SessionStage, SessionPhase
 from autostew_back.plugins import db
 from autostew_web_enums import models
 from autostew_web_session.models.models import Track, VehicleClass, Vehicle, Livery
