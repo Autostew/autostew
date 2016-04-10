@@ -151,5 +151,5 @@ class DBSetup:
         server.session_api.warmup_length.set_to_game(self.setup.warmup_length)
         server.session_api.race1_length.set_to_game(self.setup.race1_length)
         server.session_api.race2_length.set_to_game(self.setup.race2_length)
-        server.back_fetch_status()
+        server.back_init_session()
 

@@ -1,6 +1,5 @@
 from autostew_back.gameserver.abstract_containers import AbstractAttribute, AbstractAttributeLinkedToList, \
     AbstractFlagAttribute, AbstractStatusTable, AbstractAttributeLinkedToEnum
-from autostew_back.gameserver.lists import ListName
 from autostew_web_session.models.session_enums import SessionFlags, SessionState, SessionStage, SessionPhase, Privacy
 
 
@@ -49,49 +48,49 @@ class Session(AbstractStatusTable):
         self.damage = SessionAttributeLinkedToList(
             self._from_list('DamageType'),
             api,
-            lists[ListName.damage],
+            lists[ApiListNames.damage],
             'value'
         )
         self.tire_wear = SessionAttributeLinkedToList(
             self._from_list('TireWearType'),
             api,
-            lists[ListName.tire_wears],
+            lists[ApiListNames.tire_wears],
             'value'
         )
         self.fuel_usage = SessionAttributeLinkedToList(
             self._from_list('FuelUsageType'),
             api,
-            lists[ListName.fuel_usages],
+            lists[ApiListNames.fuel_usages],
             'value'
         )
         self.penalties = SessionAttributeLinkedToList(
             self._from_list('PenaltiesType'),
             api,
-            lists[ListName.penalties],
+            lists[ApiListNames.penalties],
             'value'
         )
         self.allowed_views = SessionAttributeLinkedToList(
             self._from_list('AllowedViews'),
             api,
-            lists[ListName.allowed_views],
+            lists[ApiListNames.allowed_views],
             'value'
         )
         self.track = SessionAttributeLinkedToList(
             self._from_list('TrackId'),
             api,
-            lists[ListName.tracks],
+            lists[ApiListNames.tracks],
             'id'
         )
         self.vehicle_class = SessionAttributeLinkedToList(
             self._from_list('VehicleClassId'),
             api,
-            lists[ListName.vehicle_classes],
+            lists[ApiListNames.vehicle_classes],
             'value'
         )
         self.vehicle = SessionAttributeLinkedToList(
             self._from_list('VehicleModelId'),
             api,
-            lists[ListName.vehicles],
+            lists[ApiListNames.vehicles],
             'id'
         )
         self.date_year = _session_attribute('DateYear')
@@ -105,31 +104,31 @@ class Session(AbstractStatusTable):
         self.weather_1 = SessionAttributeLinkedToList(
             self._from_list('WeatherSlot1'),
             api,
-            lists[ListName.weathers],
+            lists[ApiListNames.weathers],
             'value',
         )
         self.weather_2 = SessionAttributeLinkedToList(
             self._from_list('WeatherSlot2'),
             api,
-            lists[ListName.weathers],
+            lists[ApiListNames.weathers],
             'value',
         )
         self.weather_3 = SessionAttributeLinkedToList(
             self._from_list('WeatherSlot3'),
             api,
-            lists[ListName.weathers],
+            lists[ApiListNames.weathers],
             'value',
         )
         self.weather_4 = SessionAttributeLinkedToList(
             self._from_list('WeatherSlot4'),
             api,
-            lists[ListName.weathers],
+            lists[ApiListNames.weathers],
             'value',
         )
         self.game_mode = SessionAttributeLinkedToList(
             self._from_list('GameMode'),
             api,
-            lists[ListName.game_modes],
+            lists[ApiListNames.game_modes],
             'value'
         )
         self.track_latitude = _session_attribute('Latitude')  # * 1000

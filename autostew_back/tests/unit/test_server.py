@@ -488,12 +488,12 @@ class TestServer(TestCase):
             local_setup_rotation.load_next_setup(server)
             status_in_lobby(self, server)
             api.status_result = 'autostew_back/tests/test_assets/session_in_quali_two_players_14ai.json'
-            server.back_fetch_status()
+            server.back_init_session()
             status_quali(self, server)
             members_in_quali(self, server)
             participants_in_quali(self, server)
             api.status_result = 'autostew_back/tests/test_assets/session_in_race_one_player_14ai.json'
-            server.back_fetch_status()
+            server.back_init_session()
             self.assertEqual(server.state.name, ServerState.running)
             self.assertEqual(server.joinable_internal, False)
             self.assertEqual(server.session_api.session_state.get_nice(), SessionState.race)

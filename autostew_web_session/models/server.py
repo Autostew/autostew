@@ -8,13 +8,12 @@ from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils import timezone
 
-from autostew_back.gameserver.api import ApiCaller
+import autostew_web_session
+from autostew_back.gameserver import api_translations
+from autostew_back.gameserver.api import ApiCaller, ApiConnector
 from autostew_back.gameserver.event import event_factory
-from autostew_back.gameserver.lists import ListGenerator, ListName
-from autostew_back.gameserver.member import MemberList
-from autostew_back.gameserver.participant import ParticipantList
-from autostew_back.gameserver.session import Session
 from autostew_web_session.models import models as session_models
+from autostew_web_session.models.session import SessionSetup
 
 
 @decorator
@@ -106,55 +105,79 @@ class Server(models.Model):
         return None
 
     def back_start(self, settings, env_init=False, api_record=False):
-        self.get_current_setup_name = None  # Plugins set this to a function
         self.last_status_update_time = None
         self.settings = settings
+        self.running = True
 
         self.api = ApiCaller(
             self,
             record_destination=settings.api_record_destination if api_record is True else api_record
         )
-        self.lists = ListGenerator(self.api).generate_all()
-        self.session_api = Session(self.lists[ListName.session_attributes], self.lists, self.api)
-        self.members_api = MemberList(self.lists[ListName.member_attributes], self.lists, self.api)
-        self.participants_api = ParticipantList(self.lists[ListName.participant_attributes], self.lists, self.api)
-        self.back_fetch_status()
-        self._back_init_plugins(env_init)
+        self.back_fetch_server_status()
 
-    def back_fetch_status(self):
+        if self.state.name == ServerState.running:
+            self.back_create_session()
+
+    def back_fetch_server_status(self):
         status = self.api.get_status()
         self.state = ServerState.objects.get_or_create(name=status['state'])[0]
         self.lobby_id = status['lobbyid']
         self.joinable_internal = status['joinable']
         self.max_member_count = status['max_member_count']
+        self.save()
+
+    def back_create_session_setup(self):
+        new_setup = SessionSetup()
+        connector = ApiConnector(self.api, new_setup, api_translations.session_setup_translations)
+        connector.pull_from_game(self.api.get_status(members=False, participants=False))
+        new_setup.save()
+        return new_setup
+
+    def update_members_and_participants(self):
+        # TODO mark old elements
+        for member in server.members_api.elements:
+            _get_or_create_member(session, member)
+
+        for participant in server.participants_api.elements:
+            _get_or_create_participant(session, participant)
+
+    def back_create_session(self):
+        actual_setup = self.back_create_session_setup()
+
+        session = autostew_web_session.models.session.Session(
+            server=self,
+            setup_template=db_setup_rotation.current_setup.setup,
+            setup_actual=actual_setup,
+            lobby_id=self.lobby_id,
+            max_member_count=self.max_member_count,
+            running=True,
+            finished=False,
+        )
+
+        if db_setup_rotation.scheduled_session:
+            session.id = db_setup_rotation.scheduled_session.id
+            session.planned = True
+        else:
+            session.planned = False
+        session.save()
+
+        self.current_session = session
+        self.save()
+
+        self.update_members_and_participants()
+
+        snapshot = self.current_session.create_snapshot()
+        session.first_snapshot = snapshot
+        session.save()
+        return session
+
+        status = self.api.get_status()
         self.session_api.update_from_game(status['attributes'])
         self.members_api.update_from_game(status['members'])
         self.participants_api.update_from_game(status['participants'])
         self.last_status_update_time = time()
 
-    def _back_init_plugins(self, env_init):
-        try:
-            for index, plugin in enumerate(self.settings.plugins):
-                logging.info("Loading plugin {}.".format(plugin.name))
-                if 'dependencies' in dir(plugin):
-                    for dependency in plugin.dependencies:
-                        if dependency not in self.settings.plugins[:index]:
-                            raise UnmetPluginDependency
-                if env_init:
-                    self._back_env_init_plugins(plugin)
-                    continue
-                if 'init' in dir(plugin):
-                    plugin.init(self)
-        except BreakPluginLoadingException:
-            pass
-
-    @log_time
-    def _back_env_init_plugins(self, plugin):
-        logging.info("Initializing environment for plugin {}.".format(plugin.name))
-        if 'env_init' in dir(plugin):
-            plugin.env_init(self)
-
-    def _back_poll_loop(self, event_offset=None, only_one_run=False, one_by_one=False):
+    def back_poll_loop(self, event_offset=None, only_one_run=False, one_by_one=False):
         if not only_one_run:
             logging.info("Entering event loop")
         if event_offset is None:
@@ -176,7 +199,7 @@ class Server(models.Model):
                     input("Event (enter)")
 
                 if not updated_status_in_this_tick and event.reload_full_status:
-                    self.back_fetch_status()
+                    self.back_init_session()
                     updated_status_in_this_tick = True
 
                 for plugin in self.settings.plugins:
@@ -184,7 +207,7 @@ class Server(models.Model):
                         plugin.event(self, event)
 
             if time() - self.last_status_update_time > self.settings.full_update_period:
-                self.back_fetch_status()
+                self.back_init_session()
 
             if one_by_one:
                 input("Tick (enter)")

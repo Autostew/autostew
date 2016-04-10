@@ -2,7 +2,6 @@ from enum import Enum
 
 from autostew_back.gameserver.abstract_containers import AbstractAttribute, AbstractAttributeLinkedToList, \
     AbstractStatusTable, StatusList, AbstractAttributeLinkedToEnum
-from autostew_back.gameserver.lists import ListName, AttributeItem
 from autostew_back.gameserver.member import Member
 
 
@@ -51,7 +50,7 @@ class Participant(AbstractStatusTable):
         self.vehicle = ParticipantAttributeLinkedToList(
             self._from_list('VehicleId'),
             api,
-            lists[ListName.vehicles],
+            lists[ApiListNames.vehicles],
             'id'
         )
         self.livery = _participant_attribute('LiveryId')

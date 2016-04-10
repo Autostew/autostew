@@ -22,17 +22,6 @@ from autostew_web_session.models import models as session_models
 from autostew_web_session.models.server import Server
 from autostew_web_users.models import SteamUser
 
-name = 'DB writer'
-dependencies = [db, db_setup_rotation]
-
-current_session = None
-
-
-@transaction.atomic
-def init(server: Server):
-    global current_session
-    if server.state.name == ServerState.running:
-        current_session = _get_or_create_session(server)
 
 
 @transaction.atomic
@@ -227,38 +216,7 @@ def _close_current_session(server:Server):
 
 
 def _get_or_create_session(server: Server) -> autostew_web_session.models.session.Session:
-    actual_setup = _create_session_setup(server)
-    actual_setup.save()
-
-    session = autostew_web_session.models.session.Session(
-        server=server,
-        setup_template=db_setup_rotation.current_setup.setup,
-        setup_actual=actual_setup,
-        lobby_id=server.lobby_id,
-        max_member_count=server.max_member_count,
-        running=True,
-        finished=False,
-    )
-
-    if db_setup_rotation.scheduled_session:
-        session.id = db_setup_rotation.scheduled_session.id
-        session.planned = True
-    else:
-        session.planned = False
-    session.save()
-
-    for member in server.members_api.elements:
-        _get_or_create_member(session, member)
-
-    for participant in server.participants_api.elements:
-        _get_or_create_participant(session, participant)
-
-    snapshot = _create_session_snapshot(server, session)
-    session.first_snapshot = snapshot
-    session.save()
-    server.current_session = session
-    server.save()
-    return session
+    pass
 
 
 def _create_session_setup(server):

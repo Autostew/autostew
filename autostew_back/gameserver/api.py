@@ -6,6 +6,37 @@ from collections import defaultdict
 import requests
 
 
+class ApiConnector:
+    def __init__(self, api, target_model, translations):
+        self.api = api
+        self.object = target_model
+        self.translations = translations
+
+    def push_to_game(self, api_type_name, for_next_session = False, copy_to_next = False):
+        for i in self.translations:
+            if 'enum_model' in i.keys():
+                value = getattr(self.object, i['model_field']).ingame_id
+            else:
+                value = getattr(self.object, i['model_field'])
+            method = "set_next_attributes" if for_next_session else "set_attributes"
+            params = {
+                '{api_type_name}_{api_field}'.format(api_type_name=api_type_name, api_field=i['api_field']): value,
+                'copy_to_next': int(copy_to_next)
+            }
+            self.api._call("session/{method}".format(method=method), params=params)
+
+    def pull_from_game(self, api_result):
+        for i in self.translations:
+            if 'enum_model' in i.keys():
+                setattr(
+                    self.object,
+                    i['model_field'],
+                    i['enum_model'].objects.get_or_create(ingame_id=api_result[i['api_field']])[0]
+                )
+            else:
+                setattr(self.object, i['model_field'], api_result[i['api_field']])
+
+
 class ApiCaller:
     class ApiResultNotOk(Exception):
         pass

@@ -138,7 +138,6 @@ class Session(models.Model):
     running = models.BooleanField(help_text="If true, this race is currently running")
     finished = models.BooleanField(help_text="If true, this race finished")
 
-    lobby_id = models.CharField(max_length=200, blank=True)
     max_member_count = models.IntegerField(null=True, blank=True)
 
     first_snapshot = models.ForeignKey("SessionSnapshot", null=True, blank=True, related_name='+')

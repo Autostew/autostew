@@ -3,7 +3,6 @@ from enum import Enum
 from autostew_back.gameserver.abstract_containers import AbstractAttribute, AbstractAttributeLinkedToList, \
     AbstractFlagAttribute, AbstractStatusTable, StatusList, AbstractAttributeLinkedToEnum
 from autostew_back.gameserver.api import ApiCaller
-from autostew_back.gameserver.lists import ListName, AttributeItem
 
 
 class MemberFlags(Enum):
@@ -75,7 +74,7 @@ class Member(AbstractStatusTable):
         self.vehicle = MemberAttributeLinkedToList(
             self._from_list('VehicleId'),
             api,
-            lists[ListName.vehicles],
+            lists[ApiListNames.vehicles],
             'id'
         )
         self.livery = _member_attribute('LiveryId')

@@ -73,10 +73,10 @@ class TestEvents(TestCase):
             server.back_start(settings_no_plugins, False)
             self.assertEqual(tick_count, 0)
             self.assertEqual(event_count, 0)
-            server._back_poll_loop(only_one_run=True)
+            server.back_poll_loop(only_one_run=True)
             self.assertEqual(tick_count, 1)
             self.assertEqual(event_count, 0)
-            server._back_poll_loop(only_one_run=True)
+            server.back_poll_loop(only_one_run=True)
             self.assertEqual(tick_count, 2)
             self.assertEqual(event_count, 0)
 
@@ -104,7 +104,7 @@ class TestEvents(TestCase):
             self.assertEqual(event_count, 0)
             server.back_start(settings_no_plugins, False)
             self.assertEqual(event_count, 0)
-            server._back_poll_loop(only_one_run=True)
+            server.back_poll_loop(only_one_run=True)
             self.assertEqual(event_count, 4)
 
     def test_event_factory(self):
