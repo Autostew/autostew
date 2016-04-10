@@ -1,7 +1,6 @@
 import datetime
 import logging
 from datetime import timedelta
-from enum import Enum
 from time import time, sleep
 
 from decorator import decorator
@@ -25,18 +24,19 @@ def log_time(f, *args, **kwargs):
     logging.info("Plugin init took {} seconds".format(timedelta(seconds=time()-start_time)))
 
 
-class ServerState(Enum):
-    running = "Running"
-    allocating = "Allocating"
-    idle = "Idle"
-
-
 class BreakPluginLoadingException(Exception):
     pass
 
 
 class UnmetPluginDependency(Exception):
     pass
+
+
+class ServerState(models.Model):
+    running = "Running"
+    allocating = "Allocating"
+    idle = "Idle"
+    name = models.CharField(max_length=50)
 
 
 class Server(models.Model):
@@ -68,8 +68,10 @@ class Server(models.Model):
     last_ping = models.DateTimeField(null=True, blank=True,
                                      help_text="Last time the server reported to be alive")
     average_player_latency = models.IntegerField(null=True, blank=True)
-    # TODO joinable = models.BooleanField()
-    # TODO state = server.state!!
+    joinable_internal = models.BooleanField(default=False)
+    state = models.ForeignKey('ServerState', null=True, blank=True)
+    lobby_id = models.CharField(max_length=50, blank=True)
+    max_member_count = models.IntegerField(default=0)
 
     @property
     def is_up(self):
@@ -106,11 +108,6 @@ class Server(models.Model):
     def back_start(self, settings, env_init=False, api_record=False):
         self.get_current_setup_name = None  # Plugins set this to a function
         self.last_status_update_time = None
-        self.state = None
-        self.lobby_id = None
-        self.joinable = None
-        self.max_member_count = None
-
         self.settings = settings
 
         self.api = ApiCaller(
@@ -126,9 +123,9 @@ class Server(models.Model):
 
     def back_fetch_status(self):
         status = self.api.get_status()
-        self.state = ServerState(status['state'])
+        self.state = ServerState.objects.get_or_create(name=status['state'])[0]
         self.lobby_id = status['lobbyid']
-        self.joinable = status['joinable']
+        self.joinable_internal = status['joinable']
         self.max_member_count = status['max_member_count']
         self.session_api.update_from_game(status['attributes'])
         self.members_api.update_from_game(status['members'])

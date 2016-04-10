@@ -31,7 +31,7 @@ current_session = None
 @transaction.atomic
 def init(server: Server):
     global current_session
-    if server.state == ServerState.running:
+    if server.state.name == ServerState.running:
         current_session = _get_or_create_session(server)
 
 

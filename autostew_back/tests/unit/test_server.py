@@ -20,9 +20,9 @@ def status_empty(test_case, server):
     """
     Test for status after appliying prl_s4_r2_zolder_casual setup to an empty lobby
     """
-    test_case.assertEqual(server.state, ServerState.idle)
+    test_case.assertEqual(server.state.name, ServerState.idle)
     test_case.assertEqual(server.lobby_id, 0)
-    test_case.assertEqual(server.joinable, False)
+    test_case.assertEqual(server.joinable_internal, False)
     test_case.assertEqual(server.max_member_count, 0)
 
     test_case.assertEqual(server.get_current_setup_name(), prl_s4_r2_zolder_casual.name)
@@ -61,9 +61,9 @@ def status_in_lobby(test_case, server):
     """
     Test for server status after loading session_in_lobby_one_player.json
     """
-    test_case.assertEqual(server.state, ServerState.running)
+    test_case.assertEqual(server.state.name, ServerState.running)
     test_case.assertEqual(server.lobby_id, '109775242847201392')
-    test_case.assertEqual(server.joinable, True)
+    test_case.assertEqual(server.joinable_internal, True)
     test_case.assertEqual(server.max_member_count, 22)
     test_case.assertEqual(server.get_current_setup_name(), no_setup.name)
     test_case.assertEqual(server.session_api.server_controls_setup.get(), True)
@@ -170,9 +170,9 @@ def status_quali(test_case, server):
     """
     Test session after loading session_in_quali_two_players_14ai.json
     """
-    test_case.assertEqual(server.state, ServerState.running)
+    test_case.assertEqual(server.state.name, ServerState.running)
     test_case.assertEqual(server.lobby_id, '109775242847201392')
-    test_case.assertEqual(server.joinable, True)
+    test_case.assertEqual(server.joinable_internal, True)
     test_case.assertEqual(server.max_member_count, 22)
 
     test_case.assertEqual(server.get_current_setup_name(), no_setup.name)
@@ -494,8 +494,8 @@ class TestServer(TestCase):
             participants_in_quali(self, server)
             api.status_result = 'autostew_back/tests/test_assets/session_in_race_one_player_14ai.json'
             server.back_fetch_status()
-            self.assertEqual(server.state, ServerState.running)
-            self.assertEqual(server.joinable, False)
+            self.assertEqual(server.state.name, ServerState.running)
+            self.assertEqual(server.joinable_internal, False)
             self.assertEqual(server.session_api.session_state.get_nice(), SessionState.race)
             self.assertEqual(server.session_api.session_stage.get_nice(), SessionStage.race1)
             self.assertEqual(server.session_api.session_phase.get_nice(), SessionPhase.green)
