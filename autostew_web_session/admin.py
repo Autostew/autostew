@@ -41,12 +41,12 @@ class SessionSetupAdmin(admin.ModelAdmin):
         'server_controls_track',
         'server_controls_vehicle_class',
         'server_controls_vehicle',
-        'public',
+        'privacy',
     ]
     list_display = [
         'name',
         'is_template',
-        'public',
+        'privacy',
         'track',
         'vehicle_class'
     ]
@@ -83,7 +83,7 @@ close_sessions.short_description = "Close selected sessions"
 
 @admin.register(Session)
 class SessionAdmin(admin.ModelAdmin):
-    list_filter = ['server', 'planned', 'running', 'finished', 'setup_actual__public']
+    list_filter = ['server', 'planned', 'running', 'finished', 'setup_actual__privacy']
     list_display = ['id', 'server', 'setup_template', 'start_timestamp', 'planned', 'running', 'finished']
     search_fields = ['server__name', 'setup_actual__track__name', 'lobby_id']
     actions = [close_sessions]

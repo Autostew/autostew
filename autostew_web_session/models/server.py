@@ -129,7 +129,8 @@ class Server(models.Model):
     def back_create_session_setup(self):
         new_setup = SessionSetup()
         connector = ApiConnector(self.api, new_setup, api_translations.session_setup_translations)
-        connector.pull_from_game(self.api.get_status(members=False, participants=False))
+        connector.pull_from_game(self.api.get_status(members=False, participants=False)['attributes'])
+        new_setup.is_template = False
         new_setup.save()
         return new_setup
 

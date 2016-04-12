@@ -1,8 +1,7 @@
 from autostew_web_enums.models import SessionFlagDefinition, DamageDefinition, TireWearDefinition, FuelUsageDefinition, \
     PenaltyDefinition, AllowedViewsDefinition, WeatherDefinition, GameModeDefinition, SessionState, SessionStage, \
-    SessionPhase
+    SessionPhase, PrivacyDefinition
 from autostew_web_session.models.models import Track, VehicleClass, Vehicle
-from autostew_web_session.models.session_enums import Privacy
 
 session_setup_translations = [
     {'model_field': 'server_controls_setup', 'api_field': 'ServerControlsSetup'},
@@ -36,7 +35,7 @@ session_setup_translations = [
     {'model_field': 'race1_length', 'api_field': 'Race1Length'},
     {'model_field': 'race2_length', 'api_field': 'Race2Length'},
 
-    {'model_field': 'privacy', 'api_field': 'Privacy', 'enum_model': Privacy},  # TODO THIS IS WRONG, SHOULD BE A MODEL
+    {'model_field': 'privacy', 'api_field': 'Privacy', 'enum_model': PrivacyDefinition},
     {'model_field': 'damage', 'api_field': 'DamageType', 'enum_model': DamageDefinition},
     {'model_field': 'tire_wear', 'api_field': 'TireWearType', 'enum_model': TireWearDefinition},
     {'model_field': 'fuel_usage', 'api_field': 'FuelUsageType', 'enum_model': FuelUsageDefinition},

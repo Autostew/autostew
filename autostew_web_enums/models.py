@@ -18,6 +18,10 @@ class GameModeDefinition(models.Model):
     def __str__(self):
         return self.name
 
+    @classmethod
+    def get_or_create_default(cls, ingame_id):
+        return cls.objects.get_or_create(ingame_id=ingame_id, defaults={'name': 'Unknown'})[0]
+
 
 class TireWearDefinition(models.Model):
     name = models.CharField(max_length=50, unique=True)
@@ -25,6 +29,10 @@ class TireWearDefinition(models.Model):
 
     def __str__(self):
         return self.name
+
+    @classmethod
+    def get_or_create_default(cls, ingame_id):
+        return cls.objects.get_or_create(ingame_id=ingame_id, defaults={'name': 'Unknown'})[0]
 
 
 class PenaltyDefinition(models.Model):
@@ -34,6 +42,10 @@ class PenaltyDefinition(models.Model):
     def __str__(self):
         return self.name
 
+    @classmethod
+    def get_or_create_default(cls, ingame_id):
+        return cls.objects.get_or_create(ingame_id=ingame_id, defaults={'name': 'Unknown'})[0]
+
 
 class FuelUsageDefinition(models.Model):
     name = models.CharField(max_length=50, unique=True)
@@ -41,6 +53,10 @@ class FuelUsageDefinition(models.Model):
 
     def __str__(self):
         return self.name
+
+    @classmethod
+    def get_or_create_default(cls, ingame_id):
+        return cls.objects.get_or_create(ingame_id=ingame_id, defaults={'name': 'Unknown'})[0]
 
 
 class AllowedViewsDefinition(models.Model):
@@ -50,6 +66,10 @@ class AllowedViewsDefinition(models.Model):
     def __str__(self):
         return self.name
 
+    @classmethod
+    def get_or_create_default(cls, ingame_id):
+        return cls.objects.get_or_create(ingame_id=ingame_id, defaults={'name': 'Unknown'})[0]
+
 
 class PlayerFlagDefinition(models.Model):
     name = models.CharField(max_length=50, unique=True)
@@ -57,6 +77,10 @@ class PlayerFlagDefinition(models.Model):
 
     def __str__(self):
         return self.name
+
+    @classmethod
+    def get_or_create_default(cls, ingame_id):
+        return cls.objects.get_or_create(ingame_id=ingame_id, defaults={'name': 'Unknown'})[0]
 
 
 class WeatherDefinition(models.Model):
@@ -86,6 +110,22 @@ class WeatherDefinition(models.Model):
     def __str__(self):
         return self.name
 
+    @classmethod
+    def get_or_create_default(cls, ingame_id):
+        return cls.objects.get_or_create(ingame_id=ingame_id, defaults={'name': 'Unknown'})[0]
+
+
+class PrivacyDefinition(models.Model):
+    name = models.CharField(max_length=50, unique=True)
+    ingame_id = models.IntegerField(help_text='pCars internal ID')
+
+    def __str__(self):
+        return self.name
+
+    @classmethod
+    def get_or_create_default(cls, ingame_id):
+        return cls.objects.get_or_create(ingame_id=ingame_id, defaults={'name': 'Unknown'})[0]
+
 
 class DamageDefinition(models.Model):
     name = models.CharField(max_length=50, unique=True)
@@ -94,6 +134,10 @@ class DamageDefinition(models.Model):
     def __str__(self):
         return self.name
 
+    @classmethod
+    def get_or_create_default(cls, ingame_id):
+        return cls.objects.get_or_create(ingame_id=ingame_id, defaults={'name': 'Unknown'})[0]
+
 
 class SessionFlagDefinition(models.Model):
     name = models.CharField(max_length=50, unique=True)
@@ -101,6 +145,10 @@ class SessionFlagDefinition(models.Model):
 
     def __str__(self):
         return self.name
+
+    @classmethod
+    def get_or_create_default(cls, ingame_id):
+        return cls.objects.get_or_create(ingame_id=ingame_id, defaults={'name': 'Unknown'})[0]
 
 
 class SessionAttributeDefinition(models.Model):

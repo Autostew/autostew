@@ -12,9 +12,16 @@ class Track(models.Model):
     ingame_id = models.IntegerField(help_text='pCars internal ID')
     name = models.CharField(max_length=100)
     grid_size = models.SmallIntegerField()
+    track_latitude = models.IntegerField(default=0)
+    track_longitude = models.IntegerField(default=0)
+    track_altitude = models.IntegerField(default=0)
 
     def __str__(self):
         return self.name
+
+    @classmethod
+    def get_or_create_default(cls, ingame_id):
+        return cls.objects.get_or_create(ingame_id=ingame_id, defaults={'name': 'Unknown', 'grid_size': 0})[0]
 
     def get_absolute_url(self):
         return reverse('session:track', args=[str(self.id)])
@@ -53,6 +60,10 @@ class VehicleClass(models.Model):
     def __str__(self):
         return self.name
 
+    @classmethod
+    def get_or_create_default(cls, ingame_id):
+        return cls.objects.get_or_create(ingame_id=ingame_id, defaults={'name': 'Unknown'})[0]
+
 
 class Vehicle(models.Model):
     class Meta:
@@ -60,10 +71,14 @@ class Vehicle(models.Model):
 
     name = models.CharField(max_length=50, unique=True)
     ingame_id = models.IntegerField(help_text='pCars internal ID')
-    vehicle_class = models.ForeignKey(VehicleClass)
+    vehicle_class = models.ForeignKey(VehicleClass, null=True)
 
     def __str__(self):
         return self.name
+
+    @classmethod
+    def get_or_create_default(cls, ingame_id):
+        return cls.objects.get_or_create(ingame_id=ingame_id, defaults={'name': 'Unknown'})[0]
 
 
 class Livery(models.Model):

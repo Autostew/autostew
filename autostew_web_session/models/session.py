@@ -59,9 +59,7 @@ class SessionSetup(models.Model):
     race1_length = models.IntegerField(help_text="In laps or minutes")
     race2_length = models.IntegerField(help_text="In laps or minutes (this setting does not have any effect (yet?)")
 
-    public = models.BooleanField(
-        help_text="If true, this game will be listed in the multiplayer server search (implies friends_can_join)")
-    friends_can_join = models.BooleanField(help_text="If true, the players' friend will be able to join")
+    privacy = models.ForeignKey('autostew_web_enums.PrivacyDefinition', null=True)
     damage = models.ForeignKey('autostew_web_enums.DamageDefinition', null=True)
     tire_wear = models.ForeignKey('autostew_web_enums.TireWearDefinition', null=True)
     fuel_usage = models.ForeignKey('autostew_web_enums.FuelUsageDefinition', null=True)
@@ -91,12 +89,6 @@ class SessionSetup(models.Model):
     weather_3 = models.ForeignKey('autostew_web_enums.WeatherDefinition', related_name='+', null=True, blank=True)
     weather_4 = models.ForeignKey('autostew_web_enums.WeatherDefinition', related_name='+', null=True, blank=True)
     game_mode = models.ForeignKey('autostew_web_enums.GameModeDefinition', related_name='+', null=True, blank=True)
-    track_latitude = models.IntegerField(
-        help_text="Setting this value won't have any effect")  # TODO this should be on track model
-    track_longitude = models.IntegerField(
-        help_text="Setting this value won't have any effect")  # TODO this should be on track model
-    track_altitude = models.IntegerField(
-        help_text="Setting this value won't have any effect")  # TODO this should be on track model
 
     def get_track_url(self):
         if self.force_identical_vehicles:

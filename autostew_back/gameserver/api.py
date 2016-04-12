@@ -31,7 +31,7 @@ class ApiConnector:
                 setattr(
                     self.object,
                     i['model_field'],
-                    i['enum_model'].objects.get_or_create(ingame_id=api_result[i['api_field']])[0]
+                    i['enum_model'].get_or_create_default(api_result[i['api_field']])
                 )
             else:
                 setattr(self.object, i['model_field'], api_result[i['api_field']])

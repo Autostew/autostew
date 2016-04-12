@@ -30,3 +30,12 @@ class TestBack(TestCase):
             self.assertEqual(self.server.max_member_count, 0)
             self.assertEqual(self.server.running, True)
 
+    def test_back_start_running_server(self):
+        self.api = FakeApi('autostew_back/tests/test_assets/session_in_lobby_one_player.json')
+        with mock.patch.object(requests, 'get', self.api.fake_request):
+            self.server.back_start(base, False)
+            self.assertEqual(self.server.lobby_id, 0)
+            self.assertEqual(self.server.joinable_internal, False)
+            self.assertEqual(self.server.max_member_count, 0)
+            self.assertEqual(self.server.running, True)
+
