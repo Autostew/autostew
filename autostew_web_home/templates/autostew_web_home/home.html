@@ -28,6 +28,39 @@
         <li>Allows planning of races.</li>
         <li>Connect your own dedicated server to Autostew.</li>
     </ul>
+
+    <h3>Servers</h3>
+
+    {% if server_list %}
+        <ul>
+            {% for server in server_list %}
+                <li>
+                    {% if server.is_up %}
+                        <span class="label label-success">Connected</span>
+                    {% else %}
+                        <span class="label label-danger">Disconnected</span>
+                    {% endif %}
+                    <a href="{{ server.get_absolute_url }}">{{ server.name }}</a>
+                    {% if server.current_session %}
+                        <a href="{{ server.current_session.get_absolute_url }}">{{ server.current_session }}</a>
+                    {% endif %}
+                    {% if server.is_up %}
+                        <span class="label
+                            {% if server.average_player_latency < 50 %}label-success
+                            {% elif server.average_player_latency < 100 %}label-info
+                            {% elif server.average_player_latency > 250 %}label-danger
+                            {% elif server.average_player_latency > 150 %}label-warning
+                            {% else %}label-default
+                            {% endif %}
+                        ">{{ server.average_player_latency }} ms</span>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <h5>No servers are available!</h5>
+    {% endif %}
+
     <h3>
         More to come!
     </h3>
