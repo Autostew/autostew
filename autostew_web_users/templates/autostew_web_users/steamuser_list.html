@@ -11,7 +11,7 @@
         <thead>
             <tr>
                 <th>Name</th>
-                <th>Safety class</th>
+                <th data-sortable-type="numeric">Safety class</th>
                 <th data-sortable-type="numeric">Performance rating</th>
             </tr>
         </thead>
@@ -22,7 +22,7 @@
                         <td>
                             <a href="{{ user.get_absolute_url }}">{{ user.display_name }}</a>
                         </td>
-                        <td>
+                        <td data-value="{{ user.safety_rating|default_if_none:1000000 }}">
                             {% if user.safety_class %}
                                 <span class="label label-default">{{ user.safety_class.name }}</span>
                             {% else %}
