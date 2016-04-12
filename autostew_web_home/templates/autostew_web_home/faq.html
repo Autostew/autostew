@@ -45,17 +45,49 @@
         count. A crash between two drivers of the same class will award both the full crash points.
     </p>
     <hr>
+    <h3>Autostew logs crashes in a weird way!</h3>
+    <p>
+        Autostew cannot distinguish who is at fault in a crash. Also, as you will be playing online, it may happen that
+        in your screen no crash happened, but the dedicated server still logs a crash. Even with its quirks, the system
+        should in the long term assign good ratings to safe drivers and bad ratings to unsafe drivers.
+    </p>
+    <hr>
+    <h3>I drive as safely as I can but I get kicked / have a low safety class anyway.</h3>
+    <p>
+        That means you are still crashing too much. We are fine-tuning the safety classes and crash limits, but one of
+        our main goals is and will be to keep races clean.
+    </p>
+    <p>
+        You can do several things to get less crash points. Be very careful at the start of the race, that is
+        where most crashes happen. It is better to start the race cleanly and loose some positions in the first lap than
+        ruining everybody's race (and many times your own too) being over-ambitious. You will have at least a few laps
+        to get a good position. If you are unsure about an overtake, consider aborting it, especially in difficult
+        corners.
+    </p>
+    <p>
+        Be sure to respect racing rules. We will have some general rules posted soon.
+    </p>
+    <p>
+        If you can't control a car, try switching to a slower car class. It may seem boring at first, but it may be more
+        rewarding to be able to concentrate on driving a car well instead of simply trying not trying to crash on every
+        corner. There are generally less crashes in slower car classes. It may also be a good idea to mostly stick to
+        one car class and learning only a few tracks at first. Consider joining a league just for the fun :)
+    </p>
+    <hr>
     <h3>How is the driver performance rating calculated?</h3>
     <p>
         We use the <a href="https://en.wikipedia.org/wiki/Elo_rating_system">Elo rating system</a>. You will be
         considered a winner over every driver who finished in a worse position than yours, but also over all drivers
         who completed a lap in any stage of the race but did not finish the race itself.
     </p>
-    <hr>
-    <h3>Autostew logs crashes in a wierd way!</h3>
     <p>
-        Autostew cannot distinguish who is at fault in a crash. Also, as you will be playing online, it may happen that
-        in your screen no crash happened, but the dedicated server still logs a crash. Even with its quirks, the system
-        should in the long term assign good ratings to safe drivers and bad ratings to unsafe drivers.
+        In the Elo rating system, winners take points from losers. The beautiful thing about it is that the amount of
+        points taken depends on the expected result of a game. Thus, if you lose against a driver who is much better
+        than you, you will lose few points, but if you win against that same driver, you will get a lot of points from
+        him. The same happens when you win or lose against drivers who are worse than you.
+    </p>
+    <p>
+        The maximum points you can win from beating another driver is 2 per race (the "k" value). Therefore, if you win
+        a race against 20 other players, you can get up to 40 points if all had a better rating than you.
     </p>
 {% endblock %}
