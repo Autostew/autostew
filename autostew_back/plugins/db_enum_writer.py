@@ -8,7 +8,6 @@ from django.db import transaction
 from autostew_back.gameserver.event import EventType, LeavingReason
 from autostew_back.gameserver.member import MemberLoadState, MemberState
 from autostew_back.gameserver.participant import ParticipantState
-from autostew_web_session.models.session_enums import SessionState, SessionStage, SessionPhase
 from autostew_web_enums import models
 from autostew_web_session.models.models import Track, VehicleClass, Vehicle, Livery
 from autostew_web_enums.models import EventDefinition, GameModeDefinition, TireWearDefinition, PenaltyDefinition, \
@@ -31,9 +30,9 @@ true_enums = [
     (MemberLoadState, models.MemberLoadState),
     (MemberState, models.MemberState),
     (ParticipantState, models.ParticipantState),
-    (SessionState, models.SessionState),
-    (SessionStage, models.SessionStage),
-    (SessionPhase, models.SessionPhase),
+    # TODO (SessionState, models.SessionState),
+    # TODO (SessionStage, models.SessionStage),
+    # TODO (SessionPhase, models.SessionPhase),
 ]
 
 

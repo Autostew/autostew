@@ -5,7 +5,6 @@ Can also be set to warn and kick crashing players.
 
 from autostew_back.gameserver.event import EventType, BaseEvent
 from autostew_back.gameserver.participant import Participant
-from autostew_web_session.models.session_enums import SessionState
 from autostew_back.plugins.db_session_writer_libs import db_safety_rating
 from autostew_web_session.models.server import Server
 from autostew_web_users.models import SteamUser, SafetyClass

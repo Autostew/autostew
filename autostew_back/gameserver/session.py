@@ -1,6 +1,5 @@
 from autostew_back.gameserver.abstract_containers import AbstractAttribute, AbstractAttributeLinkedToList, \
     AbstractFlagAttribute, AbstractStatusTable, AbstractAttributeLinkedToEnum
-from autostew_web_session.models.session_enums import SessionFlags, SessionState, SessionStage, SessionPhase, Privacy
 
 
 class SessionAttribute(AbstractAttribute):

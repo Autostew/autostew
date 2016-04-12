@@ -8,7 +8,7 @@ import autostew_web_session.models.session
 from autostew_back.gameserver.member import MemberLoadState, MemberState
 from autostew_back.gameserver.mocked_api import FakeApi
 from autostew_back.gameserver.participant import ParticipantState
-from autostew_web_session.models.server import UnmetPluginDependency, Server
+from autostew_web_session.models.server import UnmetPluginDependencyException, Server
 from autostew_back.tests.test_assets import settings_db_enum_writer, settings_fail_dependencies, \
     settings_db_session_writer
 from autostew_web_enums.models import DamageDefinition, TireWearDefinition, FuelUsageDefinition, PenaltyDefinition, \
@@ -104,7 +104,7 @@ class TestDBWriter(TestCase):
         api = FakeApi()
         server = TestDBWriter.make_test_server()
         with mock.patch.object(requests, 'get', api.fake_request):
-            self.assertRaises(UnmetPluginDependency, server.back_start, settings_fail_dependencies, False)
+            self.assertRaises(UnmetPluginDependencyException, server.back_start, settings_fail_dependencies, False)
 
     def test_create_session_in_lobby(self):
         """

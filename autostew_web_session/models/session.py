@@ -123,7 +123,6 @@ class Session(models.Model):
     start_timestamp = models.DateTimeField(auto_now_add=True,  # TODO remove auto_now_add
                                            help_text="Time when the race starts/started")
     last_update_timestamp = models.DateTimeField(auto_now=True)
-    planned = models.BooleanField(help_text="If true, this race was/is scheduled")
     schedule_time = models.TimeField(null=True, blank=True, help_text="Time this schedule will run")
     schedule_date = models.DateField(null=True, blank=True,
                                      help_text="Date this schedule will run, if blank will run daily")

@@ -1,8 +1,6 @@
 import datetime
 from enum import Enum
 
-import autostew_web_session.models.session_enums
-from autostew_back.gameserver import session
 from autostew_back.gameserver.participant import ParticipantState
 
 

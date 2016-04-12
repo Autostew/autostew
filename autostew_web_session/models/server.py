@@ -12,6 +12,7 @@ import autostew_web_session
 from autostew_back.gameserver import api_translations
 from autostew_back.gameserver.api import ApiCaller, ApiConnector
 from autostew_back.gameserver.event import event_factory
+from autostew_web_enums.models import SessionState
 from autostew_web_session.models import models as session_models
 from autostew_web_session.models.session import SessionSetup
 
@@ -27,7 +28,11 @@ class BreakPluginLoadingException(Exception):
     pass
 
 
-class UnmetPluginDependency(Exception):
+class UnmetPluginDependencyException(Exception):
+    pass
+
+
+class NoSessionSetupTemplateAvailableException(Exception):
     pass
 
 
@@ -69,6 +74,7 @@ class Server(models.Model):
     average_player_latency = models.IntegerField(null=True, blank=True)
     joinable_internal = models.BooleanField(default=False)
     state = models.ForeignKey('ServerState', null=True, blank=True)
+    session_state = models.ForeignKey('autostew_web_enums.SessionState', null=True, blank=True)
     lobby_id = models.CharField(max_length=50, blank=True)
     max_member_count = models.IntegerField(default=0)
 
@@ -113,14 +119,17 @@ class Server(models.Model):
             self,
             record_destination=settings.api_record_destination if api_record is True else api_record
         )
-        self.back_fetch_server_status()
+        self.back_pull_server_status()
 
         if self.state.name == ServerState.running:
-            self.back_create_session()
+            self.back_start_session()
 
-    def back_fetch_server_status(self):
+    def back_pull_server_status(self):  # TODO this should also be made over an API translator
         status = self.api.get_status()
         self.state = ServerState.objects.get_or_create(name=status['state'])[0]
+        self.session_state = (
+            SessionState.objects.get_or_create(name=status['attributes']['session_state'])[0]
+            if 'attributes' in status.keys() and 'session_state' in status['attributes'].keys() else None)
         self.lobby_id = status['lobbyid']
         self.joinable_internal = status['joinable']
         self.max_member_count = status['max_member_count']
@@ -134,7 +143,8 @@ class Server(models.Model):
         new_setup.save()
         return new_setup
 
-    def update_members_and_participants(self):
+    def back_full_pull(self):
+        self.back_pull_server_status()
         # TODO mark old elements
         for member in server.members_api.elements:
             _get_or_create_member(session, member)
@@ -142,30 +152,46 @@ class Server(models.Model):
         for participant in server.participants_api.elements:
             _get_or_create_participant(session, participant)
 
-    def back_create_session(self):
+    def back_get_next_setup(self):
+        peek = (
+            not self.session_state or
+            self.session_state.name != SessionState.lobby or
+            self.state != ServerState.running
+        )
+
+        queued_setup = self.pop_next_queued_setup(peek)
+        if queued_setup:
+            return queued_setup
+
+        if not self.setup_rotation.exists():
+            raise NoSessionSetupTemplateAvailableException("No setup rotation or queued!")
+        if not peek:
+            self.setup_rotation_index += 1
+        if self.setup_rotation_index >= len(self.setup_rotation.all()):
+            self.setup_rotation_index = 0
+        self.save()
+        return self.setup_rotation[self.setup_rotation_index]
+
+    def back_start_session(self):
+        setup_template = self.back_get_next_setup()
+        connector = ApiConnector(self.api, setup_template, api_translations.session_setup_translations)
+        connector.push_to_game('session')
         actual_setup = self.back_create_session_setup()
 
         session = autostew_web_session.models.session.Session(
             server=self,
-            setup_template=db_setup_rotation.current_setup.setup,
+            setup_template=setup_template,
             setup_actual=actual_setup,
-            lobby_id=self.lobby_id,
             max_member_count=self.max_member_count,
             running=True,
             finished=False,
         )
-
-        if db_setup_rotation.scheduled_session:
-            session.id = db_setup_rotation.scheduled_session.id
-            session.planned = True
-        else:
-            session.planned = False
         session.save()
 
         self.current_session = session
         self.save()
 
-        self.update_members_and_participants()
+        self.back_full_pull()
 
         snapshot = self.current_session.create_snapshot()
         session.first_snapshot = snapshot

@@ -15,6 +15,11 @@ enum_translation = [
     {'model_field': 'damage', 'api_field': 'DamageType', 'enum_model': DamageDefinition},
 ]
 
+flag_translation = [
+    {'model_field': 'one', 'flag': 1, 'api_field': 'Flags'},
+    {'model_field': 'two', 'flag': 2, 'api_field': 'Flags'},
+]
+
 
 class NoApi:
     def _call(self):
@@ -25,6 +30,8 @@ class FakeModel:
     def __init__(self):
         self.practice1_length = None
         self.damage = None
+        self.one = None
+        self.two = None
 
 
 class TestApiConnector(TestCase):
@@ -70,3 +77,30 @@ class TestApiConnector(TestCase):
             'session/set_attributes',
             params={'type_DamageType': 2, 'copy_to_next': False}
         )
+
+    def test_connector_pull_flag_empty(self):
+        api_result = {'Flags': '0'}
+        fake_model = FakeModel()
+        translator = ApiConnector(NoApi(), fake_model, flag_translation)
+        translator.pull_from_game(api_result)
+        self.assertEqual(fake_model.one, False)
+        self.assertEqual(fake_model.two, False)
+
+    def test_connector_pull_flag_one(self):
+        api_result = {'Flags': '2'}
+        fake_model = FakeModel()
+        translator = ApiConnector(NoApi(), fake_model, flag_translation)
+        translator.pull_from_game(api_result)
+        self.assertEqual(fake_model.one, False)
+        self.assertEqual(fake_model.two, True)
+
+    def test_connector_pull_flag_multiple(self):
+        api_result = {'Flags': '3'}
+        fake_model = FakeModel()
+        translator = ApiConnector(NoApi(), fake_model, flag_translation)
+        translator.pull_from_game(api_result)
+        self.assertEqual(fake_model.one, True)
+        self.assertEqual(fake_model.two, True)
+
+    def test_connector_push_flag(self):
+        raise Exception("Implement this test")

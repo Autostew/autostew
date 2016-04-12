@@ -83,8 +83,8 @@ close_sessions.short_description = "Close selected sessions"
 
 @admin.register(Session)
 class SessionAdmin(admin.ModelAdmin):
-    list_filter = ['server', 'planned', 'running', 'finished', 'setup_actual__privacy']
-    list_display = ['id', 'server', 'setup_template', 'start_timestamp', 'planned', 'running', 'finished']
+    list_filter = ['server', 'running', 'finished', 'setup_actual__privacy']
+    list_display = ['id', 'server', 'setup_template', 'start_timestamp', 'running', 'finished']
     search_fields = ['server__name', 'setup_actual__track__name', 'lobby_id']
     actions = [close_sessions]
 
