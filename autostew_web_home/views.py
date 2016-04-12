@@ -1,7 +1,7 @@
 from django.views.generic.base import TemplateView
 
 from autostew_web_contact.models import ContactMessage
-from autostew_web_session.models import Server
+from autostew_web_session.models.server import Server
 
 
 class HomeView(TemplateView):
