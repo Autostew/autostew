@@ -72,11 +72,17 @@ class ServerAdmin(admin.ModelAdmin):
     search_fields = ['name', 'current_session__setup_actual__track__name']
 
 
+def close_sessions(modeladmin, request, queryset):
+    queryset.update(running=False)
+close_sessions.short_description = "Close selected sessions"
+
 @admin.register(Session)
 class SessionAdmin(admin.ModelAdmin):
     list_filter = ['server', 'planned', 'running', 'finished', 'setup_actual__public']
     list_display = ['id', 'server', 'setup_template', 'start_timestamp', 'planned', 'running', 'finished']
     search_fields = ['server__name', 'setup_actual__track__name', 'lobby_id']
+    actions = [close_sessions]
+
 
 
 admin.site.register(SessionSnapshot)

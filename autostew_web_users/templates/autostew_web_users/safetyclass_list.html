@@ -1,0 +1,30 @@
+{% extends "autostew_web_home/base.html" %}
+
+{% block content %}
+    <div class="page-header">
+        <h1>Safety classes</h1>
+    </div>
+
+    {% if safetyclass_list %}
+        {% for class in safetyclass_list %}
+            <h2>{{ class.name }}</h2>
+            {% if class.initial_class %}
+                <p><b>New players start in this class.</b></p>
+            {% endif %}
+            <p>
+                Raise to this class at {{ class.raise_to_this_class_threshold }} points. Drop from this class at
+                {{ class.drop_from_this_class_threshold }} points.
+            </p>
+            <p>
+                Weight for crashes against human players: {{ class.impact_weight }}.
+            </p>
+            {% if class.kick_on_impact_threshold %}
+                <p><b>Players in this class will be kicked on a crash that awards {{ class.kick_on_impact_threshold }}
+                    or more points.</b></p>
+            {% endif %}
+            {{ class.description|safe }}
+        {% endfor %}
+    {% else %}
+        <p>No safety classes found!</p>
+    {% endif %}
+{% endblock %}

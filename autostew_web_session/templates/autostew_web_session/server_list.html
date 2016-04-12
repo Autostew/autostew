@@ -10,9 +10,9 @@
             {% for server in server_list %}
                 <li>
                     {% if server.is_up %}
-                        <span class="label label-success">Up</span>
+                        <span class="label label-success">Connected</span>
                     {% else %}
-                        <span class="label label-danger">Down</span>
+                        <span class="label label-danger">Disconnected</span>
                     {% endif %}
                     <a href="{{ server.get_absolute_url }}">{{ server.name }}</a>
                     {% if server.current_session %}
