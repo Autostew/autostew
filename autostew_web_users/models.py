@@ -60,6 +60,7 @@ class SafetyClass(models.Model):
         ordering = ['order']
     order = models.IntegerField()
     name = models.CharField(max_length=50)
+    description = models.TextField(blank=True)
     class_below = models.OneToOneField('SafetyClass', null=True, blank=True, related_name='class_above')
     raise_to_this_class_threshold = models.IntegerField()
     drop_from_this_class_threshold = models.IntegerField()

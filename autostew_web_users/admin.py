@@ -23,5 +23,7 @@ class SafetyClassAdmin(admin.ModelAdmin):
         'class_below',
         'initial_class',
         'raise_to_this_class_threshold',
-        'drop_from_this_class_threshold'
+        'drop_from_this_class_threshold',
+        'kick_on_impact_threshold',
+        'impact_weight',
     ]
