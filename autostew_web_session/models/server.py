@@ -10,7 +10,8 @@ from django.utils import timezone
 
 import autostew_web_session
 from autostew_back.gameserver import api_translations
-from autostew_back.gameserver.api import ApiCaller, ApiConnector
+from autostew_back.gameserver.api import ApiCaller
+from autostew_back.gameserver.api_connector import ApiConnector
 from autostew_back.gameserver.event import event_factory
 from autostew_web_enums.models import SessionState
 from autostew_web_session.models import models as session_models

@@ -4,7 +4,7 @@ from unittest.mock import Mock
 import requests
 from django.test import TestCase
 
-from autostew_back.gameserver.api import ApiConnector
+from autostew_back.gameserver.api_connector import ApiConnector
 from autostew_web_enums.models import DamageDefinition
 
 simple_translation = [
@@ -102,5 +102,41 @@ class TestApiConnector(TestCase):
         self.assertEqual(fake_model.one, True)
         self.assertEqual(fake_model.two, True)
 
-    def test_connector_push_flag(self):
-        raise Exception("Implement this test")
+    def test_connector_push_flag_empty(self):
+        api = NoApi
+        api._call = Mock(return_value=None)
+        fake_model = FakeModel()
+        fake_model.one = False
+        fake_model.two = False
+        translator = ApiConnector(api, fake_model, flag_translation)
+        translator.push_to_game('type')
+        api._call.assert_called_once_with(
+            'session/set_attributes',
+            params={'type_Flags': 0, 'copy_to_next': False}
+        )
+
+    def test_connector_push_flag_one(self):
+        api = NoApi
+        api._call = Mock(return_value=None)
+        fake_model = FakeModel()
+        fake_model.one = True
+        fake_model.two = False
+        translator = ApiConnector(api, fake_model, flag_translation)
+        translator.push_to_game('type')
+        api._call.assert_called_once_with(
+            'session/set_attributes',
+            params={'type_Flags': 1, 'copy_to_next': False}
+        )
+
+    def test_connector_push_flag_multiple(self):
+        api = NoApi
+        api._call = Mock(return_value=None)
+        fake_model = FakeModel()
+        fake_model.one = True
+        fake_model.two = True
+        translator = ApiConnector(api, fake_model, flag_translation)
+        translator.push_to_game('type')
+        api._call.assert_called_once_with(
+            'session/set_attributes',
+            params={'type_Flags': 3, 'copy_to_next': False}
+        )
