@@ -7,8 +7,7 @@ from django.test import TestCase
 from autostew_back.gameserver.mocked_api import FakeApi
 from autostew_back.tests.unit.test_plugin_db_writer import TestDBWriter
 from autostew_web_session.models.server import UnmetPluginDependencyException, Server
-from autostew_back.plugins import db_enum_writer, db, db_session_writer
-from autostew_back.tests.test_assets import settings_db_enum_writer, settings_fail_dependencies
+from autostew_back.tests.test_assets import settings_db_enum_writer
 from autostew_web_enums.models import FuelUsageDefinition, SessionAttributeDefinition, MemberAttributeDefinition, \
     ParticipantAttributeDefinition
 from autostew_web_session.models.models import VehicleClass, Vehicle, Track

@@ -7,6 +7,7 @@ class Member(models.Model):
     class Meta:
         ordering = ['name']
 
+    parent = models.ForeignKey('self', null=True, blank=True)
     steam_user = models.ForeignKey('autostew_web_users.SteamUser')
     session = models.ForeignKey('Session')
     still_connected = models.BooleanField()
@@ -42,29 +43,9 @@ class Member(models.Model):
     aid_driving_line = models.BooleanField()
     valid = models.BooleanField()
 
-    def finishing_position(self):
-        race_stage = self.session.get_race_stage()
-        if race_stage is None or race_stage.result_snapshot is None:
-            return None
-        try:
-            return race_stage.result_snapshot.member_snapshots.get(member=self).get_participant_snapshot().race_position
-        except MemberSnapshot.DoesNotExist:
-            return None
-
-
-class MemberSnapshot(models.Model):
-    class Meta:
-        ordering = ['member__name']
-
-    member = models.ForeignKey(Member)
-    snapshot = models.ForeignKey('SessionSnapshot', related_name='member_snapshots')
-    still_connected = models.BooleanField()
-    load_state = models.ForeignKey(enum_models.MemberLoadState)
-    ping = models.IntegerField()
-    index = models.IntegerField()
-    state = models.ForeignKey(enum_models.MemberState)
-    join_time = models.IntegerField()
-    host = models.BooleanField()
-
-    def get_participant_snapshot(self):
-        return self.snapshot.participantsnapshot_set.get(participant__member=self.member)
+    def create_snapshot(self, session_snapshot):
+        snapshot = Member.objects.get(pk=self.pk)
+        snapshot.pk = None
+        snapshot.parent = self
+        snapshot.save()
+        return snapshot

@@ -8,7 +8,7 @@ from django.views.generic import FormView
 from autostew_web_session import models
 from autostew_web_session.models.models import Event, Track, Vehicle, VehicleClass
 from autostew_web_session.models.participant import Participant
-from autostew_web_session.models.session import SessionSetup, Session, SessionSnapshot
+from autostew_web_session.models.session import SessionSetup, Session
 from autostew_web_session.models.server import Server
 from .forms import SessionSetupForm
 
@@ -43,11 +43,10 @@ def session(request, pk):
 
 
 class SnapshotView(generic.DetailView):
-    model = SessionSnapshot
+    model = Session
 
     def get_context_data(self, **kwargs):
         context = super(SnapshotView, self).get_context_data(**kwargs)
-        context['session'] = context['object'].session
         return context
 
 

@@ -4,13 +4,10 @@ from unittest.case import skip
 import requests
 from django.test import TestCase
 
-from autostew_back.gameserver.member import MemberLoadState, MemberFlags, MemberState
 from autostew_back.gameserver.mocked_api import FakeApi
 from autostew_back.gameserver.participant import ParticipantState
 from autostew_back.tests.unit.test_plugin_db_writer import TestDBWriter
 from autostew_web_session.models.server import ServerState, Server
-from autostew_back.gameserver.session import Privacy, SessionState, SessionStage, SessionPhase
-from autostew_web_session.models.session_enums import SessionFlags, SessionState, SessionStage, SessionPhase, Privacy
 from autostew_back.plugins import local_setup_rotation
 from autostew_back.tests.test_assets import prl_s4_r2_zolder_casual, no_setup
 from autostew_back.tests.test_assets import settings_no_plugins_no_setup

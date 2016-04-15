@@ -1,11 +1,12 @@
+import logging
+
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.db.models import QuerySet, Max, Min
 
 import autostew_web_session.models.participant
 from autostew_web_enums import models as enum_models
-from autostew_web_session.models.member import Member, MemberSnapshot
-from autostew_web_session.models import models as session_models
+from autostew_web_session.models.member import Member
 
 
 class SessionSetup(models.Model):
@@ -113,6 +114,7 @@ class Session(models.Model):
     class Meta:
         ordering = ['start_timestamp']
 
+    parent = models.ForeignKey('self', null=True, blank=True)
     server = models.ForeignKey('Server')
     setup_template = models.ForeignKey(SessionSetup, limit_choices_to={'is_template': True}, related_name='+',
                                        help_text="This setup is feeded to the game")
@@ -131,10 +133,50 @@ class Session(models.Model):
 
     max_member_count = models.IntegerField(null=True, blank=True)
 
-    first_snapshot = models.ForeignKey("SessionSnapshot", null=True, blank=True, related_name='+')
-    current_snapshot = models.ForeignKey("SessionSnapshot", null=True, blank=True, related_name='+')
-    starting_snapshot_lobby = models.ForeignKey("SessionSnapshot", null=True, blank=True, related_name='+')
-    starting_snapshot_to_track = models.ForeignKey("SessionSnapshot", null=True, blank=True, related_name='+')
+    first_snapshot = models.ForeignKey("self", null=True, blank=True, related_name='+')
+
+    is_result = models.BooleanField(default=0)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    session_state = models.ForeignKey("autostew_web_enums.SessionState", null=True, blank=True)
+    session_stage = models.ForeignKey("autostew_web_enums.SessionStage", null=True, blank=True)
+    session_phase = models.ForeignKey("autostew_web_enums.SessionPhase", null=True, blank=True)
+    session_time_elapsed = models.BigIntegerField(default=0)
+    session_time_duration = models.IntegerField(default=0)
+    num_participants_valid = models.IntegerField(default=0)
+    num_participants_disq = models.IntegerField(default=0)
+    num_participants_retired = models.IntegerField(default=0)
+    num_participants_dnf = models.IntegerField(default=0)
+    num_participants_finished = models.IntegerField(default=0)
+    current_year = models.IntegerField(default=0)
+    current_month = models.IntegerField(default=0)
+    current_day = models.IntegerField(default=0)
+    current_hour = models.IntegerField(default=0)
+    current_minute = models.IntegerField(default=0)
+    rain_density_visual = models.IntegerField(default=0)
+    wetness_path = models.IntegerField(default=0)
+    wetness_off_path = models.IntegerField(default=0)
+    wetness_avg = models.IntegerField(default=0)
+    wetness_predicted_max = models.IntegerField(default=0)
+    wetness_max_level = models.IntegerField(default=0)
+    temperature_ambient = models.IntegerField(default=0)
+    temperature_track = models.IntegerField(default=0)
+    air_pressure = models.IntegerField(default=0)
+
+    def create_snapshot(self):
+        logging.info("Creating session snapshot")
+        snapshot = Session.objects.get(pk=self.pk)
+        snapshot.pk = None
+        snapshot.parent = self
+        snapshot.save()
+
+        for member in self.member_set.all():
+            member.create_snapshot(snapshot)
+
+        for participant in self.participant_set.all():
+            participant.create_snapshot(snapshot)
+
+        self.save()
+        return snapshot
 
     def get_absolute_url(self):
         return reverse('session:session', args=[str(self.id)])
@@ -164,41 +206,8 @@ class Session(models.Model):
             return None
 
 
-class SessionSnapshot(models.Model):
-    class Meta:
-        ordering = ['timestamp']
-
-    session = models.ForeignKey(Session)
-    is_result = models.BooleanField()
-    timestamp = models.DateTimeField(auto_now_add=True)
-    session_state = models.ForeignKey("autostew_web_enums.SessionState")
-    session_stage = models.ForeignKey("autostew_web_enums.SessionStage")
-    session_phase = models.ForeignKey("autostew_web_enums.SessionPhase")
-    session_time_elapsed = models.BigIntegerField()
-    session_time_duration = models.IntegerField()
-    num_participants_valid = models.IntegerField()
-    num_participants_disq = models.IntegerField()
-    num_participants_retired = models.IntegerField()
-    num_participants_dnf = models.IntegerField()
-    num_participants_finished = models.IntegerField()
-    current_year = models.IntegerField()
-    current_month = models.IntegerField()
-    current_day = models.IntegerField()
-    current_hour = models.IntegerField()
-    current_minute = models.IntegerField()
-    rain_density_visual = models.IntegerField()
-    wetness_path = models.IntegerField()
-    wetness_off_path = models.IntegerField()
-    wetness_avg = models.IntegerField()
-    wetness_predicted_max = models.IntegerField()
-    wetness_max_level = models.IntegerField()
-    temperature_ambient = models.IntegerField()
-    temperature_track = models.IntegerField()
-    air_pressure = models.IntegerField()
-
-    def get_absolute_url(self):
-        return reverse('session:snapshot', args=[str(self.id)])
-
+# TODO
+"""
     def reorder_by_best_time(self):
         participants_with_fastest_lap_set = self.participantsnapshot_set.filter(fastest_lap_time__gt=0)
         for i, v in enumerate(participants_with_fastest_lap_set.order_by('fastest_lap_time')):
@@ -236,13 +245,13 @@ class SessionSnapshot(models.Model):
             )
         except self.DoesNotExist:
             return None
-
+"""
 
 class SessionStage(models.Model):
     session = models.ForeignKey(Session, related_name='stages')
     stage = models.ForeignKey(enum_models.SessionStage)
-    starting_snapshot = models.ForeignKey(SessionSnapshot, related_name='starting_of', null=True, blank=True)
-    result_snapshot = models.ForeignKey(SessionSnapshot, related_name='result_of', null=True, blank=True)
+    starting_snapshot = models.ForeignKey(Session, related_name='starting_of', null=True, blank=True)
+    result_snapshot = models.ForeignKey(Session, related_name='result_of', null=True, blank=True)
 
     def get_absolute_url(self):
         return reverse('session:session_stage', args=[str(self.session.id), str(self.stage.name)])

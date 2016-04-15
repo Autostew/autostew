@@ -1,9 +1,9 @@
 from django.contrib import admin
 
-from autostew_web_session.models.member import MemberSnapshot, Member
-from autostew_web_session.models.participant import ParticipantSnapshot, Participant
+from autostew_web_session.models.member import Member
+from autostew_web_session.models.participant import Participant
 from autostew_web_session.models.server import Server
-from autostew_web_session.models.session import SessionSetup, SessionSnapshot, Session
+from autostew_web_session.models.session import SessionSetup, Session
 from .models.models import *
 
 
@@ -90,17 +90,14 @@ class SessionAdmin(admin.ModelAdmin):
 
 
 
-admin.site.register(SessionSnapshot)
 admin.site.register(Member)
-admin.site.register(MemberSnapshot)
 admin.site.register(Participant)
-admin.site.register(ParticipantSnapshot)
 
 
 @admin.register(Event)
 class EventAdmin(admin.ModelAdmin):
     list_filter = ['definition']
-    list_display = ['id', 'session', 'definition', 'timestamp', 'raw']
+    list_display = ['id', 'definition', 'timestamp', 'raw']
     search_fields = ['raw']
 
 admin.site.register(RaceLapSnapshot)

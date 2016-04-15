@@ -252,9 +252,9 @@ class Server(models.Model):
 
         self.back_full_pull()
 
-        #session.first_snapshot = self.current_session.create_snapshot()
-        #session.save()
+        self.current_session.create_snapshot()
         self.last_status_update_time = time()
+        self.save()
         return session
 
     def back_poll_loop(self, event_offset=None, only_one_run=False, one_by_one=False):

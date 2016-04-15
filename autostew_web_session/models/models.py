@@ -128,9 +128,8 @@ class Event(models.Model):
     class Meta:
         ordering = ['ingame_index']
 
-    snapshot = models.ForeignKey('SessionSnapshot', null=True, blank=True, related_name='+')
+    snapshot = models.ForeignKey('Session', null=True, blank=True, related_name='+')
     definition = models.ForeignKey('autostew_web_enums.EventDefinition', null=True, blank=True, related_name='+')  # may be NULL and a custom event! eg. by a plugin
-    session = models.ForeignKey('Session')
     timestamp = models.DateTimeField()
     ingame_index = models.IntegerField()
     raw = models.TextField()
@@ -141,7 +140,7 @@ class RaceLapSnapshot(models.Model):
         ordering = ['session_id', 'lap']
 
     session = models.ForeignKey('Session')
-    snapshot = models.ForeignKey('SessionSnapshot', unique=True)
+    snapshot = models.ForeignKey('Session', unique=True, related_name='+')
     lap = models.IntegerField()
 
     def get_absolute_url(self):

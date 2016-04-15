@@ -370,7 +370,7 @@ def _get_or_create_participant(session: autostew_web_session.models.session.Sess
     return participant
 
 
-def _create_session_snapshot(server: Server, session: autostew_web_session.models.session.Session) -> autostew_web_session.models.session.SessionSnapshot:
+def _create_session_snapshot(server: Server, session: autostew_web_session.models.session.Session):
     logging.info("Creating session snapshot")
     session_snapshot = autostew_web_session.models.session.SessionSnapshot(
         session=session,
@@ -470,21 +470,3 @@ def _get_or_create_participant_snapshot(
     return participant_snapshot
 
 
-def _create_member_snapshot(
-        member: SessionParticipant,
-        session: autostew_web_session.models.session.Session,
-        session_snapshot: autostew_web_session.models.session.SessionSnapshot
-) -> autostew_web_session.models.member.MemberSnapshot:
-    member_snapshot = autostew_web_session.models.member.MemberSnapshot(
-        snapshot=session_snapshot,
-        member=autostew_web_session.models.member.Member.objects.get(refid=member.refid.get(), session=session),
-        still_connected=True,
-        load_state=enum_models.MemberLoadState.objects.get_or_create(name=member.load_state.get())[0],
-        ping=member.ping.get(),
-        index=member.index.get(),
-        state=enum_models.MemberState.objects.get(name=member.state.get()),
-        join_time=member.join_time.get(),
-        host=member.host.get(),
-    )
-    member_snapshot.save()
-    return member_snapshot

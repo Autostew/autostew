@@ -7,9 +7,9 @@ from django.test import TestCase
 from autostew_back.gameserver.event import event_factory, BaseEvent, EventType, PlayerJoinedEvent, MemberEvent, \
     StateChangedEvent
 from autostew_back.gameserver.mocked_api import FakeApi
-from autostew_web_session.models.session_enums import SessionState
 from autostew_back.tests.test_assets import settings_no_plugins
 from autostew_back.tests.unit.test_plugin_db_writer import TestDBWriter
+from autostew_web_enums.models import SessionState
 from autostew_web_session.models.server import Server
 
 
