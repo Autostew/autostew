@@ -6,7 +6,6 @@ from django.core.wsgi import get_wsgi_application
 from django.db import transaction
 
 from autostew_back.gameserver.event import EventType, LeavingReason
-from autostew_back.gameserver.member import MemberLoadState, MemberState
 from autostew_back.gameserver.participant import ParticipantState
 from autostew_web_enums import models
 from autostew_web_session.models.models import Track, VehicleClass, Vehicle, Livery
@@ -27,8 +26,8 @@ enum_tables = [Track, EventDefinition, SessionFlagDefinition, DamageDefinition, 
 true_enums = [
     (EventType, models.EventType),
     (LeavingReason, models.LeavingReason),
-    (MemberLoadState, models.MemberLoadState),
-    (MemberState, models.MemberState),
+    # TODO (MemberLoadState, models.MemberLoadState),
+    # TODO (MemberState, models.MemberState),
     (ParticipantState, models.ParticipantState),
     # TODO (SessionState, models.SessionState),
     # TODO (SessionStage, models.SessionStage),

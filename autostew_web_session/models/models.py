@@ -69,7 +69,7 @@ class Vehicle(models.Model):
     class Meta:
         ordering = ['name']
 
-    name = models.CharField(max_length=50, unique=True)
+    name = models.CharField(max_length=50)
     ingame_id = models.IntegerField(help_text='pCars internal ID')
     vehicle_class = models.ForeignKey(VehicleClass, null=True)
 
@@ -88,7 +88,15 @@ class Livery(models.Model):
 
     name = models.CharField(max_length=50)
     id_for_vehicle = models.IntegerField(help_text='pCars internal ID')
-    vehicle = models.ForeignKey(Vehicle)
+    vehicle = models.ForeignKey(Vehicle, null=True)
+
+    @classmethod
+    def get_or_create_default(cls, id_for_vehicle, vehicle):
+        return cls.objects.get_or_create(
+            id_for_vehicle=id_for_vehicle,
+            vehicle=vehicle,
+            defaults={'name': 'Unknown'}
+        )[0]
 
     def __str__(self):
         return "{} for {}".format(self.name, self.vehicle.name)

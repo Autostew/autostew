@@ -17,9 +17,30 @@ class Participant(models.Model):
     ingame_id = models.IntegerField()
     refid = models.IntegerField()
     name = models.CharField(max_length=200)
-    is_ai = models.BooleanField()
+    is_player = models.BooleanField()
     vehicle = models.ForeignKey('Vehicle', null=True, blank=True)  # NULL because AI owner change will do that
     livery = models.ForeignKey('Livery', null=True, blank=True)  # NULL because AI owner change will do that
+
+    grid_position = models.IntegerField()
+    race_position = models.IntegerField()
+    current_lap = models.IntegerField()
+    current_sector = models.IntegerField()
+    sector1_time = models.IntegerField()
+    sector2_time = models.IntegerField()
+    sector3_time = models.IntegerField()
+    last_lap_time = models.IntegerField()
+    fastest_lap_time = models.IntegerField()
+    state = models.ForeignKey(enum_models.ParticipantState)
+    headlights = models.BooleanField()
+    wipers = models.BooleanField()
+    speed = models.IntegerField()
+    gear = models.SmallIntegerField()
+    rpm = models.IntegerField()
+    position_x = models.IntegerField()
+    position_y = models.IntegerField()
+    position_z = models.IntegerField()
+    orientation = models.IntegerField()
+    total_time = models.IntegerField(default=0)
 
     def get_absolute_url(self):
         return reverse('session:participant', args=[str(self.session.id), str(self.ingame_id)])

@@ -75,6 +75,7 @@ class TestBack(TestCase):
             weather_4=WeatherDefinition.objects.get(name="Clear"),
             game_mode=GameModeDefinition.objects.get_or_create(name="MP_Race", defaults=cls.enum_defaults)[0],
         )
+
     def setUp(self):
         self.server = Server.objects.create(
             name="Test",
@@ -101,10 +102,18 @@ class TestBack(TestCase):
         with mock.patch.object(requests, 'get', self.api.fake_request):
             self.assertRaises(NoSessionSetupTemplateAvailableException, self.server.back_start, base, False)
 
-    def test_back_start_running_server_with_setup(self):
+    def test_back_start_running_server_in_lobby_with_setup(self):
         self.api = FakeApi('autostew_back/tests/test_assets/session_in_lobby_one_player.json')
         setup = self.make_test_setup()
         setup.save()
         SetupQueueEntry.objects.create(order=0, setup=setup, server=self.server)
         with mock.patch.object(requests, 'get', self.api.fake_request):
-            self.assertRaises(NoSessionSetupTemplateAvailableException, self.server.back_start, base, False)
+            self.server.back_start(base)
+
+    def test_back_start_running_server_in_quali_with_setup(self):
+        self.api = FakeApi('autostew_back/tests/test_assets/session_in_quali_two_players_14ai.json')
+        setup = self.make_test_setup()
+        setup.save()
+        SetupQueueEntry.objects.create(order=0, setup=setup, server=self.server)
+        with mock.patch.object(requests, 'get', self.api.fake_request):
+            self.server.back_start(base)

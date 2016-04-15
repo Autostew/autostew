@@ -1,7 +1,7 @@
 from autostew_web_enums.models import SessionFlagDefinition, DamageDefinition, TireWearDefinition, FuelUsageDefinition, \
     PenaltyDefinition, AllowedViewsDefinition, WeatherDefinition, GameModeDefinition, SessionState, SessionStage, \
-    SessionPhase, PrivacyDefinition
-from autostew_web_session.models.models import Track, VehicleClass, Vehicle
+    SessionPhase, PrivacyDefinition, MemberLoadState, PlayerFlagDefinition, MemberState, ParticipantState
+from autostew_web_session.models.models import Track, VehicleClass, Vehicle, Livery
 
 session_setup_translations = [
     {'model_field': 'server_controls_setup', 'api_field': 'ServerControlsSetup'},
@@ -93,4 +93,63 @@ session_translations = [
     {'model_field': 'temperature_ambient', 'api_field': 'TemperatureAmbient'},
     {'model_field': 'temperature_track', 'api_field': 'TemperatureTrack'},
     {'model_field': 'air_pressure', 'api_field': 'AirPressure'},
+]
+
+member_translations = [
+    {'subsection': 'attributes', 'model_field': 'vehicle', 'api_field': 'VehicleId', 'enum_model': Vehicle},
+    {'subsection': 'attributes', 'model_field': 'livery', 'api_field': 'LiveryId', 'enum_model': Livery, 'depends_on': 'vehicle'},
+    {'subsection': 'attributes', 'model_field': 'ingame_load_state', 'api_field': 'LoadState', 'enum_model': MemberLoadState},
+
+    {'subsection': 'attributes', 'model_field': 'setup_used', 'flag': PlayerFlagDefinition.setup_used, 'api_field': 'RaceStatFlags'},
+    {'subsection': 'attributes', 'model_field': 'controller_gamepad', 'flag': PlayerFlagDefinition.controller_gamepad, 'api_field': 'RaceStatFlags'},
+    {'subsection': 'attributes', 'model_field': 'controller_wheel', 'flag': PlayerFlagDefinition.controller_wheel, 'api_field': 'RaceStatFlags'},
+    {'subsection': 'attributes', 'model_field': 'aid_steering', 'flag': PlayerFlagDefinition.aid_steering, 'api_field': 'RaceStatFlags'},
+    {'subsection': 'attributes', 'model_field': 'aid_braking', 'flag': PlayerFlagDefinition.aid_braking, 'api_field': 'RaceStatFlags'},
+    {'subsection': 'attributes', 'model_field': 'aid_abs', 'flag': PlayerFlagDefinition.aid_abs, 'api_field': 'RaceStatFlags'},
+    {'subsection': 'attributes', 'model_field': 'aid_traction', 'flag': PlayerFlagDefinition.aid_traction, 'api_field': 'RaceStatFlags'},
+    {'subsection': 'attributes', 'model_field': 'aid_stability', 'flag': PlayerFlagDefinition.aid_stability, 'api_field': 'RaceStatFlags'},
+    {'subsection': 'attributes', 'model_field': 'aid_no_damage', 'flag': PlayerFlagDefinition.aid_no_damage, 'api_field': 'RaceStatFlags'},
+    {'subsection': 'attributes', 'model_field': 'aid_auto_gears', 'flag': PlayerFlagDefinition.aid_auto_gears, 'api_field': 'RaceStatFlags'},
+    {'subsection': 'attributes', 'model_field': 'aid_auto_clutch', 'flag': PlayerFlagDefinition.aid_auto_clutch, 'api_field': 'RaceStatFlags'},
+    {'subsection': 'attributes', 'model_field': 'model_normal', 'flag': PlayerFlagDefinition.model_normal, 'api_field': 'RaceStatFlags'},
+    {'subsection': 'attributes', 'model_field': 'model_experienced', 'flag': PlayerFlagDefinition.model_experienced, 'api_field': 'RaceStatFlags'},
+    {'subsection': 'attributes', 'model_field': 'model_pro', 'flag': PlayerFlagDefinition.model_pro, 'api_field': 'RaceStatFlags'},
+    {'subsection': 'attributes', 'model_field': 'model_elite', 'flag': PlayerFlagDefinition.model_elite, 'api_field': 'RaceStatFlags'},
+    {'subsection': 'attributes', 'model_field': 'aid_driving_line', 'flag': PlayerFlagDefinition.aid_driving_line, 'api_field': 'RaceStatFlags'},
+    {'subsection': 'attributes', 'model_field': 'valid', 'flag': PlayerFlagDefinition.valid, 'api_field': 'RaceStatFlags'},
+
+    {'subsection': 'attributes', 'model_field': 'ping', 'api_field': 'Ping'},
+    {'model_field': 'ingame_index', 'api_field': 'index'},
+    {'model_field': 'refid', 'api_field': 'refid'},
+    {'model_field': 'steam_id', 'api_field': 'steamid'},
+    {'model_field': 'ingame_state', 'api_field': 'state', 'enum_model': MemberState},
+    {'model_field': 'name', 'api_field': 'name'},
+    {'model_field': 'join_time', 'api_field': 'jointime'},
+    {'model_field': 'is_host', 'api_field': 'host'},
+]
+
+participant_translations = [
+    {'subsection': 'attributes', 'model_field': 'current_lap', 'api_field': 'CurrentLap'},
+    {'subsection': 'attributes', 'model_field': 'orientation', 'api_field': 'Orientation'},
+    {'subsection': 'attributes', 'model_field': 'position_z', 'api_field': 'PositionZ'},
+    {'subsection': 'attributes', 'model_field': 'last_lap_time', 'api_field': 'LastLapTime'},
+    {'subsection': 'attributes', 'model_field': 'fastest_lap_time', 'api_field': 'FastestLapTime'},
+    {'subsection': 'attributes', 'model_field': 'sector3_time', 'api_field': 'Sector3Time'},
+    {'subsection': 'attributes', 'model_field': 'refid', 'api_field': 'RefId'},
+    {'subsection': 'attributes', 'model_field': 'is_player', 'api_field': 'IsPlayer'},
+    {'subsection': 'attributes', 'model_field': 'state', 'api_field': 'State', 'enum_model': ParticipantState},
+    {'subsection': 'attributes', 'model_field': 'wipers', 'api_field': 'WipersOn'},
+    {'subsection': 'attributes', 'model_field': 'speed', 'api_field': 'Speed'},
+    {'subsection': 'attributes', 'model_field': 'rpm', 'api_field': 'RPM'},
+    {'subsection': 'attributes', 'model_field': 'position_x', 'api_field': 'PositionX'},
+    {'subsection': 'attributes', 'model_field': 'sector2_time', 'api_field': 'Sector2Time'},
+    {'subsection': 'attributes', 'model_field': 'name', 'api_field': 'Name'},
+    {'subsection': 'attributes', 'model_field': 'position_y', 'api_field': 'PositionY'},
+    {'subsection': 'attributes', 'model_field': 'headlights', 'api_field': 'HeadlightsOn'},
+    {'subsection': 'attributes', 'model_field': 'grid_position', 'api_field': 'GridPosition'},
+    {'subsection': 'attributes', 'model_field': 'current_sector', 'api_field': 'CurrentSector'},
+    {'subsection': 'attributes', 'model_field': 'gear', 'api_field': 'Gear'},
+    {'subsection': 'attributes', 'model_field': 'race_position', 'api_field': 'RacePosition'},
+    {'subsection': 'attributes', 'model_field': 'sector1_time', 'api_field': 'Sector1Time'},
+    {'model_field': 'ingame_id', 'api_field': 'id'},
 ]

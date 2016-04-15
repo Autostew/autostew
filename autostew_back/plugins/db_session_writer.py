@@ -9,7 +9,7 @@ import autostew_web_session.models.participant
 import autostew_web_session.models.server
 import autostew_web_session.models.session
 from autostew_back.gameserver.event import EventType, BaseEvent, ParticipantEvent
-from autostew_back.gameserver.member import MemberFlags, Member as SessionMember
+from autostew_back.gameserver.member import Member as SessionMember
 from autostew_back.gameserver.participant import Participant as SessionParticipant
 from autostew_back.plugins import db, db_setup_rotation
 from autostew_back.plugins.db_session_writer_libs import db_elo_rating, db_safety_rating

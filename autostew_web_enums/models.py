@@ -72,6 +72,26 @@ class AllowedViewsDefinition(models.Model):
 
 
 class PlayerFlagDefinition(models.Model):
+    setup_used = 1
+    controller_gamepad = 2
+    controller_wheel = 4
+    controller_mask = 6
+    aid_steering = 8
+    aid_braking = 16
+    aid_abs = 32
+    aid_traction = 64
+    aid_stability = 128
+    aid_no_damage = 256
+    aid_auto_gears = 512
+    aid_auto_clutch = 1024
+    model_normal = 2048
+    model_experienced = 4096
+    model_pro = 6144
+    model_elite = 8192
+    model_mask = 14336
+    aid_driving_line = 32768
+    valid = 1073741824
+
     name = models.CharField(max_length=50, unique=True)
     ingame_id = models.IntegerField(help_text='pCars internal ID')
 
@@ -216,10 +236,20 @@ class LeavingReason(models.Model):
 
 
 class MemberLoadState(models.Model):
+    admin_started_race = 'ADMIN_STARTED_RACE'
+    admin_loading_race = 'ADMIN_LOADING_RACE'
+    client_loading_race = 'CLIENT_LOADING_RACE'
+    client_ready = 'CLIENT_READY'
+    unknown = 'UNKNOWN'
+
     name = models.CharField(max_length=50)
 
     def __str__(self):
         return self.name
+
+    @classmethod
+    def get_or_create_default(cls, name):
+        return cls.objects.get_or_create(name=name)[0]
 
 
 class MemberState(models.Model):
@@ -227,6 +257,10 @@ class MemberState(models.Model):
 
     def __str__(self):
         return self.name
+
+    @classmethod
+    def get_or_create_default(cls, name):
+        return cls.objects.get_or_create(name=name)[0]
 
 
 class ParticipantState(models.Model):
@@ -237,6 +271,10 @@ class ParticipantState(models.Model):
 
     def in_race(self):
         return self.name not in ('DNF', 'Retired', 'Disqualified')
+
+    @classmethod
+    def get_or_create_default(cls, name):
+        return cls.objects.get_or_create(name=name)[0]
 
 
 class SessionState(models.Model):
@@ -251,6 +289,10 @@ class SessionState(models.Model):
 
     def __str__(self):
         return self.name
+
+    @classmethod
+    def get_or_create_default(cls, name):
+        return cls.objects.get_or_create(name=name)[0]
 
 
 class SessionStage(models.Model):
@@ -269,6 +311,10 @@ class SessionStage(models.Model):
     def is_relevant(self):
         return self.name in ("Race1", "Race2", "Qualifying")
 
+    @classmethod
+    def get_or_create_default(cls, name):
+        return cls.objects.get_or_create(name=name)[0]
+
 
 class SessionPhase(models.Model):
     pre_countdown_sync = 'PreCountDownSync'
@@ -282,4 +328,8 @@ class SessionPhase(models.Model):
 
     def __str__(self):
         return self.name
+
+    @classmethod
+    def get_or_create_default(cls, name):
+        return cls.objects.get_or_create(name=name)[0]
 

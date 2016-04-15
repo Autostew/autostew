@@ -13,9 +13,13 @@ from autostew_back.gameserver import api_translations
 from autostew_back.gameserver.api import ApiCaller
 from autostew_back.gameserver.api_connector import ApiConnector
 from autostew_back.gameserver.event import event_factory
+from autostew_back.plugins.db_session_writer_libs.db_safety_rating import initial_safety_rating
 from autostew_web_enums.models import SessionState
 from autostew_web_session.models import models as session_models
+from autostew_web_session.models.member import Member
+from autostew_web_session.models.participant import Participant
 from autostew_web_session.models.session import SessionSetup
+from autostew_web_users.models import SteamUser
 
 
 @decorator
@@ -50,6 +54,7 @@ class Server(models.Model):
 
     name = models.CharField(max_length=50, unique=True,
                             help_text='To successfully rename a server you will need to change it\'s settings too')
+    contact = models.EmailField(blank=True)
     api_url = models.CharField(max_length=200,
                                help_text="Dedicated Server HTTP API URL, like http://user:pwd@host:port/")
 
@@ -102,15 +107,6 @@ class Server(models.Model):
             ordered_queue[0].delete()
         return next_setup
 
-    def next_scheduled_session(self):
-        for scheduled_session_it in self.scheduled_sessions.filter(running=False, finished=False):
-            if (
-                (not scheduled_session_it.schedule_date or scheduled_session_it.schedule_date == datetime.date.today()) and
-                scheduled_session_it.schedule_time + datetime.timedelta(seconds=300) > datetime.time()
-            ):
-                return scheduled_session_it
-        return None
-
     def back_start(self, settings, env_init=False, api_record=False):
         self.last_status_update_time = None
         self.settings = settings
@@ -120,13 +116,20 @@ class Server(models.Model):
             self,
             record_destination=settings.api_record_destination if api_record is True else api_record
         )
-        self.back_pull_server_status()
+        self.back_pull_server_status(self.api.get_status())
 
         if self.state.name == ServerState.running:
             self.back_start_session()
 
-    def back_pull_server_status(self):  # TODO this should also be made over an API translator
-        status = self.api.get_status()
+    def back_pull_session_setup(self):
+        new_setup = SessionSetup()
+        connector = ApiConnector(self.api, new_setup, api_translations.session_setup_translations)
+        connector.pull_from_game(self.api.get_status(members=False, participants=False)['attributes'])
+        new_setup.is_template = False
+        new_setup.save()
+        return new_setup
+
+    def back_pull_server_status(self, status):  # TODO this should also be made over an API translator
         self.state = ServerState.objects.get_or_create(name=status['state'])[0]
         self.session_state = (
             SessionState.objects.get_or_create(name=status['attributes']['session_state'])[0]
@@ -136,22 +139,77 @@ class Server(models.Model):
         self.max_member_count = status['max_member_count']
         self.save()
 
-    def back_create_session_setup(self):
-        new_setup = SessionSetup()
-        connector = ApiConnector(self.api, new_setup, api_translations.session_setup_translations)
-        connector.pull_from_game(self.api.get_status(members=False, participants=False)['attributes'])
-        new_setup.is_template = False
-        new_setup.save()
-        return new_setup
-
     def back_full_pull(self):
-        self.back_pull_server_status()
-        # TODO mark old elements
-        for member in server.members_api.elements:
-            _get_or_create_member(session, member)
+        status = self.api.get_status()
+        self.back_pull_server_status(status)
+        self.back_pull_members(status)
+        self.back_pull_participants(status)
 
-        for participant in server.participants_api.elements:
-            _get_or_create_participant(session, participant)
+    def back_pull_members(self, status):  # TODO refactor this
+        for in_game_member in status['members']:
+            pulled_member = Member()
+            connector = ApiConnector(self.api, pulled_member, api_translations.member_translations)
+            connector.pull_from_game(in_game_member)
+            try:
+                existing_member = Member.objects.get(
+                    session=self.current_session,
+                    refid=pulled_member.refid,
+                    steam_id=pulled_member.steam_id,
+                    still_connected=True
+                )
+                pulled_member.id = existing_member.id
+            except Member.DoesNotExist:
+                try:
+                    pulled_member.steam_user = SteamUser.objects.get(steam_id=pulled_member.steam_id)
+                except SteamUser.DoesNotExist:
+                    pulled_member.steam_user = SteamUser.objects.create(
+                        steam_id=pulled_member.steam_id,
+                        display_name=pulled_member.name,
+                        safety_rating=initial_safety_rating
+                    )
+                    pulled_member.steam_user.update_safety_class()
+            pulled_member.steam_user.display_name = pulled_member.name
+            pulled_member.steam_user.save()
+            pulled_member.session = self.current_session
+            pulled_member.still_connected = True
+            pulled_member.save()
+
+        for member in self.current_session.member_set.filter(still_connected=True):
+            found = False
+            for members_in_status in status['members']:
+                if members_in_status['refid'] == member.refid and members_in_status['steamid'] == member.steam_id:
+                    found = True
+            if not found:
+                member.still_connected = False
+                member.save()
+
+    def back_pull_participants(self, status):
+        for in_game_participant in status['participants']:
+            pulled_participant = Participant()
+            connector = ApiConnector(self.api, pulled_participant, api_translations.participant_translations)
+            connector.pull_from_game(in_game_participant)
+            try:
+                existing_participant = Participant.objects.get(
+                    session=self.current_session,
+                    ingame_id=pulled_participant.ingame_id,
+                    refid=pulled_participant.refid,
+                    still_connected=True
+                )
+                pulled_participant.id = existing_participant.id
+            except Participant.DoesNotExist:
+                pass
+            pulled_participant.session = self.current_session
+            pulled_participant.still_connected = True
+            pulled_participant.save()
+
+        for participant in self.current_session.participant_set.filter(still_connected=True):
+            found = False
+            for participant_in_status in status['participants']:
+                if participant_in_status['attributes']['RefId'] == participant.refid and participant_in_status['id'] == participant.ingame_id:
+                    found = True
+            if not found:
+                participant.still_connected = False
+                participant.save()
 
     def back_get_next_setup(self):
         peek = (
@@ -177,7 +235,7 @@ class Server(models.Model):
         setup_template = self.back_get_next_setup()
         connector = ApiConnector(self.api, setup_template, api_translations.session_setup_translations)
         connector.push_to_game('session')
-        actual_setup = self.back_create_session_setup()
+        actual_setup = self.back_pull_session_setup()
 
         session = autostew_web_session.models.session.Session(
             server=self,
@@ -194,16 +252,10 @@ class Server(models.Model):
 
         self.back_full_pull()
 
-        snapshot = self.current_session.create_snapshot()
-        session.first_snapshot = snapshot
-        session.save()
-        return session
-
-        status = self.api.get_status()
-        self.session_api.update_from_game(status['attributes'])
-        self.members_api.update_from_game(status['members'])
-        self.participants_api.update_from_game(status['participants'])
+        #session.first_snapshot = self.current_session.create_snapshot()
+        #session.save()
         self.last_status_update_time = time()
+        return session
 
     def back_poll_loop(self, event_offset=None, only_one_run=False, one_by_one=False):
         if not only_one_run:

@@ -42,17 +42,25 @@ class ApiConnector:
 
     def pull_from_game(self, api_result):
         for translation in self.translations:
+            value = (
+                api_result[translation['api_field']] if 'subsection' not in translation.keys() else
+                api_result[translation['subsection']][translation['api_field']]
+            )
             if 'flag' in translation.keys():
                 setattr(
                     self.object,
                     translation['model_field'],
-                    int(api_result[translation['api_field']]) & translation['flag'] != 0
+                    int(value) & translation['flag'] != 0
                 )
             elif 'enum_model' in translation.keys():
+                result_model = (
+                    translation['enum_model'].get_or_create_default(value) if 'depends_on' not in translation.keys() else
+                    translation['enum_model'].get_or_create_default(value, getattr(self.object, translation['depends_on']))
+                )
                 setattr(
                     self.object,
                     translation['model_field'],
-                    translation['enum_model'].get_or_create_default(api_result[translation['api_field']])
+                    result_model
                 )
             else:
-                setattr(self.object, translation['model_field'], api_result[translation['api_field']])
+                setattr(self.object, translation['model_field'], value)

@@ -4,41 +4,6 @@ from autostew_back.gameserver.abstract_containers import AbstractAttribute, Abst
     AbstractFlagAttribute, AbstractStatusTable, StatusList, AbstractAttributeLinkedToEnum
 from autostew_back.gameserver.api import ApiCaller
 
-
-class MemberFlags(Enum):
-    setup_used = 1
-    controller_gamepad = 2
-    controller_wheel = 4
-    controller_mask = 6
-    aid_steering = 8
-    aid_braking = 16
-    aid_abs = 32
-    aid_traction = 64
-    aid_stability = 128
-    aid_no_damage = 256
-    aid_auto_gears = 512
-    aid_auto_clutch = 1024
-    model_normal = 2048
-    model_experienced = 4096
-    model_pro = 6144
-    model_elite = 8192
-    model_mask = 14336
-    aid_driving_line = 32768
-    valid = 1073741824
-
-
-class MemberLoadState(Enum):
-    admin_started_race = 'ADMIN_STARTED_RACE'
-    admin_loading_race = 'ADMIN_LOADING_RACE'
-    client_loading_race = 'CLIENT_LOADING_RACE'
-    client_ready = 'CLIENT_READY'
-    unknown = 'UNKNOWN'
-
-
-class MemberState(Enum):
-    connected = 'Connected'
-
-
 class MemberAttribute(AbstractAttribute):
     def __init__(self, descriptor, api, subsection='attributes'):
         AbstractAttribute.__init__(self, descriptor, api, subsection)
