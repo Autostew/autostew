@@ -8,76 +8,93 @@
     {% endif %}
 
     <h1 class="page-header">Autostew <small>making online racing fun!</small></h1>
-    <p>
-        We think Project CARS is a really cool racing simulator. But we missed many features when playing online
-        multiplayer. Luckily, the people at Slightly Mad Studios promotes development by the community. So Autostew came
-        to be!
-    </p>
-    <p>
-        <b>Autostew allows for a better on-line simulation experience.</b>
-    </p>
-    <h3>
-        Features you can enjoy today!
-    </h3>
-    <ul>
-        <li>Warns and kicks players who crash excessively.</li>
-        <li>Rank players according to their safety record and their race performance.</li>
-        <li>Announces the best laps and other important events during the race.</li>
-        <li>Leaderboards with the fastest times.</li>
-        <li>Saves race's results.</li>
-        <li>Allows planning of races.</li>
-        <li>Connect your own dedicated server to Autostew.</li>
-    </ul>
 
-    <h3>Servers</h3>
+    <div class="row">
+        <div class="col-xs-12 col-md-8 placeholder">
+            <p>
+                We think Project CARS is a really cool racing simulator. But we missed many features when playing online
+                multiplayer. Luckily, the people at Slightly Mad Studios promotes development by the community. So Autostew came
+                to be!
+            </p>
+            <p>
+                <b>Autostew allows for a better on-line simulation experience.</b>
+            </p>
+            <h3>
+                Features you can enjoy today!
+            </h3>
+            <ul>
+                <li>Warns and kicks players who crash excessively.</li>
+                <li>Rank players according to their safety record and their race performance.</li>
+                <li>Announces the best laps and other important events during the race.</li>
+                <li>Leaderboards with the fastest times.</li>
+                <li>Saves race's results.</li>
+                <li>Allows planning of races.</li>
+                <li>Connect your own dedicated server to Autostew.</li>
+            </ul>
 
-    {% if server_list %}
-        <ul>
-            {% for server in server_list %}
-                <li>
-                    {% if server.is_up %}
-                        <span class="label label-success">Connected</span>
-                    {% else %}
-                        <span class="label label-danger">Disconnected</span>
-                    {% endif %}
-                    <a href="{{ server.get_absolute_url }}">{{ server.name }}</a>
-                    {% if server.current_session %}
-                        <a href="{{ server.current_session.get_absolute_url }}">{{ server.current_session }}</a>
-                    {% endif %}
-                    {% if server.is_up %}
-                        <span class="label
-                            {% if server.average_player_latency < 50 %}label-success
-                            {% elif server.average_player_latency < 100 %}label-info
-                            {% elif server.average_player_latency > 250 %}label-danger
-                            {% elif server.average_player_latency > 150 %}label-warning
-                            {% else %}label-default
+            <h3>Servers</h3>
+
+            {% if server_list %}
+                <ul>
+                    {% for server in server_list %}
+                        <li>
+                            {% if server.is_up %}
+                                <span class="label label-success">Connected</span>
+                            {% else %}
+                                <span class="label label-danger">Disconnected</span>
                             {% endif %}
-                        ">{{ server.average_player_latency }} ms</span>
-                    {% endif %}
-                </li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <h5>No servers are available!</h5>
-    {% endif %}
+                            <a href="{{ server.get_absolute_url }}">{{ server.name }}</a>
+                            {% if server.current_session %}
+                                <a href="{{ server.current_session.get_absolute_url }}">{{ server.current_session }}</a>
+                            {% endif %}
+                            {% if server.is_up %}
+                                <span class="label
+                                    {% if server.average_player_latency < 50 %}label-success
+                                    {% elif server.average_player_latency < 100 %}label-info
+                                    {% elif server.average_player_latency > 250 %}label-danger
+                                    {% elif server.average_player_latency > 150 %}label-warning
+                                    {% else %}label-default
+                                    {% endif %}
+                                ">{{ server.average_player_latency }} ms</span>
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <h5>No servers are available!</h5>
+            {% endif %}
 
-    <h3>
-        More to come!
-    </h3>
-    <p>
-        Want to know more? Look what we are
-        <a href="https://waffle.io/Autostew/autostew">currently doing</a>
-        and <a href="https://waffle.io/Autostew/autostew?label=help%20wanted">where we can use help</a>.
-    </p>
-    <p>These are some features we are planning to work on soon:</p>
-    <ul>
-        <li>Dedicated servers restricted by driver safety rating.</li>
-        <li>Kick players who are AFK, who lag excessively or break specific rules.</li>
-        <li>Voting of race setups.</li>
-        <li>Managing of dedicated server through the web interface.</li>
-        <li>And maybe more!</li>
-    </ul>
-
+            <h3>
+                More to come!
+            </h3>
+            <p>
+                Want to know more? Look what we are
+                <a href="https://waffle.io/Autostew/autostew">currently doing</a>
+                and <a href="https://waffle.io/Autostew/autostew?label=help%20wanted">where we can use help</a>.
+            </p>
+            <p>These are some features we are planning to work on soon:</p>
+            <ul>
+                <li>Dedicated servers restricted by driver safety rating.</li>
+                <li>Kick players who are AFK, who lag excessively or break specific rules.</li>
+                <li>Voting of race setups.</li>
+                <li>Managing of dedicated server through the web interface.</li>
+                <li>And maybe more!</li>
+            </ul>
+        </div>
+        <div class="col-xs-12 col-md-4 placeholder">
+            <h3>Announcements</h3>
+            <h4>Status update <small>2016-04-15</small></h4>
+            <p>
+                We added a (for now static) DS admin zone!
+            </p>
+            <p>
+                We are currently working on some big changes on the
+                internal Autostew architecture which should improve its stability and allow easier future development.
+                When we release this (which will be in the next days) we will probably need to delete the session
+                history to make things easier for us.
+            </p>
+        </div>
+    </div>
     <p>
         Send us <a href="{% url 'contact:contact' %}">your feedback</a>!
     </p>
