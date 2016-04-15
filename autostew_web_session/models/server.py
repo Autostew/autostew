@@ -120,6 +120,8 @@ class Server(models.Model):
 
         if self.state.name == ServerState.running:
             self.back_start_session()
+        self.last_status_update_time = time()
+        self.save()
 
     def back_pull_session_setup(self):
         new_setup = SessionSetup()
@@ -253,7 +255,6 @@ class Server(models.Model):
         self.back_full_pull()
 
         self.current_session.create_snapshot()
-        self.last_status_update_time = time()
         self.save()
         return session
 
@@ -267,10 +268,12 @@ class Server(models.Model):
 
         while True:
             tick_start = time()
-            updated_status_in_this_tick = False
 
             events = self.api.get_new_events()
             logging.debug("Got {} events".format(len(events)))
+
+            if self.current_session:
+                self.back_full_pull()
 
             for raw_event in events:
                 event = event_factory(raw_event, self)
@@ -278,23 +281,10 @@ class Server(models.Model):
                 if one_by_one:
                     input("Event (enter)")
 
-                if not updated_status_in_this_tick and event.reload_full_status:
-                    self.back_init_session()
-                    updated_status_in_this_tick = True
-
-                for plugin in self.settings.plugins:
-                    if 'event' in dir(plugin):
-                        plugin.event(self, event)
-
-            if time() - self.last_status_update_time > self.settings.full_update_period:
-                self.back_init_session()
+                # call event handlers
 
             if one_by_one:
                 input("Tick (enter)")
-
-            for plugin in self.settings.plugins:
-                if 'tick' in dir(plugin):
-                    plugin.tick(self)
 
             sleep_time = self.settings.event_poll_period - (time() - tick_start)
             if sleep_time > 0:
@@ -302,8 +292,3 @@ class Server(models.Model):
 
             if only_one_run:
                 return
-
-    def back_destroy(self):
-        for plugin in reversed(self.settings.plugins):
-            if 'destroy' in dir(plugin):
-                plugin.destroy(self)

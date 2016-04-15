@@ -10,8 +10,7 @@ from autostew_back.gameserver.participant import ParticipantState
 from autostew_web_session.models.server import UnmetPluginDependencyException, Server
 from autostew_back.tests.test_assets import settings_db_enum_writer, settings_db_session_writer
 from autostew_web_enums.models import DamageDefinition, TireWearDefinition, FuelUsageDefinition, PenaltyDefinition, \
-    AllowedViewsDefinition, WeatherDefinition, GameModeDefinition
-from autostew_web_session.models import models
+    AllowedViewsDefinition, WeatherDefinition, GameModeDefinition, PrivacyDefinition, MemberLoadState, MemberState
 from autostew_web_session.models.models import Track, VehicleClass, Vehicle, SetupRotationEntry
 from autostew_web_session.models.participant import Participant
 from autostew_web_session.models.session import SessionSetup, Session
@@ -63,8 +62,7 @@ class TestDBWriter(TestCase):
             warmup_length=5,
             race1_length=25,
             race2_length=0,
-            public=True,
-            friends_can_join=False,
+            privacy=PrivacyDefinition.get_or_create_default(2),
             damage=DamageDefinition.objects.get_or_create(name="FULL", defaults=cls.enum_defaults)[0],
             tire_wear=TireWearDefinition.objects.get_or_create(name="X2", defaults=cls.enum_defaults)[0],
             fuel_usage=FuelUsageDefinition.objects.get_or_create(name="STANDARD", defaults=cls.enum_defaults)[0],
@@ -90,19 +88,7 @@ class TestDBWriter(TestCase):
             weather_3=WeatherDefinition.objects.get(name="Clear"),
             weather_4=WeatherDefinition.objects.get(name="Clear"),
             game_mode=GameModeDefinition.objects.get_or_create(name="MP_Race", defaults=cls.enum_defaults)[0],
-            track_latitude=0,
-            track_longitude=0,
-            track_altitude=0,
         )
-
-    def test_dependency(self):
-        """
-        Tests if the dependencies of the db_writer plugin are correctly handled
-        """
-        api = FakeApi()
-        server = TestDBWriter.make_test_server()
-        with mock.patch.object(requests, 'get', api.fake_request):
-            self.assertRaises(UnmetPluginDependencyException, server.back_start, settings_fail_dependencies, False)
 
     def test_create_session_in_lobby(self):
         """
@@ -123,12 +109,11 @@ class TestDBWriter(TestCase):
             server.back_start(settings_db_session_writer)
         self.assertEqual(autostew_web_session.models.server.Server.objects.count(), 1)
         self.assertEqual(SessionSetup.objects.count(), 2)
-        self.assertEqual(Session.objects.count(), 1)
-        self.assertEqual(SessionSnapshot.objects.count(), 1)
-        self.assertEqual(Member.objects.count(), 1)
-        self.assertEqual(MemberSnapshot.objects.count(), 1)
+        self.assertEqual(Session.objects.filter(parent=None).count(), 1)
+        self.assertEqual(Session.objects.count(), 2)
+        self.assertEqual(Member.objects.filter(parent=None).count(), 1)
+        self.assertEqual(Member.objects.count(), 2)
         self.assertEqual(Participant.objects.count(), 0)
-        self.assertEqual(ParticipantSnapshot.objects.count(), 0)
 
         server_in_db = autostew_web_session.models.server.Server.objects.all()[0]
         self.assertTrue(server_in_db.running)
@@ -173,7 +158,7 @@ class TestDBWriter(TestCase):
         self.assertEqual(session_setup.weather_1.name, "Clear")
 
         session = Session.objects.all()[0]
-        session_snapshot = SessionSnapshot.objects.all()[0]
+        session_snapshot = Session.objects.filter(parent=None)[0]
         self.assertEqual(session.server, server_in_db)
         self.assertEqual(session.setup_actual, session_setup)
         self.assertEqual(session.planned, False)
@@ -222,14 +207,14 @@ class TestDBWriter(TestCase):
         self.assertEqual(member.name, 'blak')
         # flags are not set, so they are not tested
 
-        m_snap = MemberSnapshot.objects.all()[0]
+        m_snap = Member.objects.exclude(parent=None)[0]
         self.assertEqual(m_snap.member, member)
         self.assertEqual(m_snap.snapshot, session_snapshot)
         self.assertEqual(m_snap.still_connected, True)
-        self.assertEqual(m_snap.load_state.name, MemberLoadState.unknown.value)
+        self.assertEqual(m_snap.load_state.name, MemberLoadState.unknown)
         self.assertEqual(m_snap.ping, 10)
         self.assertEqual(m_snap.index, 0)
-        self.assertEqual(m_snap.state.name, MemberState.connected.value)
+        self.assertEqual(m_snap.state.name, MemberState.connected)
         self.assertEqual(m_snap.host, True)
 
     def test_create_session_in_race(self):
@@ -251,12 +236,9 @@ class TestDBWriter(TestCase):
             server.back_start(settings_db_session_writer)
         self.assertEqual(autostew_web_session.models.server.Server.objects.count(), 1)
         self.assertEqual(SessionSetup.objects.count(), 2)
-        self.assertEqual(Session.objects.count(), 1)
-        self.assertEqual(SessionSnapshot.objects.count(), 1)
-        self.assertEqual(Member.objects.count(), 2)
-        self.assertEqual(MemberSnapshot.objects.count(), 2)
-        self.assertEqual(Participant.objects.count(), 16)
-        self.assertEqual(ParticipantSnapshot.objects.count(), 16)
+        self.assertEqual(Session.objects.count(), 2)
+        self.assertEqual(Member.objects.count(), 4)
+        self.assertEqual(Participant.objects.count(), 32)
 
         server_in_db = autostew_web_session.models.server.Server.objects.all()[0]
         self.assertTrue(server_in_db.running)
@@ -301,7 +283,7 @@ class TestDBWriter(TestCase):
         self.assertEqual(session_setup.weather_1.name, "Clear")
 
         session = Session.objects.all()[0]
-        session_snapshot = SessionSnapshot.objects.all()[0]
+        session_snapshot = Session.objects.exclude(parent=None)[0]
         self.assertEqual(session.server, server_in_db)
         self.assertEqual(session.setup_actual, session_setup)
         self.assertEqual(session.planned, False)
@@ -366,7 +348,7 @@ class TestDBWriter(TestCase):
         self.assertEqual(member.aid_driving_line, False)
         self.assertEqual(member.valid, True)
 
-        m_snap = MemberSnapshot.objects.all()[0]
+        m_snap = Member.objects.exclude(parent=None)[0]
         self.assertEqual(m_snap.member, member)
         self.assertEqual(m_snap.snapshot, session_snapshot)
         self.assertEqual(m_snap.still_connected, True)
@@ -403,7 +385,7 @@ class TestDBWriter(TestCase):
         self.assertEqual(member.aid_driving_line, True)
         self.assertEqual(member.valid, True)
 
-        m_snap = MemberSnapshot.objects.all()[1]
+        m_snap = Member.objects.exclude(parent=None)[1]
         self.assertEqual(m_snap.member, member)
         self.assertEqual(m_snap.snapshot, session_snapshot)
         self.assertEqual(m_snap.still_connected, True)
@@ -424,7 +406,7 @@ class TestDBWriter(TestCase):
         self.assertEqual(participant.vehicle.name, "McLaren 12C GT3")
         self.assertEqual(participant.livery.name, "McLaren #59")
 
-        p_snapshot = ParticipantSnapshot.objects.get(participant__name="blak")
+        p_snapshot = Participant.objects.exclude(parent=None).get(participant__name="blak")
         self.assertEqual(p_snapshot.snapshot, session_snapshot)
         self.assertEqual(p_snapshot.participant, participant)
         self.assertEqual(p_snapshot.still_connected, True)
@@ -459,7 +441,7 @@ class TestDBWriter(TestCase):
         self.assertEqual(participant.vehicle.name, "Audi R8 LMS Ultra")
         self.assertEqual(participant.livery.name, "Pedace #17")
 
-        p_snapshot = ParticipantSnapshot.objects.get(participant__name="Carlos Eduardo de Araujo")
+        p_snapshot = Participant.objects.exclude(parent=None).get(participant__name="Carlos Eduardo de Araujo")
         self.assertEqual(p_snapshot.snapshot, session_snapshot)
         self.assertEqual(p_snapshot.participant, participant)
         self.assertEqual(p_snapshot.still_connected, True)
