@@ -1,0 +1,24 @@
+{% extends "autostew_web_home/base.html" %}
+
+{% block content %}
+
+    <h1 class="page-header">Dedicated server admin zone</h1>
+    <h3>Coming soon!</h3>
+    <p>
+        Here the managers of dedicated servers connected to Autostew will be able to control their DS.
+    </p>
+    <p>
+        Some of the features we want to implement here:
+    </p>
+    <ul>
+        <li>Start and stop the Autostew connection.</li>
+        <li>Reconnect your DS after a restart.</li>
+        <li>Enable/disable kicking.</li>
+        <li>Enable/disable ratings.</li>
+        <li>Manage your setup rotations.</li>
+    </ul>
+    <h3>I have a DS and want to connect it to Autostew!</h3>
+    <p>
+        We love to hear that, <a href="{% url 'contact:contact' %}">contact us here</a>!
+    </p>
+{% endblock %}
