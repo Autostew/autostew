@@ -301,6 +301,17 @@ class MemberState(models.Model):
 
 
 class ParticipantState(models.Model):
+    none = ''
+    racing = 'Racing'
+    finished = 'Finished'
+    dnf = 'DNF'
+    disqualified = 'Disqualified'
+    retired = 'Retired'
+    in_garage = 'InGarage'
+    entering_pits = 'EnteringPits'
+    in_pits = 'InPits'
+    exiting_pits = 'ExitingPits'
+
     name = models.CharField(max_length=50)
 
     def __str__(self):
