@@ -10,6 +10,9 @@ from django.db import models
 from django.utils import timezone
 
 import autostew_web_session
+from autostew_back.event_handlers.notification_leader_entered_last_lap import HandleNotificationLeaderEnteredLastLap
+from autostew_back.event_handlers.notification_welcome import HandleNotificationWelcome
+from autostew_back.event_handlers.notification_winner_finished_race import HandleNotificationWinnerFinishedRace
 from autostew_back.gameserver import api_translations
 from autostew_back.gameserver.api import ApiCaller
 from autostew_back.gameserver.api_connector import ApiConnector
@@ -17,7 +20,7 @@ from autostew_back.plugins.db_session_writer_libs.db_safety_rating import initia
 from autostew_web_enums.models import SessionState
 from autostew_web_session.models import models as session_models
 from autostew_web_session.models.member import Member
-from autostew_web_session.models.models import Event
+from autostew_web_session.models.event import Event
 from autostew_web_session.models.participant import Participant
 from autostew_web_session.models.session import SessionSetup
 from autostew_web_users.models import SteamUser
@@ -51,12 +54,15 @@ class Server(models.Model):
     api_url = models.CharField(max_length=200,
                                help_text="Dedicated Server HTTP API URL, like http://user:pwd@host:port/")
 
+    back_verified = models.BooleanField(default=False)
     back_enabled = models.BooleanField(default=False)
     back_reconnect = models.BooleanField(default=True)
     back_kicks = models.BooleanField(default=False)
     back_crash_points_limit = models.BooleanField(default=4000)
     back_safety_rating = models.BooleanField(default=True)
     back_performance_rating = models.BooleanField(default=True)
+    back_custom_motd = models.CharField(max_length=200)
+    back_minimal_safety_class = models.ForeignKey('autostew_web_users.SafetyClass', null=True, blank=True)
 
     setup_rotation_index = models.IntegerField()
     setup_rotation = models.ManyToManyField('SessionSetup',
@@ -282,7 +288,7 @@ class Server(models.Model):
         return session
 
     def get_queued_events(self):
-        return Event.objects.filter(session=self.current_session, retries_remaining__gt=0)
+        return Event.objects.filter(session=self.current_session, retries_remaining__gt=0, handled=False)
 
     def back_poll_loop(self, event_offset=None, only_one_run=False, one_by_one=False):
         if not only_one_run:
@@ -308,8 +314,9 @@ class Server(models.Model):
                 connector = ApiConnector(self.api, new_event, api_translations.event_base)
                 connector.pull_from_game(raw_event)
                 new_event.event_parse(self)
+                new_event.save()
 
-            for event in list(self.get_queued_events()) + new_events:
+            for event in list(self.get_queued_events()):
                 if one_by_one:
                     input("Processing event {}".format(event))
                 event.handle(self)
@@ -323,3 +330,11 @@ class Server(models.Model):
 
             if only_one_run:
                 return
+
+    @staticmethod
+    def get_event_handlers():
+        return [
+            HandleNotificationWelcome,
+            HandleNotificationWinnerFinishedRace,
+            HandleNotificationLeaderEnteredLastLap,
+        ]

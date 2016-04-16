@@ -7,20 +7,6 @@ from autostew_web_users.models import SteamUser
 
 name = 'chat_notifications'
 
-welcome_message = [
-    "",
-    "Welcome {player_name}, current setup is {setup_name}",
-    "{safety_class_message}",
-    "{elo_rating_message}",
-    "See more information at autostew.selfhost.eu",
-    "THIS IS AN OPEN ALPHA RELEASE OF AUTOSTEW",
-    "",
-]
-new_session_starts = [
-    "",
-    "This server is connected to autostew.selfhost.eu"
-    "",
-]
 race_starts = [
     "",
     "",
@@ -29,43 +15,9 @@ race_starts = [
     "Be EXTRA CAREFUL on the first turn.",
     "Remind that players who crash too much will be kicked.",
 ]
-leader_in_last_lap = [
-    "",
-    "The leader {leader_name} just entered their last lap!"
-]
-first_player_finished = [
-    "",
-    "",
-    "Congratulations to {winner_name} for winning this race!",
-    "See this race results and more at autostew.selfhost.eu"
-]
 
 
 def event(server: Server, event: BaseEvent):
-
-    if event.type == EventType.authenticated:
-        send_welcome_message(event, server)
-
-    if (
-        event.type == EventType.lap and
-        event.lap == server.session_api.race1_length.get() - 1 and
-        event.race_position == 1 and
-        server.session_api.session_stage.get_nice() == SessionStage.race1 and
-        SessionFlags.timed_race not in server.session_api.flags.get_flags()
-    ):
-        send_winner_message(event, server)
-
-    if (
-        event.type == EventType.lap and
-        event.lap == server.session_api.race1_length.get() - 2 and
-        event.race_position == 1 and
-        server.session_api.session_stage.get_nice() == SessionStage.race1 and
-        SessionFlags.timed_race not in server.session_api.flags.get_flags()
-    ):
-        send_leader_in_last_lap_message(event, server)
-
-    if event.type == EventType.state_changed and event.new_state == SessionState.lobby:
-        send_new_session_message(server)
 
     if event.type == EventType.stage_changed and event.new_stage == SessionStage.race1:
         send_race_start_message(server)

@@ -1,5 +1,6 @@
 from django.contrib import admin
 
+from autostew_web_session.models.event import Event
 from autostew_web_session.models.member import Member
 from autostew_web_session.models.participant import Participant
 from autostew_web_session.models.server import Server

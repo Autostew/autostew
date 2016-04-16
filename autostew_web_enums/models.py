@@ -226,6 +226,26 @@ class ParticipantAttributeDefinition(models.Model):
 
 
 class EventType(models.Model):
+    session_setup = 'SessionSetup'
+    state_changed = 'StateChanged'
+    stage_changed = 'StageChanged'
+    session_created = 'SessionCreated'
+    session_destroyed = 'SessionDestroyed'
+    participant_state = 'State'
+    server_chat = 'ServerChat'
+    player_chat = 'PlayerChat'
+    player_joined = 'PlayerJoined'
+    authenticated = 'Authenticated'
+    player_left = 'PlayerLeft'
+    participant_created = 'ParticipantCreated'
+    participant_destroyed = 'ParticipantDestroyed'
+    sector = 'Sector'
+    lap = 'Lap'
+    results = 'Results'
+    cut_track_start = 'CutTrackStart'
+    cut_track_end = 'CutTrackEnd'
+    impact = 'Impact'
+
     name = models.CharField(max_length=50)
 
     def __str__(self):
@@ -237,6 +257,10 @@ class EventType(models.Model):
 
 
 class LeavingReason(models.Model):
+    left = 1
+    kicked = 2
+    disconnected = 5
+
     ingame_id = models.IntegerField()
     name = models.CharField(max_length=50)
 

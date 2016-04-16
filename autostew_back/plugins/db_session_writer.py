@@ -4,6 +4,7 @@ import logging
 from django.db import transaction
 from django.utils import timezone
 
+import autostew_web_session.models.event
 import autostew_web_session.models.member
 import autostew_web_session.models.participant
 import autostew_web_session.models.server
@@ -146,13 +147,13 @@ def event(server: Server, event: (BaseEvent, ParticipantEvent)):
         _close_current_session(server)
 
     # When session enters lobby, destroys current session if any and creates a new one.
-    if event.type == EventType.state_changed and event.new_state == SessionState.lobby:
+    if event.type == EventType.state_changed and event.new_session_state == SessionState.lobby:
             if current_session is not None:
                 _close_current_session(server)
             current_session = _get_or_create_session(server)
 
     # When session enters track, makes snapshot
-    if event.type == EventType.state_changed and event.new_state == SessionState.race:
+    if event.type == EventType.state_changed and event.new_session_state == SessionState.race:
             final_setup = _create_session_setup(server)
             final_setup.id = current_session.setup_actual_id
             final_setup.save(force_update=True)
@@ -166,7 +167,7 @@ def event(server: Server, event: (BaseEvent, ParticipantEvent)):
     if event.type == EventType.stage_changed:
         if current_session.current_snapshot.session_state.name not in ("Returning", "Lobby"):
             snapshot = _create_session_snapshot(server, current_session)
-            stage = _get_or_create_stage(server, event.new_stage.value)
+            stage = _get_or_create_stage(server, event.new_session_stage.value)
             stage.starting_snapshot = snapshot
             stage.save()
             current_session.save()
@@ -174,7 +175,7 @@ def event(server: Server, event: (BaseEvent, ParticipantEvent)):
     # Insert event
     # some events can happen while there is no session, we ignore them
     if current_session:
-        session_models.Event(
+        autostew_web_session.models.event.Event(
             snapshot=None,
             definition=enum_models.EventDefinition.objects.get(name=event.type.value),
             session=current_session,

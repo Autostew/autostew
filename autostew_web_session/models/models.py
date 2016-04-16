@@ -1,5 +1,3 @@
-import json
-
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.db.models.aggregates import Min
@@ -121,33 +119,6 @@ class SetupQueueEntry(models.Model):
     setup = models.ForeignKey('SessionSetup', on_delete=models.CASCADE, limit_choices_to={'is_template': True})
     server = models.ForeignKey('Server', on_delete=models.CASCADE)
 
-
-class Event(models.Model):
-    class Meta:
-        ordering = ['ingame_index']
-
-    session = models.ForeignKey('Session', null=True, blank=True)
-    type = models.ForeignKey('autostew_web_enums.EventType')
-    timestamp = models.DateTimeField()
-    ingame_index = models.IntegerField()
-    raw = models.TextField()
-    member = models.ForeignKey('autostew_web_session.Member', null=True, blank=True)
-    participant = models.ForeignKey('autostew_web_session.Participant', null=True, blank=True)
-    retries_remaining = models.SmallIntegerField(default=2)
-
-    def event_parse(self, server):
-        jsonformatted_event = json.loads(self.raw)
-        if 'refid' in jsonformatted_event.keys():
-            self.member = server.get_member(jsonformatted_event['refid'])
-            if 'participantid' in jsonformatted_event.keys():
-                self.participant = server.get_participant(jsonformatted_event['refid'], jsonformatted_event['participantid'])
-
-    def handle(self, server):
-        self.retries_remaining -= 1
-        for handler in event_handlers:
-            if handler.can_consume(self):
-                handler.consume(self)
-        self.save()
 
 class RaceLapSnapshot(models.Model):
     class Meta:

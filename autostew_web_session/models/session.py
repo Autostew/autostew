@@ -246,12 +246,3 @@ class Session(models.Model):
         except self.DoesNotExist:
             return None
 """
-
-class SessionStage(models.Model):
-    session = models.ForeignKey(Session, related_name='stages')
-    stage = models.ForeignKey(enum_models.SessionStage)
-    starting_snapshot = models.ForeignKey(Session, related_name='starting_of', null=True, blank=True)
-    result_snapshot = models.ForeignKey(Session, related_name='result_of', null=True, blank=True)
-
-    def get_absolute_url(self):
-        return reverse('session:session_stage', args=[str(self.session.id), str(self.stage.name)])

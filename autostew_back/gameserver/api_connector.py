@@ -24,7 +24,10 @@ class ApiConnector:
             else:
                 value = getattr(self.object, translation['model_field'])
             params = {
-                '{api_type_name}_{api_field}'.format(api_type_name=api_type_name, api_field=translation['api_field']): value,
+                '{api_type_name}_{api_field}'.format(
+                    api_type_name=api_type_name,
+                    api_field=translation['api_field']
+                ): value,
                 'copy_to_next': int(copy_to_next)
             }
             self.api._call("session/{method}".format(method=method), params=params)
@@ -35,7 +38,10 @@ class ApiConnector:
                 if getattr(self.object, translation['model_field']):
                     value |= translation['flag']
             params = {
-                '{api_type_name}_{api_field}'.format(api_type_name=api_type_name, api_field=translation['api_field']): value,
+                '{api_type_name}_{api_field}'.format(
+                    api_type_name=api_type_name,
+                    api_field=translation['api_field']
+                ): value,
                 'copy_to_next': int(copy_to_next)
             }
             self.api._call("session/{method}".format(method=method), params=params)

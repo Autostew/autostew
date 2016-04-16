@@ -4,32 +4,6 @@ from enum import Enum
 from autostew_back.gameserver.participant import ParticipantState
 
 
-class EventType(Enum):
-    session_setup = 'SessionSetup'
-    state_changed = 'StateChanged'
-    stage_changed = 'StageChanged'
-    session_created = 'SessionCreated'
-    session_destroyed = 'SessionDestroyed'
-    participant_state = 'State'
-    server_chat = 'ServerChat'
-    player_chat = 'PlayerChat'
-    player_joined = 'PlayerJoined'
-    authenticated = 'Authenticated'
-    player_left = 'PlayerLeft'
-    participant_created = 'ParticipantCreated'
-    participant_destroyed = 'ParticipantDestroyed'
-    sector = 'Sector'
-    lap = 'Lap'
-    results = 'Results'
-    cut_track_start = 'CutTrackStart'
-    cut_track_end = 'CutTrackEnd'
-    impact = 'Impact'
-
-
-class LeavingReason(Enum):
-    left = 1
-    kicked = 2
-    disconnected = 5
 
 
 class BaseEvent:
