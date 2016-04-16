@@ -50,3 +50,6 @@ class Member(models.Model):
         snapshot.parent = self
         snapshot.save()
         return snapshot
+
+    def get_participant(self, session):
+        return session.participant_set.filter(is_player=True, refid=self.refid)

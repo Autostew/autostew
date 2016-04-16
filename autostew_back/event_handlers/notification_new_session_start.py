@@ -4,7 +4,7 @@ from autostew_web_session.models.event import Event
 
 new_session_starts = [
     "",
-    "This server is connected to autostew.selfhost.eu"
+    "This server is connected to autostew.net"
     "",
 ]
 
@@ -14,7 +14,7 @@ class HandleNotificationNewSessionStart(BaseEventHandler):
     @classmethod
     def can_consume(cls, server, event: Event):
         return (
-            event.type == EventType.state_changed and
+            event.type.name == EventType.state_changed and
             event.new_session_state is not None and
             event.new_session_state.name == SessionState.lobby
         )

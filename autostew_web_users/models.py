@@ -5,6 +5,12 @@ from autostew_web_session import models as session_models
 
 
 class SteamUser(models.Model):
+    per_km_safety_multiplier = 0.005
+    initial_safety_rating = 10000
+    elo_k = 5
+    initial_elo_rating = 1000
+    minimum_elo_rating = 0
+
     class Meta:
         ordering = ['display_name']
     steam_id = models.CharField(max_length=100)
@@ -13,6 +19,7 @@ class SteamUser(models.Model):
     elo_rating = models.IntegerField(null=True)
     safety_rating = models.IntegerField(null=True)
     safety_class = models.ForeignKey('SafetyClass', null=True, blank=True)
+    total_distance = models.IntegerField(default=0)
 
     def get_absolute_url(self):
         return reverse('users:profile', args=[str(self.steam_id)])
@@ -23,11 +30,51 @@ class SteamUser(models.Model):
     def get_performance_rating(self):
         return self.elo_rating
 
+    def push_elo_rating(self):
+        if self.elo_rating is None:
+            self.elo_rating = self.initial_elo_rating
+        self.previous_elo_rating = self.elo_rating
+        self.save()
+
+    def update_elo_rating(self, opponent, won: float):
+        if won is None:
+            return
+        win_expectation = self.transformed_previous_rating / (opponent.transformed_previous_rating + self.transformed_previous_rating)
+        self.elo_rating += self.elo_k * (won - win_expectation)
+        if self.elo_rating < self.minimum_elo_rating:
+            self.elo_rating = self.minimum_elo_rating
+        self.save()
+
+    @property
+    def transformed_rating(self):
+        return 10 ** (self.elo_rating / 400)
+
+    @property
+    def transformed_previous_rating(self):
+        return 10 ** (self.elo_rating / 400)
+
+    def add_crash_points(self, points):
+        if self.safety_rating is None:
+            self.safety_rating = initial_safety_rating
+        self.safety_rating += points
+        self.update_safety_class()
+        self.save()
+
+    def add_distance(self, distance):
+        if self.safety_rating is None:
+            self.safety_rating = initial_safety_rating
+        self.total_distance += distance
+        self.safety_rating *= (distance/1000)**per_km_safety_multiplier
+        self.update_safety_class()
+        self.save()
+
     def update_safety_class(self):
         if not SafetyClass.objects.exists():
             return
         if self.safety_class is None:
             self.safety_class = SafetyClass.objects.get(initial_class=True)
+        if self.safety_rating is None:
+            self.safety_rating = self.initial_safety_rating
         if (
                     self.safety_rating > self.safety_class.drop_from_this_class_threshold and
                     self.safety_class.class_below

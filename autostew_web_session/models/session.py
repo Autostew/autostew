@@ -135,6 +135,8 @@ class Session(models.Model):
 
     first_snapshot = models.ForeignKey("self", null=True, blank=True, related_name='+')
 
+    fastest_lap = models.ForeignKey('Lap', null=True, blank=True, related_name='+')
+
     is_result = models.BooleanField(default=0)
     timestamp = models.DateTimeField(auto_now_add=True)
     session_state = models.ForeignKey("autostew_web_enums.SessionState", null=True, blank=True)

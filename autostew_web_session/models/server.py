@@ -10,13 +10,24 @@ from django.db import models
 from django.utils import timezone
 
 import autostew_web_session
+from autostew_back import event_handlers
+from autostew_back.event_handlers.collision import HandleCollision
+from autostew_back.event_handlers.lap import HandleLap
 from autostew_back.event_handlers.notification_leader_entered_last_lap import HandleNotificationLeaderEnteredLastLap
+from autostew_back.event_handlers.notification_new_session_start import HandleNotificationNewSessionStart
+from autostew_back.event_handlers.notification_race_start import HandleNotificationRaceStart
 from autostew_back.event_handlers.notification_welcome import HandleNotificationWelcome
 from autostew_back.event_handlers.notification_winner_finished_race import HandleNotificationWinnerFinishedRace
+from autostew_back.event_handlers.race_lap_snapshot import HandleRaceLapSnapshot
+from autostew_back.event_handlers.result import HandleResult
+from autostew_back.event_handlers.sector import HandleSector
+from autostew_back.event_handlers.session_end import HandleSessionEnd
+from autostew_back.event_handlers.session_start import HandleSessionStart
+from autostew_back.event_handlers.stage_change import HandleStageChange
+from autostew_back.event_handlers.to_track import HandleToTrack
 from autostew_back.gameserver import api_translations
 from autostew_back.gameserver.api import ApiCaller
 from autostew_back.gameserver.api_connector import ApiConnector
-from autostew_back.plugins.db_session_writer_libs.db_safety_rating import initial_safety_rating
 from autostew_web_enums.models import SessionState
 from autostew_web_session.models import models as session_models
 from autostew_web_session.models.member import Member
@@ -59,6 +70,7 @@ class Server(models.Model):
     back_reconnect = models.BooleanField(default=True)
     back_kicks = models.BooleanField(default=False)
     back_crash_points_limit = models.BooleanField(default=4000)
+    back_crash_points_limit_ban_time = models.BooleanField(default=0)
     back_safety_rating = models.BooleanField(default=True)
     back_performance_rating = models.BooleanField(default=True)
     back_custom_motd = models.CharField(max_length=200)
@@ -150,6 +162,7 @@ class Server(models.Model):
     def back_full_pull(self):
         status = self.api.get_status()
         self.back_pull_server_status(status)
+        self.back_pull_session_status(status)
         self.back_pull_members(status)
         self.back_pull_participants(status)
 
@@ -172,8 +185,7 @@ class Server(models.Model):
                 except SteamUser.DoesNotExist:
                     pulled_member.steam_user = SteamUser.objects.create(
                         steam_id=pulled_member.steam_id,
-                        display_name=pulled_member.name,
-                        safety_rating=initial_safety_rating
+                        display_name=pulled_member.name
                     )
                     pulled_member.steam_user.update_safety_class()
             pulled_member.steam_user.display_name = pulled_member.name
@@ -260,7 +272,7 @@ class Server(models.Model):
         if self.setup_rotation_index >= len(self.setup_rotation.all()):
             self.setup_rotation_index = 0
         self.save()
-        return self.setup_rotation[self.setup_rotation_index]
+        return self.setup_rotation.all()[self.setup_rotation_index]
 
     def back_start_session(self):
         setup_template = self.back_get_next_setup()
@@ -302,7 +314,11 @@ class Server(models.Model):
             tick_start = time()
 
             if self.current_session:
+                self.clock()
+                self.update_player_latency()
                 self.back_full_pull()
+
+            self.ping()
 
             new_events = self.api.get_new_events()
             logging.debug("Got {} new events".format(len(new_events)))
@@ -334,7 +350,44 @@ class Server(models.Model):
     @staticmethod
     def get_event_handlers():
         return [
+            HandleCollision,
+            HandleLap,
+            HandleNotificationLeaderEnteredLastLap,
+            HandleNotificationNewSessionStart,
+            HandleNotificationRaceStart,
             HandleNotificationWelcome,
             HandleNotificationWinnerFinishedRace,
-            HandleNotificationLeaderEnteredLastLap,
+            HandleRaceLapSnapshot,
+            HandleResult,
+            HandleSector,
+            HandleSessionEnd,
+            HandleSessionStart,
+            HandleStageChange,
+            HandleToTrack,
         ]
+
+    def clock(self):
+        if (
+                        self.current_session.current_hour != getattr(self, 'hour', None) and
+                        self.current_session.session_state.name == SessionState.race
+        ):
+            self.hour = self.current_session.current_hour
+            self.api.send_chat("")
+            self.api.send_chat("CLOCK {}:{:02d}".format(
+                self.current_session.current_hour.get(),
+                self.current_session.current_minute)
+            )
+
+    def ping(self):
+        self.last_ping = timezone.make_aware(datetime.datetime.now())
+        self.save()
+
+    def update_player_latency(self):
+        if len(self.current_session.member_set) == 0:
+            self.average_player_latency = None
+        else:
+            self.average_player_latency = sum([member.ping() for member in self.current_session.member_set]) / len(
+                self.current_session.member_set)
+
+    def send_chat(self, message):
+        self.api.send_chat(message)

@@ -21,6 +21,7 @@ class Participant(models.Model):
     is_player = models.BooleanField()
     vehicle = models.ForeignKey('Vehicle', null=True, blank=True)  # NULL because AI owner change will do that
     livery = models.ForeignKey('Livery', null=True, blank=True)  # NULL because AI owner change will do that
+    accumulated_crash_points = models.IntegerField(default=0)
 
     grid_position = models.IntegerField()
     race_position = models.IntegerField()

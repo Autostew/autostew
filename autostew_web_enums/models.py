@@ -2,7 +2,7 @@ from django.db import models
 
 
 class EventDefinition(models.Model):
-    name = models.CharField(max_length=50, unique=True)
+    name = models.CharField(max_length=50)
     type = models.CharField(max_length=50)
     description = models.CharField(max_length=50)
     attributes = models.TextField(max_length=200)
@@ -16,7 +16,7 @@ class EventDefinition(models.Model):
 
 
 class GameModeDefinition(models.Model):
-    name = models.CharField(max_length=50, unique=True)
+    name = models.CharField(max_length=50)
     ingame_id = models.IntegerField(help_text='pCars internal ID')
 
     def __str__(self):
@@ -28,7 +28,7 @@ class GameModeDefinition(models.Model):
 
 
 class TireWearDefinition(models.Model):
-    name = models.CharField(max_length=50, unique=True)
+    name = models.CharField(max_length=50)
     ingame_id = models.IntegerField(help_text='pCars internal ID')
 
     def __str__(self):
@@ -40,7 +40,7 @@ class TireWearDefinition(models.Model):
 
 
 class PenaltyDefinition(models.Model):
-    name = models.CharField(max_length=50, unique=True)
+    name = models.CharField(max_length=50)
     ingame_id = models.IntegerField(help_text='pCars internal ID')
 
     def __str__(self):
@@ -52,7 +52,7 @@ class PenaltyDefinition(models.Model):
 
 
 class FuelUsageDefinition(models.Model):
-    name = models.CharField(max_length=50, unique=True)
+    name = models.CharField(max_length=50)
     ingame_id = models.IntegerField(help_text='pCars internal ID')
 
     def __str__(self):
@@ -64,7 +64,7 @@ class FuelUsageDefinition(models.Model):
 
 
 class AllowedViewsDefinition(models.Model):
-    name = models.CharField(max_length=50, unique=True)
+    name = models.CharField(max_length=50)
     ingame_id = models.IntegerField(help_text='pCars internal ID')
 
     def __str__(self):
@@ -96,7 +96,7 @@ class PlayerFlagDefinition(models.Model):
     aid_driving_line = 32768
     valid = 1073741824
 
-    name = models.CharField(max_length=50, unique=True)
+    name = models.CharField(max_length=50)
     ingame_id = models.IntegerField(help_text='pCars internal ID')
 
     def __str__(self):
@@ -125,7 +125,7 @@ class WeatherDefinition(models.Model):
         'LightCloud': '<i class="wi wi-day-sunny-overcast" title="{}"></i>',
         'Clear': '<i class="wi wi-day-sunny" title="{}"></i>',
     }
-    name = models.CharField(max_length=50, unique=True)
+    name = models.CharField(max_length=50)
     ingame_id = models.IntegerField(help_text='pCars internal ID')
 
     def get_icon_or_name(self):
@@ -144,7 +144,7 @@ class PrivacyDefinition(models.Model):
     friends = 1
     private = 2
 
-    name = models.CharField(max_length=50, unique=True)
+    name = models.CharField(max_length=50)
     ingame_id = models.IntegerField(help_text='pCars internal ID')
 
     def __str__(self):
@@ -156,7 +156,7 @@ class PrivacyDefinition(models.Model):
 
 
 class DamageDefinition(models.Model):
-    name = models.CharField(max_length=50, unique=True)
+    name = models.CharField(max_length=50)
     ingame_id = models.IntegerField(help_text='pCars internal ID')
 
     def __str__(self):
@@ -184,7 +184,7 @@ class SessionFlagDefinition(models.Model):
     ghost_griefers = 2097152
     enforced_pitstop = 4194304
 
-    name = models.CharField(max_length=50, unique=True)
+    name = models.CharField(max_length=50)
     ingame_id = models.IntegerField(help_text='pCars internal ID')
 
     def __str__(self):

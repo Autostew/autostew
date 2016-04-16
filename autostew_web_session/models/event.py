@@ -186,6 +186,13 @@ class Event(models.Model):
             self.participant.is_player and
             self.other_participant.is_player
         )
+    @property
+    def ai_involved(self):
+        if not self.participant.is_player:
+            return True
+        if self.other_participant and not self.other_participant.is_player:
+            return True
+        return False
 
     def handle(self, server):
         self.retries_remaining -= 1
@@ -195,4 +202,4 @@ class Event(models.Model):
                 self.handled = True
         self.save()
         if self.retries_remaining == 0 and not self.handled:
-            logging.warning("Event could not be handled: {}".format(self))
+            logging.warning("Event could not be handled: {}".format(self.raw))
