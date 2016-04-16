@@ -10,6 +10,10 @@ class EventDefinition(models.Model):
     def __str__(self):
         return "{}-{}".format(self.type, self.name)
 
+    @classmethod
+    def get_or_create_default(cls, name):
+        return cls.objects.get_or_create(name=name, defaults={'type': 'Unknown', 'decription': '', 'attributes': ''})[0]
+
 
 class GameModeDefinition(models.Model):
     name = models.CharField(max_length=50, unique=True)

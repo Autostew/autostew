@@ -41,6 +41,8 @@ class BaseEvent:
         self.type = EventType(raw['name'])
         self.index = raw['index']
         self.time = datetime.datetime.fromtimestamp(raw['time'])
+        self.refid = raw.get('refid')
+        self.participant_id = raw.get('participantid')
 
 
 class MemberEvent(BaseEvent):

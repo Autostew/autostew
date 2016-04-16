@@ -1,3 +1,5 @@
+import json
+
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.db.models.aggregates import Min
@@ -102,10 +104,6 @@ class Livery(models.Model):
         return "{} for {}".format(self.name, self.vehicle.name)
 
 
-class ServerConfiguration(models.Model):
-    pass
-
-
 class SetupRotationEntry(models.Model):
     class Meta:
         ordering = ('server', 'order', )
@@ -124,16 +122,40 @@ class SetupQueueEntry(models.Model):
     server = models.ForeignKey('Server', on_delete=models.CASCADE)
 
 
+class EventType(models.Model):
+    name = models.CharField(max_length=50)
+
+    @classmethod
+    def get_or_create_default(cls, name):
+        return cls.objects.get_or_create(name=name)[0]
+
+
 class Event(models.Model):
     class Meta:
         ordering = ['ingame_index']
 
-    snapshot = models.ForeignKey('Session', null=True, blank=True, related_name='+')
-    definition = models.ForeignKey('autostew_web_enums.EventDefinition', null=True, blank=True, related_name='+')  # may be NULL and a custom event! eg. by a plugin
+    session = models.ForeignKey('Session', null=True, blank=True)
+    type = models.ForeignKey(EventType)
     timestamp = models.DateTimeField()
     ingame_index = models.IntegerField()
     raw = models.TextField()
+    member = models.ForeignKey('autostew_web_session.Member', null=True, blank=True)
+    participant = models.ForeignKey('autostew_web_session.Participant', null=True, blank=True)
+    retries_remaining = models.SmallIntegerField(default=2)
 
+    def event_parse(self, server):
+        jsonformatted_event = json.dumps(self.raw)
+        if 'refid' in jsonformatted_event.keys():
+            self.member = server.get_member(jsonformatted_event['refid'])
+            if 'participantid' in jsonformatted_event.keys():
+                self.participant = server.get_participant(jsonformatted_event['refid'], jsonformatted_event['participantid'])
+
+    def handle(self, server):
+        self.retries_remaining -= 1
+        for handler in event_handlers:
+            if handler.can_consume(self):
+                handler.consume(self)
+        self.save()
 
 class RaceLapSnapshot(models.Model):
     class Meta:

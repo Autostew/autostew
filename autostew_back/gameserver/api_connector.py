@@ -7,7 +7,7 @@ class ApiConnector:
         self.object = target_model
         self.translations = translations
 
-    def push_to_game(self, api_type_name, for_next_session = False, copy_to_next = False):
+    def push_to_game(self, api_type_name, for_next_session=False, copy_to_next=False):
         flag_fields = []
         method = "set_next_attributes" if for_next_session else "set_attributes"
         for translation in self.translations:

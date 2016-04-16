@@ -1,9 +1,9 @@
 from autostew_web_enums.models import SessionFlagDefinition, DamageDefinition, TireWearDefinition, FuelUsageDefinition, \
     PenaltyDefinition, AllowedViewsDefinition, WeatherDefinition, GameModeDefinition, SessionState, SessionStage, \
-    SessionPhase, PrivacyDefinition, MemberLoadState, PlayerFlagDefinition, MemberState, ParticipantState
+    SessionPhase, PrivacyDefinition, MemberLoadState, PlayerFlagDefinition, MemberState, ParticipantState, EventType
 from autostew_web_session.models.models import Track, VehicleClass, Vehicle, Livery
 
-session_setup_translations = [
+session_setup = [
     {'model_field': 'server_controls_setup', 'api_field': 'ServerControlsSetup'},
     {'model_field': 'server_controls_track', 'api_field': 'ServerControlsTrack'},
     {'model_field': 'server_controls_vehicle_class', 'api_field': 'ServerControlsVehicleClass'},
@@ -62,13 +62,13 @@ session_setup_translations = [
     {'model_field': 'game_mode', 'api_field': 'GameMode', 'enum_model': GameModeDefinition},
 ]
 
-extra_track_data_translations = [
+extra_track_data = [
     {'model_field': 'track_latitude', 'api_field': 'Latitude'},
     {'model_field': 'track_longitude', 'api_field': 'Longitude'},
     {'model_field': 'track_altitude', 'api_field': 'Altitude'},
 ]
 
-session_translations = [
+session = [
     {'model_field': 'session_state', 'api_field': 'SessionState', 'enum_model': SessionState},
     {'model_field': 'session_stage', 'api_field': 'SessionStage', 'enum_model': SessionStage},
     {'model_field': 'session_phase', 'api_field': 'SessionPhase', 'enum_model': SessionPhase},
@@ -95,7 +95,7 @@ session_translations = [
     {'model_field': 'air_pressure', 'api_field': 'AirPressure'},
 ]
 
-member_translations = [
+member = [
     {'subsection': 'attributes', 'model_field': 'vehicle', 'api_field': 'VehicleId', 'enum_model': Vehicle},
     {'subsection': 'attributes', 'model_field': 'livery', 'api_field': 'LiveryId', 'enum_model': Livery, 'depends_on': 'vehicle'},
     {'subsection': 'attributes', 'model_field': 'ingame_load_state', 'api_field': 'LoadState', 'enum_model': MemberLoadState},
@@ -128,7 +128,7 @@ member_translations = [
     {'model_field': 'is_host', 'api_field': 'host'},
 ]
 
-participant_translations = [
+participant = [
     {'subsection': 'attributes', 'model_field': 'current_lap', 'api_field': 'CurrentLap'},
     {'subsection': 'attributes', 'model_field': 'orientation', 'api_field': 'Orientation'},
     {'subsection': 'attributes', 'model_field': 'position_z', 'api_field': 'PositionZ'},
@@ -152,4 +152,9 @@ participant_translations = [
     {'subsection': 'attributes', 'model_field': 'race_position', 'api_field': 'RacePosition'},
     {'subsection': 'attributes', 'model_field': 'sector1_time', 'api_field': 'Sector1Time'},
     {'model_field': 'ingame_id', 'api_field': 'id'},
+]
+
+event_base = [
+    {'subsection': 'attributes', 'model_field': 'type', 'api_field': 'name', 'enum_model': EventType},
+    {'subsection': 'attributes', 'model_field': 'ingame_index', 'api_field': 'index'},
 ]

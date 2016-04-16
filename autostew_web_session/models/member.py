@@ -1,6 +1,6 @@
 from django.db import models
 
-from autostew_web_enums import models as enum_models
+from autostew_web_enums.models import LeavingReason
 
 
 class Member(models.Model):
@@ -18,6 +18,7 @@ class Member(models.Model):
     ingame_state = models.ForeignKey('autostew_web_enums.MemberState')
     join_time = models.IntegerField()
     is_host = models.BooleanField()
+    leaving_reason = models.ForeignKey(LeavingReason, null=True. blank=True)
 
     vehicle = models.ForeignKey('Vehicle')
     livery = models.ForeignKey('Livery')

@@ -12,11 +12,11 @@ import autostew_web_session
 from autostew_back.gameserver import api_translations
 from autostew_back.gameserver.api import ApiCaller
 from autostew_back.gameserver.api_connector import ApiConnector
-from autostew_back.gameserver.event import event_factory
 from autostew_back.plugins.db_session_writer_libs.db_safety_rating import initial_safety_rating
 from autostew_web_enums.models import SessionState
 from autostew_web_session.models import models as session_models
 from autostew_web_session.models.member import Member
+from autostew_web_session.models.models import Event
 from autostew_web_session.models.participant import Participant
 from autostew_web_session.models.session import SessionSetup
 from autostew_web_users.models import SteamUser
@@ -27,14 +27,6 @@ def log_time(f, *args, **kwargs):
     start_time = time()
     f(*args, **kwargs)
     logging.info("Plugin init took {} seconds".format(timedelta(seconds=time()-start_time)))
-
-
-class BreakPluginLoadingException(Exception):
-    pass
-
-
-class UnmetPluginDependencyException(Exception):
-    pass
 
 
 class NoSessionSetupTemplateAvailableException(Exception):
@@ -57,6 +49,13 @@ class Server(models.Model):
     contact = models.EmailField(blank=True)
     api_url = models.CharField(max_length=200,
                                help_text="Dedicated Server HTTP API URL, like http://user:pwd@host:port/")
+
+    back_enabled = models.BooleanField(default=False)
+    back_reconnect = models.BooleanField(default=True)
+    back_kicks = models.BooleanField(default=False)
+    back_crash_points_limit = models.BooleanField(default=4000)
+    back_safety_rating = models.BooleanField(default=True)
+    back_performance_rating = models.BooleanField(default=True)
 
     setup_rotation_index = models.IntegerField()
     setup_rotation = models.ManyToManyField('SessionSetup',
@@ -125,7 +124,7 @@ class Server(models.Model):
 
     def back_pull_session_setup(self):
         new_setup = SessionSetup()
-        connector = ApiConnector(self.api, new_setup, api_translations.session_setup_translations)
+        connector = ApiConnector(self.api, new_setup, api_translations.session_setup)
         connector.pull_from_game(self.api.get_status(members=False, participants=False)['attributes'])
         new_setup.is_template = False
         new_setup.save()
@@ -150,7 +149,7 @@ class Server(models.Model):
     def back_pull_members(self, status):  # TODO refactor this
         for in_game_member in status['members']:
             pulled_member = Member()
-            connector = ApiConnector(self.api, pulled_member, api_translations.member_translations)
+            connector = ApiConnector(self.api, pulled_member, api_translations.member)
             connector.pull_from_game(in_game_member)
             try:
                 existing_member = Member.objects.get(
@@ -185,10 +184,25 @@ class Server(models.Model):
                 member.still_connected = False
                 member.save()
 
+    def get_participant(self, refid, participant_id):
+        return self.current_session.participant_set.get(
+            session=self.current_session,
+            refid=refid,
+            ingame_id=participant_id,
+            still_connected=True
+        )
+
+    def get_member(self, refid):
+        return self.current_session.member_set.get(
+            session=self.current_session,
+            refid=refid,
+            still_connected=True
+        )
+
     def back_pull_participants(self, status):
         for in_game_participant in status['participants']:
             pulled_participant = Participant()
-            connector = ApiConnector(self.api, pulled_participant, api_translations.participant_translations)
+            connector = ApiConnector(self.api, pulled_participant, api_translations.participant)
             connector.pull_from_game(in_game_participant)
             try:
                 existing_participant = Participant.objects.get(
@@ -204,11 +218,15 @@ class Server(models.Model):
             pulled_participant.still_connected = True
             pulled_participant.save()
 
+        self.back_mark_disconnected_participants(status)
+
+    def back_mark_disconnected_participants(self, status):
         for participant in self.current_session.participant_set.filter(still_connected=True):
             found = False
             for participant_in_status in status['participants']:
                 if participant_in_status['attributes']['RefId'] == participant.refid and participant_in_status['id'] == participant.ingame_id:
                     found = True
+
             if not found:
                 participant.still_connected = False
                 participant.save()
@@ -235,7 +253,7 @@ class Server(models.Model):
 
     def back_start_session(self):
         setup_template = self.back_get_next_setup()
-        connector = ApiConnector(self.api, setup_template, api_translations.session_setup_translations)
+        connector = ApiConnector(self.api, setup_template, api_translations.session_setup)
         connector.push_to_game('session')
         actual_setup = self.back_pull_session_setup()
 
@@ -258,6 +276,9 @@ class Server(models.Model):
         self.save()
         return session
 
+    def get_queued_events(self):
+        return Event.objects.filter(session=self.current_session, retries_remaining__gt=0)
+
     def back_poll_loop(self, event_offset=None, only_one_run=False, one_by_one=False):
         if not only_one_run:
             logging.info("Entering event loop")
@@ -269,19 +290,23 @@ class Server(models.Model):
         while True:
             tick_start = time()
 
-            events = self.api.get_new_events()
-            logging.debug("Got {} events".format(len(events)))
-
             if self.current_session:
                 self.back_full_pull()
 
-            for raw_event in events:
-                event = event_factory(raw_event, self)
+            new_events = self.api.get_new_events()
+            logging.debug("Got {} new events".format(len(new_events)))
 
+            for raw_event in new_events:
+                new_event = Event()
+                new_event.session = self.current_session
+                connector = ApiConnector(self.api, new_event, api_translations.event_base)
+                connector.pull_from_game(raw_event)
+                new_event.event_parse(self)
+
+            for event in self.get_queued_events() + new_events:
                 if one_by_one:
-                    input("Event (enter)")
-
-                # call event handlers
+                    input("Processing event {}".format(event))
+                event.handle(self)
 
             if one_by_one:
                 input("Tick (enter)")
