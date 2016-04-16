@@ -18,7 +18,7 @@ class Member(models.Model):
     ingame_state = models.ForeignKey('autostew_web_enums.MemberState')
     join_time = models.IntegerField()
     is_host = models.BooleanField()
-    leaving_reason = models.ForeignKey(LeavingReason, null=True. blank=True)
+    leaving_reason = models.ForeignKey(LeavingReason, null=True, blank=True)
 
     vehicle = models.ForeignKey('Vehicle')
     livery = models.ForeignKey('Livery')

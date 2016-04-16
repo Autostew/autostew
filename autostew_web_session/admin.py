@@ -96,8 +96,7 @@ admin.site.register(Participant)
 
 @admin.register(Event)
 class EventAdmin(admin.ModelAdmin):
-    list_filter = ['definition']
-    list_display = ['id', 'definition', 'timestamp', 'raw']
+    list_display = ['id', 'session', 'type', 'timestamp', 'raw']
     search_fields = ['raw']
 
 admin.site.register(RaceLapSnapshot)

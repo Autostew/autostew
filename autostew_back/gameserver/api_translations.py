@@ -155,6 +155,6 @@ participant = [
 ]
 
 event_base = [
-    {'subsection': 'attributes', 'model_field': 'type', 'api_field': 'name', 'enum_model': EventType},
-    {'subsection': 'attributes', 'model_field': 'ingame_index', 'api_field': 'index'},
+    {'model_field': 'type', 'api_field': 'name', 'enum_model': EventType},
+    {'model_field': 'ingame_index', 'api_field': 'index'},
 ]

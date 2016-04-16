@@ -231,12 +231,21 @@ class EventType(models.Model):
     def __str__(self):
         return self.name
 
+    @classmethod
+    def get_or_create_default(cls, name):
+        return cls.objects.get_or_create(name=name)[0]
+
 
 class LeavingReason(models.Model):
+    ingame_id = models.IntegerField()
     name = models.CharField(max_length=50)
 
     def __str__(self):
         return self.name
+
+    @classmethod
+    def get_or_create_default(cls, ingame_id):
+        return cls.objects.get_or_create(ingame_id=ingame_id, defaults={'name': 'Unknown'})[0]
 
 
 class MemberLoadState(models.Model):

@@ -1,4 +1,5 @@
 import datetime
+import json
 import logging
 from datetime import timedelta
 from time import time, sleep
@@ -185,6 +186,8 @@ class Server(models.Model):
                 member.save()
 
     def get_participant(self, refid, participant_id):
+        if not self.current_session:
+            return None
         return self.current_session.participant_set.get(
             session=self.current_session,
             refid=refid,
@@ -193,6 +196,8 @@ class Server(models.Model):
         )
 
     def get_member(self, refid):
+        if not self.current_session:
+            return None
         return self.current_session.member_set.get(
             session=self.current_session,
             refid=refid,
@@ -298,12 +303,13 @@ class Server(models.Model):
 
             for raw_event in new_events:
                 new_event = Event()
+                new_event.raw = json.dumps(raw_event)
                 new_event.session = self.current_session
                 connector = ApiConnector(self.api, new_event, api_translations.event_base)
                 connector.pull_from_game(raw_event)
                 new_event.event_parse(self)
 
-            for event in self.get_queued_events() + new_events:
+            for event in list(self.get_queued_events()) + new_events:
                 if one_by_one:
                     input("Processing event {}".format(event))
                 event.handle(self)

@@ -7,7 +7,7 @@ import autostew_web_session.models.server
 import autostew_web_session.models.session
 from autostew_back.gameserver.mocked_api import FakeApi
 from autostew_back.gameserver.participant import ParticipantState
-from autostew_web_session.models.server import UnmetPluginDependencyException, Server
+from autostew_web_session.models.server import Server
 from autostew_back.tests.test_assets import settings_db_enum_writer, settings_db_session_writer
 from autostew_web_enums.models import DamageDefinition, TireWearDefinition, FuelUsageDefinition, PenaltyDefinition, \
     AllowedViewsDefinition, WeatherDefinition, GameModeDefinition, PrivacyDefinition, MemberLoadState, MemberState

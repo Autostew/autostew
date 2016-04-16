@@ -44,9 +44,11 @@ class ApiConnector:
         for translation in self.translations:
             value = (
                 api_result[translation['api_field']] if 'subsection' not in translation.keys() else
-                api_result[translation['subsection']][translation['api_field']]
+                api_result.get(translation.get('subsection')).get(translation.get('api_field'))
             )
-            if 'flag' in translation.keys():
+            if value is None:
+                setattr(self.object, translation['model_field'], None)
+            elif 'flag' in translation.keys():
                 setattr(
                     self.object,
                     translation['model_field'],

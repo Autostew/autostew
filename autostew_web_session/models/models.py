@@ -122,20 +122,12 @@ class SetupQueueEntry(models.Model):
     server = models.ForeignKey('Server', on_delete=models.CASCADE)
 
 
-class EventType(models.Model):
-    name = models.CharField(max_length=50)
-
-    @classmethod
-    def get_or_create_default(cls, name):
-        return cls.objects.get_or_create(name=name)[0]
-
-
 class Event(models.Model):
     class Meta:
         ordering = ['ingame_index']
 
     session = models.ForeignKey('Session', null=True, blank=True)
-    type = models.ForeignKey(EventType)
+    type = models.ForeignKey('autostew_web_enums.EventType')
     timestamp = models.DateTimeField()
     ingame_index = models.IntegerField()
     raw = models.TextField()
@@ -144,7 +136,7 @@ class Event(models.Model):
     retries_remaining = models.SmallIntegerField(default=2)
 
     def event_parse(self, server):
-        jsonformatted_event = json.dumps(self.raw)
+        jsonformatted_event = json.loads(self.raw)
         if 'refid' in jsonformatted_event.keys():
             self.member = server.get_member(jsonformatted_event['refid'])
             if 'participantid' in jsonformatted_event.keys():
