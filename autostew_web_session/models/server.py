@@ -6,7 +6,7 @@ from time import time, sleep
 
 from decorator import decorator
 from django.core.urlresolvers import reverse
-from django.db import models
+from django.db import models, transaction
 from django.utils import timezone
 
 import autostew_web_session
@@ -28,10 +28,14 @@ from autostew_back.event_handlers.to_track import HandleToTrack
 from autostew_back.ds_api import api_translations
 from autostew_back.ds_api.api import ApiCaller
 from autostew_back.ds_api.api_connector import ApiConnector
-from autostew_web_enums.models import SessionState
+from autostew_web_enums.models import SessionState, EventDefinition, GameModeDefinition, TireWearDefinition, \
+    PenaltyDefinition, ParticipantAttributeDefinition, FuelUsageDefinition, SessionAttributeDefinition, \
+    AllowedViewsDefinition, PlayerFlagDefinition, WeatherDefinition, DamageDefinition, SessionFlagDefinition, \
+    MemberAttributeDefinition
 from autostew_web_session.models import models as session_models
 from autostew_web_session.models.member import Member
 from autostew_web_session.models.event import Event
+from autostew_web_session.models.models import Track, Vehicle, VehicleClass, Livery
 from autostew_web_session.models.participant import Participant
 from autostew_web_session.models.session import SessionSetup
 from autostew_web_users.models import SteamUser
@@ -113,7 +117,67 @@ class Server(models.Model):
             ordered_queue[0].delete()
         return next_setup
 
-    def back_start(self, settings, env_init=False, api_record=False):
+    @transaction.atomic
+    def back_pull_lists(self, lists):
+        for event in lists['events']['list']:
+            if not EventDefinition.objects.filter(name=event['name']).exists():
+                EventDefinition.objects.create(**event)
+        for track in lists['tracks']['list']:
+            if not Track.objects.filter(ingame_id=track['id']).exists():
+                Track.objects.create(ingame_id=track['id'], name=track['name'], grid_size=track['gridsize'])
+        for vehicle_class in lists['vehicle_classes']['list']:
+            if not VehicleClass.objects.filter(ingame_id=vehicle_class['value']).exists():
+                VehicleClass.objects.create(ingame_id=vehicle_class['value'], name=vehicle_class['name'])
+        for vehicle in lists['liveries']['list']:
+            try:
+                vehicle_in_db = Vehicle.objects.get(ingame_id=vehicle['id'])
+            except Vehicle.DoesNotExist:
+                vehicle_in_db = Vehicle.objects.create(
+                    ingame_id=vehicle['id'],
+                    name=vehicle['name'],
+                    vehicle_class=VehicleClass.objects.get(name=vehicle['class'])
+                )
+            for livery in vehicle['liveries']:
+                if not Livery.objects.filter(vehicle__ingame_id=vehicle['id'], id_for_vehicle=livery['id']).exists():
+                    Livery.objects.create(vehicle=vehicle_in_db, name=livery['name'], id_for_vehicle=livery['id'])
+        for game_mode in lists['enums/game_mode']['list']:
+            if not GameModeDefinition.objects.filter(ingame_id=game_mode['value']).exists():
+                GameModeDefinition.objects.create(ingame_id=game_mode['value'], name=game_mode['name'])
+        for tire_wear in lists['enums/tire_wear']['list']:
+            if not TireWearDefinition.objects.filter(ingame_id=tire_wear['value']).exists():
+                TireWearDefinition.objects.create(ingame_id=tire_wear['value'], name=tire_wear['name'])
+        for penalty in lists['enums/penalties']['list']:
+            if not PenaltyDefinition.objects.filter(ingame_id=penalty['value']).exists():
+                PenaltyDefinition.objects.create(ingame_id=penalty['value'], name=penalty['name'])
+        for participant_attribute in lists['attributes/participant']['list']:
+            if not ParticipantAttributeDefinition.objects.filter(name=participant_attribute['name']).exists():
+                ParticipantAttributeDefinition.objects.create(**participant_attribute)
+        for fuel_usage in lists['enums/fuel_usage']['list']:
+            if not FuelUsageDefinition.objects.filter(ingame_id=fuel_usage['value']).exists():
+                FuelUsageDefinition.objects.create(ingame_id=fuel_usage['value'], name=fuel_usage['name'])
+        for session_attribute in lists['attributes/session']['list']:
+            if not SessionAttributeDefinition.objects.filter(name=session_attribute['name']).exists():
+                SessionAttributeDefinition.objects.create(**session_attribute)
+        for allowed_view in lists['enums/allowed_view']['list']:
+            if not AllowedViewsDefinition.objects.filter(ingame_id=allowed_view['value']).exists():
+                AllowedViewsDefinition.objects.create(ingame_id=allowed_view['value'], name=allowed_view['name'])
+        for player_flag in lists['flags/player']['list']:
+            if not PlayerFlagDefinition.objects.filter(ingame_id=player_flag['value']).exists():
+                PlayerFlagDefinition.objects.create(ingame_id=player_flag['value'], name=player_flag['name'])
+        for weather in lists['enums/weather']['list']:
+            if not WeatherDefinition.objects.filter(ingame_id=weather['value']).exists():
+                WeatherDefinition.objects.create(ingame_id=weather['value'], name=weather['name'])
+        for damage in lists['enums/damage']['list']:
+            if not DamageDefinition.objects.filter(ingame_id=damage['value']).exists():
+                DamageDefinition.objects.create(ingame_id=damage['value'], name=damage['name'])
+        for member_attribute in lists['attributes/member']['list']:
+            if not MemberAttributeDefinition.objects.filter(name=member_attribute['name']).exists():
+                MemberAttributeDefinition.objects.create(**member_attribute)
+        for session_flag in lists['flags/session']['list']:
+            if not SessionFlagDefinition.objects.filter(ingame_id=session_flag['value']).exists():
+                SessionFlagDefinition.objects.create(ingame_id=session_flag['value'], name=session_flag['name'])
+
+    def back_start(self, settings, api_record=False):
         self.last_status_update_time = None
         self.settings = settings
         self.running = True
@@ -122,6 +186,7 @@ class Server(models.Model):
             self,
             record_destination=settings.api_record_destination if api_record is True else api_record
         )
+        self.back_pull_lists(self.api.get_lists())
         self.back_pull_server_status(self.api.get_status())
 
         if self.state.name == ServerState.running:

@@ -22,7 +22,7 @@ description = """Autostew - A stuff doer for the Project Cars dedicated server""
 epilog = """Don't use --env-init on productive servers!"""
 
 
-def main(server_id: int, env_init: bool, api_record, api_replay_dir, api_replay_manual: bool, event_offset: int):
+def main(server_id: int, api_record, api_replay_dir, api_replay_manual: bool, event_offset: int):
     logging.info("Starting autostew")
 
     server = Server.objects.get(id=server_id)
@@ -34,18 +34,17 @@ def main(server_id: int, env_init: bool, api_record, api_replay_dir, api_replay_
             settings.event_poll_period = 0
             settings.full_update_period = 0
             with mock.patch.object(requests, 'get', api.fake_request):
-                server.back_start(settings, env_init=env_init, api_record=api_record)
+                server.back_start(settings, api_record=api_record)
                 server.back_poll_loop()
         else:
-            server.back_start(settings, env_init=env_init, api_record=api_record)
+            server.back_start(settings, api_record=api_record)
             server.back_poll_loop()
     except KeyboardInterrupt as e:
         traceback.print_tb(e.__traceback__)
     except ApiReplay.RecordFinished:
         logging.info("API record ended")
 
-    if not env_init:
-        server.back_destroy()
+    server.back_destroy()
 
     logging.info("Autostew finished properly")
     return 0
@@ -54,8 +53,6 @@ def main(server_id: int, env_init: bool, api_record, api_replay_dir, api_replay_
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=description, epilog=epilog)
     parser.add_argument('--sid', '-i', required=True, help="Server ID")
-    parser.add_argument('--env-init', default=False, action='store_true',
-                        help="Initialize environment")
     parser.add_argument('--api-record', nargs='?', const=True, default=False,
                         help="Record API calls")
     parser.add_argument('--api-replay', default=False,
@@ -65,9 +62,6 @@ if __name__ == "__main__":
     parser.add_argument('--event-offset',
                         help="Set initial event offset")
     args = parser.parse_args()
-    if args.env_init:
-        input("You are about to run env-init. Are you sure? (Enter to continue, ctrl+c to cancel)")
-        print("Okay let's do it.")
     sys.exit(
-        main(args.sid, args.env_init, args.api_record, args.api_replay, args.api_replay_manual, args.event_offset)
+        main(args.sid, args.api_record, args.api_replay, args.api_replay_manual, args.event_offset)
     )

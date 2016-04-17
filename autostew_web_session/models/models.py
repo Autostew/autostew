@@ -54,7 +54,7 @@ class VehicleClass(models.Model):
     class Meta:
         ordering = ['name']
 
-    name = models.CharField(max_length=50, unique=True)
+    name = models.CharField(max_length=50)
     ingame_id = models.IntegerField(help_text='pCars internal ID')
 
     def __str__(self):
