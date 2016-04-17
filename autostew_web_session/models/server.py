@@ -10,8 +10,8 @@ from django.db import models
 from django.utils import timezone
 
 import autostew_web_session
-from autostew_back import event_handlers
 from autostew_back.event_handlers.collision import HandleCollision
+from autostew_back.event_handlers.ignored_events import HandleIgnore
 from autostew_back.event_handlers.lap import HandleLap
 from autostew_back.event_handlers.notification_leader_entered_last_lap import HandleNotificationLeaderEnteredLastLap
 from autostew_back.event_handlers.notification_new_session_start import HandleNotificationNewSessionStart
@@ -25,9 +25,9 @@ from autostew_back.event_handlers.session_end import HandleSessionEnd
 from autostew_back.event_handlers.session_start import HandleSessionStart
 from autostew_back.event_handlers.stage_change import HandleStageChange
 from autostew_back.event_handlers.to_track import HandleToTrack
-from autostew_back.gameserver import api_translations
-from autostew_back.gameserver.api import ApiCaller
-from autostew_back.gameserver.api_connector import ApiConnector
+from autostew_back.ds_api import api_translations
+from autostew_back.ds_api.api import ApiCaller
+from autostew_back.ds_api.api_connector import ApiConnector
 from autostew_web_enums.models import SessionState
 from autostew_web_session.models import models as session_models
 from autostew_web_session.models.member import Member
@@ -35,13 +35,6 @@ from autostew_web_session.models.event import Event
 from autostew_web_session.models.participant import Participant
 from autostew_web_session.models.session import SessionSetup
 from autostew_web_users.models import SteamUser
-
-
-@decorator
-def log_time(f, *args, **kwargs):
-    start_time = time()
-    f(*args, **kwargs)
-    logging.info("Plugin init took {} seconds".format(timedelta(seconds=time()-start_time)))
 
 
 class NoSessionSetupTemplateAvailableException(Exception):
@@ -68,15 +61,15 @@ class Server(models.Model):
     back_verified = models.BooleanField(default=False)
     back_enabled = models.BooleanField(default=False)
     back_reconnect = models.BooleanField(default=True)
-    back_kicks = models.BooleanField(default=False)
+    back_kicks = models.BooleanField(default=True)
     back_crash_points_limit = models.BooleanField(default=4000)
     back_crash_points_limit_ban_time = models.BooleanField(default=0)
     back_safety_rating = models.BooleanField(default=True)
     back_performance_rating = models.BooleanField(default=True)
-    back_custom_motd = models.CharField(max_length=200)
+    back_custom_motd = models.CharField(max_length=200, blank=True)
     back_minimal_safety_class = models.ForeignKey('autostew_web_users.SafetyClass', null=True, blank=True)
 
-    setup_rotation_index = models.IntegerField()
+    setup_rotation_index = models.IntegerField(default=0)
     setup_rotation = models.ManyToManyField('SessionSetup',
                                             related_name='rotated_in_server', through='SetupRotationEntry',
                                             help_text="Setups that will be used on this server's rotation")
@@ -85,11 +78,6 @@ class Server(models.Model):
                                          related_name='queued_in_server', through='SetupQueueEntry',
                                          blank=True,
                                          help_text="If set, this will be the next setup used")
-
-    scheduled_sessions = models.ManyToManyField('Session', limit_choices_to={'planned': True},
-                                                related_name='schedule_at_servers',
-                                                blank=True,
-                                                help_text="These schedule setups will be used (on their scheduled time)")
 
     running = models.BooleanField(help_text="This value should not be changed manually")
     current_session = models.ForeignKey('Session', null=True, related_name='+', blank=True)
@@ -149,6 +137,12 @@ class Server(models.Model):
         new_setup.save()
         return new_setup
 
+    def back_pull_session_status(self, status):
+        if self.current_session:
+            connector = ApiConnector(self.api, self.current_session, api_translations.session)
+            connector.pull_from_game(status)
+            self.current_session.save()
+
     def back_pull_server_status(self, status):  # TODO this should also be made over an API translator
         self.state = ServerState.objects.get_or_create(name=status['state'])[0]
         self.session_state = (
@@ -166,7 +160,7 @@ class Server(models.Model):
         self.back_pull_members(status)
         self.back_pull_participants(status)
 
-    def back_pull_members(self, status):  # TODO refactor this
+    def back_pull_members(self, status):
         for in_game_member in status['members']:
             pulled_member = Member()
             connector = ApiConnector(self.api, pulled_member, api_translations.member)
@@ -178,18 +172,19 @@ class Server(models.Model):
                     steam_id=pulled_member.steam_id,
                     still_connected=True
                 )
-                pulled_member.id = existing_member.id
+                existing_member.name = pulled_member.name
+                pulled_member = existing_member
             except Member.DoesNotExist:
                 try:
                     pulled_member.steam_user = SteamUser.objects.get(steam_id=pulled_member.steam_id)
+                    pulled_member.steam_user.display_name = pulled_member.name
+                    pulled_member.steam_user.save()
                 except SteamUser.DoesNotExist:
                     pulled_member.steam_user = SteamUser.objects.create(
                         steam_id=pulled_member.steam_id,
                         display_name=pulled_member.name
                     )
                     pulled_member.steam_user.update_safety_class()
-            pulled_member.steam_user.display_name = pulled_member.name
-            pulled_member.steam_user.save()
             pulled_member.session = self.current_session
             pulled_member.still_connected = True
             pulled_member.save()
@@ -203,15 +198,22 @@ class Server(models.Model):
                 member.still_connected = False
                 member.save()
 
-    def get_participant(self, refid, participant_id):
+    def get_participant(self, participant_id, refid=None):
         if not self.current_session:
             return None
-        return self.current_session.participant_set.get(
-            session=self.current_session,
-            refid=refid,
-            ingame_id=participant_id,
-            still_connected=True
-        )
+        if refid is None:
+            return self.current_session.participant_set.get(
+                session=self.current_session,
+                ingame_id=participant_id,
+                still_connected=True
+            )
+        else:
+            return self.current_session.participant_set.get(
+                session=self.current_session,
+                refid=refid,
+                ingame_id=participant_id,
+                still_connected=True
+            )
 
     def get_member(self, refid):
         if not self.current_session:
@@ -239,6 +241,7 @@ class Server(models.Model):
                 pass
             pulled_participant.session = self.current_session
             pulled_participant.still_connected = True
+            pulled_participant.member = self.get_member(pulled_participant.refid)
             pulled_participant.save()
 
         self.back_mark_disconnected_participants(status)
@@ -364,6 +367,7 @@ class Server(models.Model):
             HandleSessionStart,
             HandleStageChange,
             HandleToTrack,
+            HandleIgnore
         ]
 
     def clock(self):
@@ -374,7 +378,7 @@ class Server(models.Model):
             self.hour = self.current_session.current_hour
             self.api.send_chat("")
             self.api.send_chat("CLOCK {}:{:02d}".format(
-                self.current_session.current_hour.get(),
+                self.current_session.current_hour,
                 self.current_session.current_minute)
             )
 
@@ -383,11 +387,18 @@ class Server(models.Model):
         self.save()
 
     def update_player_latency(self):
-        if len(self.current_session.member_set) == 0:
+        if len(self.current_session.member_set.all()) == 0:
             self.average_player_latency = None
         else:
-            self.average_player_latency = sum([member.ping() for member in self.current_session.member_set]) / len(
-                self.current_session.member_set)
+            self.average_player_latency = sum([member.ping for member in self.current_session.member_set.all()]) / len(
+                self.current_session.member_set.all())
 
-    def send_chat(self, message):
-        self.api.send_chat(message)
+    def send_chat(self, message, refid=None):
+        return self.api.send_chat(message, refid)
+
+    def back_destroy(self):
+        if self.current_session:
+            self.current_session.running = False
+            self.current_session.save()
+        self.running = False
+        self.save()

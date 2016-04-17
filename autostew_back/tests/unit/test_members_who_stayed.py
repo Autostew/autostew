@@ -23,7 +23,6 @@ class TestMembersWhoStayed(TestCase):
             server=server,
             setup_template=setup,
             setup_actual=setup,
-            planned=False,
             running=True,
             finished=False,
         )

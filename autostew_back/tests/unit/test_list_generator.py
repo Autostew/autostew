@@ -3,8 +3,8 @@ from unittest import mock
 import requests
 from django.test import TestCase
 
-from autostew_back.gameserver.api import ApiCaller
-from autostew_back.gameserver.mocked_api import api_result_ok, MockedRequestsResult, MockedServer
+from autostew_back.ds_api.api import ApiCaller
+from autostew_back.ds_api.mocked_api import api_result_ok, MockedRequestsResult, MockedServer
 from autostew_back.plugins.db_enum_writer import ListGenerator, ApiListNames
 
 

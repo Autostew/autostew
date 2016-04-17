@@ -5,8 +5,8 @@ from enum import Enum
 from django.core.wsgi import get_wsgi_application
 from django.db import transaction
 
-from autostew_back.gameserver.event import EventType, LeavingReason
-from autostew_back.gameserver.participant import ParticipantState
+from autostew_back.ds_api.event import EventType, LeavingReason
+from autostew_back.ds_api.participant import ParticipantState
 from autostew_web_enums import models
 from autostew_web_session.models.models import Track, VehicleClass, Vehicle, Livery
 from autostew_web_enums.models import EventDefinition, GameModeDefinition, TireWearDefinition, PenaltyDefinition, \

@@ -51,5 +51,9 @@ class Participant(models.Model):
         snapshot = Participant.objects.get(pk=self.pk)
         snapshot.pk = None
         snapshot.parent = self
+        snapshot.session = session_snapshot
         snapshot.save()
         return snapshot
+
+    def send_chat(self, message, server):
+        return server.send_chat(message, self.refid)

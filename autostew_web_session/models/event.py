@@ -6,7 +6,9 @@ from django.db import models
 from django.utils import timezone
 
 from autostew_web_enums.models import SessionState, LeavingReason, SessionStage, GameModeDefinition, ParticipantState
+from autostew_web_session.models.member import Member
 from autostew_web_session.models.models import Track, Livery, Vehicle
+from autostew_web_session.models.participant import Participant
 
 
 class Event(models.Model):
@@ -29,13 +31,23 @@ class Event(models.Model):
         jsonformatted_event = json.loads(self.raw)
         self.timestamp = timezone.make_aware(datetime.datetime.fromtimestamp(jsonformatted_event['time']))
         if 'refid' in jsonformatted_event.keys():
-            self.member = server.get_member(jsonformatted_event['refid'])
-            if 'participantid' in jsonformatted_event.keys():
-                self.participant = server.get_participant(jsonformatted_event['refid'], jsonformatted_event['participantid'])
+            try:
+                self.member = server.get_member(jsonformatted_event['refid'])
+                if 'participantid' in jsonformatted_event.keys():
+                    self.participant = server.get_participant(jsonformatted_event['participantid'], jsonformatted_event['refid'])
+            except (Member.DoesNotExist, Participant.DoesNotExist):
+                pass
         if self.get_attribute('RefId'):
-            self.recipient = server.get_member(self.get_attribute('RefId'))
-        if self.get_attribute('OtherParticipantId'):
-            self.other_participant = server.get_member(self.get_attribute('OtherParticipantId'))
+            try:
+                self.recipient = server.get_member(self.get_attribute('RefId'))
+            except Member.DoesNotExist:
+                pass
+        other_participant_id = self.get_attribute('OtherParticipantId')
+        if other_participant_id and other_participant_id != -1:
+            try:
+                self.other_participant = server.get_participant(other_participant_id)
+            except Participant.DoesNotExist:
+                pass
 
     def get_attribute(self, name):
         return json.loads(self.raw)['attributes'].get(name)

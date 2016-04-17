@@ -1,6 +1,3 @@
-import logging
-
-from autostew_back.settings.base import *
 from autostew_back.plugins import local_setup_rotation
 from autostew_back.tests.test_assets import no_setup
 

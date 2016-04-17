@@ -4,7 +4,7 @@ from unittest.mock import Mock
 import requests
 from django.test import TestCase
 
-from autostew_back.gameserver.api_connector import ApiConnector
+from autostew_back.ds_api.api_connector import ApiConnector
 from autostew_web_enums.models import DamageDefinition
 
 simple_translation = [

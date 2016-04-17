@@ -142,27 +142,27 @@ class Session(models.Model):
     session_state = models.ForeignKey("autostew_web_enums.SessionState", null=True, blank=True)
     session_stage = models.ForeignKey("autostew_web_enums.SessionStage", null=True, blank=True)
     session_phase = models.ForeignKey("autostew_web_enums.SessionPhase", null=True, blank=True)
-    session_time_elapsed = models.BigIntegerField(default=0)
-    session_time_duration = models.IntegerField(default=0)
-    num_participants_valid = models.IntegerField(default=0)
-    num_participants_disq = models.IntegerField(default=0)
-    num_participants_retired = models.IntegerField(default=0)
-    num_participants_dnf = models.IntegerField(default=0)
-    num_participants_finished = models.IntegerField(default=0)
-    current_year = models.IntegerField(default=0)
-    current_month = models.IntegerField(default=0)
-    current_day = models.IntegerField(default=0)
-    current_hour = models.IntegerField(default=0)
-    current_minute = models.IntegerField(default=0)
-    rain_density_visual = models.IntegerField(default=0)
-    wetness_path = models.IntegerField(default=0)
-    wetness_off_path = models.IntegerField(default=0)
-    wetness_avg = models.IntegerField(default=0)
-    wetness_predicted_max = models.IntegerField(default=0)
-    wetness_max_level = models.IntegerField(default=0)
-    temperature_ambient = models.IntegerField(default=0)
-    temperature_track = models.IntegerField(default=0)
-    air_pressure = models.IntegerField(default=0)
+    session_time_elapsed = models.BigIntegerField(default=0, null=True)
+    session_time_duration = models.IntegerField(default=0, null=True)
+    num_participants_valid = models.IntegerField(default=0, null=True)
+    num_participants_disq = models.IntegerField(default=0, null=True)
+    num_participants_retired = models.IntegerField(default=0, null=True)
+    num_participants_dnf = models.IntegerField(default=0, null=True)
+    num_participants_finished = models.IntegerField(default=0, null=True)
+    current_year = models.IntegerField(default=0, null=True)
+    current_month = models.IntegerField(default=0, null=True)
+    current_day = models.IntegerField(default=0, null=True)
+    current_hour = models.IntegerField(default=0, null=True)
+    current_minute = models.IntegerField(default=0, null=True)
+    rain_density_visual = models.IntegerField(default=0, null=True)
+    wetness_path = models.IntegerField(default=0, null=True)
+    wetness_off_path = models.IntegerField(default=0, null=True)
+    wetness_avg = models.IntegerField(default=0, null=True)
+    wetness_predicted_max = models.IntegerField(default=0, null=True)
+    wetness_max_level = models.IntegerField(default=0, null=True)
+    temperature_ambient = models.IntegerField(default=0, null=True)
+    temperature_track = models.IntegerField(default=0, null=True)
+    air_pressure = models.IntegerField(default=0, null=True)
 
     def create_snapshot(self):
         logging.info("Creating session snapshot")
@@ -197,28 +197,18 @@ class Session(models.Model):
         participants = autostew_web_session.models.participant.Participant.objects.filter(lap__in=self.lap_set.all())
         return Member.objects.filter(participant__in=participants)
 
-    def get_race_stage(self):
-        try:
-            results_stage = SessionStage.objects.get(
-                session=self,
-                stage__name="Race1"
-            )
-            return results_stage
-        except SessionStage.DoesNotExist:
-            return None
-
-
-# TODO
-"""
     def reorder_by_best_time(self):
-        participants_with_fastest_lap_set = self.participantsnapshot_set.filter(fastest_lap_time__gt=0)
+        participants_with_fastest_lap_set = self.participant_set.filter(fastest_lap_time__gt=0)
         for i, v in enumerate(participants_with_fastest_lap_set.order_by('fastest_lap_time')):
             v.race_position = i + 1
             v.save()
         positions_without_laptime = len(participants_with_fastest_lap_set) + 1
-        for v in self.participantsnapshot_set.filter(fastest_lap_time=0):
+        for v in self.participant_set.filter(fastest_lap_time=0):
             v.race_position = positions_without_laptime
             v.save()
+
+# TODO
+"""
 
     @property
     def previous_in_session(self):

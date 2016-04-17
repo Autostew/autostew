@@ -4,7 +4,7 @@ from unittest import mock
 import requests
 from django.test import TestCase
 
-from autostew_back.gameserver.mocked_api import FakeApi
+from autostew_back.ds_api.mocked_api import FakeApi
 from autostew_back.tests.unit.test_plugin_db_writer import TestDBWriter
 from autostew_web_session.models.server import UnmetPluginDependencyException, Server
 from autostew_back.tests.test_assets import settings_db_enum_writer

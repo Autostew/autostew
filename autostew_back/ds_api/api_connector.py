@@ -49,7 +49,7 @@ class ApiConnector:
     def pull_from_game(self, api_result):
         for translation in self.translations:
             value = (
-                api_result[translation['api_field']] if 'subsection' not in translation.keys() else
+                api_result.get(translation['api_field']) if 'subsection' not in translation.keys() else
                 api_result.get(translation.get('subsection')).get(translation.get('api_field'))
             )
             if value is None:

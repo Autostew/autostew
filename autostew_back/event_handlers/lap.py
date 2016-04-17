@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from autostew_back.event_handlers.base_event_handler import BaseEventHandler
 from autostew_back.utils import td_to_milli, std_time_format
 from autostew_web_enums.models import EventType, SessionStage
@@ -53,8 +55,8 @@ class HandleLap(BaseEventHandler):
     @classmethod
     def announce_lap(cls, lap: Lap, server):
         message = "FASTEST LAP: P{position} - {participant} - {laptime}".format(
-            participant=lap.participant.name.get(),
-            laptime=std_time_format(lap.lap_time),
+            participant=lap.participant.name,
+            laptime=std_time_format(timedelta(milliseconds=lap.lap_time)),
             position=lap.participant.race_position,
         )
         server.send_chat("")

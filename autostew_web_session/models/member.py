@@ -48,8 +48,12 @@ class Member(models.Model):
         snapshot = Member.objects.get(pk=self.pk)
         snapshot.pk = None
         snapshot.parent = self
+        snapshot.session = session_snapshot
         snapshot.save()
         return snapshot
 
     def get_participant(self, session):
         return session.participant_set.filter(is_player=True, refid=self.refid)
+
+    def send_chat(self, message, server):
+        return server.send_chat(message, self.refid)
