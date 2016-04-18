@@ -3,7 +3,7 @@
 apt-get -y update
 apt-get -y upgrade
 
-apt-get -y install git python3 python3-pip
+apt-get -y install git python3 python3-pip libmysqlclient-dev
 
 git clone https://github.com/Autostew/autostew.git
 
