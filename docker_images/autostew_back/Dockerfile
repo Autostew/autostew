@@ -11,6 +11,7 @@ COPY dependencies.sh dependencies.sh
 RUN ./dependencies.sh
 
 WORKDIR /autostew
+RUN pip3 install -r requirements.txt
 
 VOLUME ["autostew/autostew_back/settings"]
 
