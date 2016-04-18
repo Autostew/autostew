@@ -11,6 +11,7 @@ COPY dependencies.sh dependencies.sh
 RUN ./dependencies.sh
 
 WORKDIR /autostew
+VOLUME ["autostew/autostew/settings"]
 VOLUME ["autostew/autostew_back/settings"]
 
 ENV SETTINGS_FILE=alpha
