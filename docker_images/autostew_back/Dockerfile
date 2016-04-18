@@ -11,10 +11,9 @@ COPY dependencies.sh dependencies.sh
 RUN ./dependencies.sh
 
 WORKDIR /autostew
-VOLUME ["autostew/autostew/settings"]
-VOLUME ["autostew/autostew_back/settings"]
+VOLUME ["autostew/settings"]
+VOLUME ["autostew_back/settings"]
 
 ENV SETTINGS_FILE=alpha
 
-RUN . environment.sh prod
 CMD autostew_back.py -s $SETTINGS_FILE
