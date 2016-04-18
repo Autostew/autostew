@@ -2,7 +2,7 @@
 
 Autostew - project cars server monitoring and management
 
-http://autostew.selfhost.eu
+http://autostew.net
 
 # Task board
 
