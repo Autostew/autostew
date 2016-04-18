@@ -60,3 +60,15 @@ class Participant(models.Model):
 
     def kick(self, server, ban_seconds):
         return server.kick(self.refid, ban_seconds)
+
+    def gap(self):
+        if self.race_position == 1:
+            return None
+        if self.session.session_stage.name.startswith("Race") or self.session.finished:
+            if not self.total_time:
+                return None
+            return self.total_time - Participant.objects.get(session=self.session, race_position=1).total_time
+        else:
+            if not self.fastest_lap_time:
+                return None
+            return self.fastest_lap_time - Participant.objects.get(session=self.session, race_position=1).fastest_lap_time

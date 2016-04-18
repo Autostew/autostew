@@ -214,27 +214,21 @@ class Session(models.Model):
     @property
     def previous_in_session(self):
         try:
-            previous_timestamp = Session.objects.filter(
-                last_update_timestamp__lt=self.timestamp,
+            target_id = Session.objects.filter(
+                id__lt=self.id,
                 parent=self.parent_or_self,
-            ).aggregate(Max('timestamp'))['timestamp__max']
-            return Session.objects.get(
-                last_update_timestamp=previous_timestamp,
-                parent=self.parent_or_self
-            )
+            ).aggregate(Max('id'))['id__max']
+            return Session.objects.get(pk=target_id)
         except self.DoesNotExist:
             return None
 
     @property
     def next_in_session(self):
         try:
-            next_timestamp = Session.objects.filter(
-                last_update_timestamp__gt=self.timestamp,
+            target_id = Session.objects.filter(
+                id__gt=self.id,
                 parent=self.parent_or_self,
-            ).aggregate(Min('timestamp'))['timestamp__min']
-            return Session.objects.get(
-                last_update_timestamp=next_timestamp,
-                parent=self.parent_or_self
-            )
+            ).aggregate(Min('id'))['id__min']
+            return Session.objects.get(pk=target_id)
         except self.DoesNotExist:
             return None

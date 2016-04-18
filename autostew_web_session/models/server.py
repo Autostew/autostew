@@ -193,6 +193,7 @@ class Server(models.Model):
         self.back_init_api(api_record, settings)
         self.back_pull_lists(self.api.get_lists())
         self.back_pull_server_status(self.api.get_status())
+        self.send_chat("Autostew starting...")
 
         if self.state.name == ServerState.running:
             self.back_start_session()
