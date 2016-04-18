@@ -4,7 +4,7 @@ from autostew_web_session.models.event import Event
 from autostew_web_session.models.participant import Participant
 
 warn_at = 0.7
-environment_crash_multiplier = 0.2
+environment_crash_multiplier = 0.1
 
 
 class HandleCollision(BaseEventHandler):

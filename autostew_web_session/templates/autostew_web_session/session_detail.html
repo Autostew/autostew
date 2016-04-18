@@ -6,29 +6,28 @@
         <div class="col-xs-12 col-md-4 placeholder">
             <h3>
                 Race
-                {% if session.finished %}<span class="label label-success">finished</span>
-                {% elif session.running %}<span class="label label-danger">in progress</span>
-                {% elif session.planned %}<span class="label label-info">planned</span>
+                {% if parent.finished %}<span class="label label-success">finished</span>
+                {% elif parent.running %}<span class="label label-danger">in progress</span>
                 {% endif %}
             </h3>
 
             <h4>
-                <a href="{{ session.setup_actual.get_absolute_url }}">
-                    {{ session.setup_actual.name }}
+                <a href="{{ parent.setup_actual.get_absolute_url }}">
+                    {{ parent.setup_actual.name }}
                 </a>
             </h4>
 
             <h4>
-                {{ session.setup_actual.track.name }}
-                <small><a href="{{ session.setup_actual.get_track_url }}" class="btn btn-default">
+                {{ parent.setup_actual.track.name }}
+                <small><a href="{{ parent.setup_actual.get_track_url }}" class="btn btn-default">
                     Leaderboard
                 </a></small>
             </h4>
 
-            <h4>{% if session.setup_actual.force_identical_vehicles %}
-                {{ session.setup_actual.vehicle.name }}
-            {% elif session.setup_actual.force_same_vehicle_class %}
-                {{ session.setup_actual.vehicle_class.name }}
+            <h4>{% if parent.setup_actual.force_identical_vehicles %}
+                {{ parent.setup_actual.vehicle.name }}
+            {% elif parent.setup_actual.force_same_vehicle_class %}
+                {{ parent.setup_actual.vehicle_class.name }}
             {% else %}
                 No vehicle restriction
             {% endif %}</h4>
@@ -41,14 +40,14 @@
             </p>
 
             <p>
-                {% if session.setup_actual.weather_slots == 0 %}Real weather{% endif %}
+                {% if parent.setup_actual.weather_slots == 0 %}Real weather{% endif %}
                 <span style="font-size: xx-large">
-                    {% if session.setup_actual.weather_slots > 0 %}{{ session.setup_actual.weather_1.get_icon_or_name|safe }}{% endif %}
-                    {% if session.setup_actual.weather_slots > 1 %}{{ session.setup_actual.weather_2.get_icon_or_name|safe }}{% endif %}
-                    {% if session.setup_actual.weather_slots > 2 %}{{ session.setup_actual.weather_3.get_icon_or_name|safe }}{% endif %}
-                    {% if session.setup_actual.weather_slots > 3 %}{{ session.setup_actual.weather_4.get_icon_or_name|safe }}{% endif %}
+                    {% if parent.setup_actual.weather_slots > 0 %}{{ parent.setup_actual.weather_1.get_icon_or_name|safe }}{% endif %}
+                    {% if parent.setup_actual.weather_slots > 1 %}{{ parent.setup_actual.weather_2.get_icon_or_name|safe }}{% endif %}
+                    {% if parent.setup_actual.weather_slots > 2 %}{{ parent.setup_actual.weather_3.get_icon_or_name|safe }}{% endif %}
+                    {% if parent.setup_actual.weather_slots > 3 %}{{ parent.setup_actual.weather_4.get_icon_or_name|safe }}{% endif %}
                 </span>
-                (x{{ session.setup_actual.weather_progression }})
+                (x{{ parent.setup_actual.weather_progression }})
             </p>
             <p>
                 <i class="wi wi-thermometer" title="Ambient temperature"></i> {{ session.temperature_ambient|temp }} ºC |
@@ -66,12 +65,12 @@
                     {{ session.session_state.name|upper }}
                 {% endif %}
             </h2>
-            {% if session.setup_actual.practice1_length %}{{ session.setup_actual.practice1_length }} minutes practice<br>{% endif %}
-            {% if session.setup_actual.practice2_length %}{{ session.setup_actual.practice2_length }} minutes practice<br>{% endif %}
-            {% if session.setup_actual.qualify_length %}{{ session.setup_actual.qualify_length }} minutes qualifying<br>{% endif %}
-            {% if session.setup_actual.warmup_length %}{{ session.setup_actual.warmup_length }} minutes warmup<br>{% endif %}
-            <b>{{ session.setup_actual.race1_length }} {% if session.setup_actual.timed_race %}minutes{% else %}laps{% endif %} race</b><br>
-            {% if session.setup_actual.enforced_pitstop %}Mandatory pitstop{% endif %}
+            {% if parent.setup_actual.practice1_length %}{{ parent.setup_actual.practice1_length }} minutes practice<br>{% endif %}
+            {% if parent.setup_actual.practice2_length %}{{ parent.setup_actual.practice2_length }} minutes practice<br>{% endif %}
+            {% if parent.setup_actual.qualify_length %}{{ parent.setup_actual.qualify_length }} minutes qualifying<br>{% endif %}
+            {% if parent.setup_actual.warmup_length %}{{ parent.setup_actual.warmup_length }} minutes warmup<br>{% endif %}
+            <b>{{ parent.setup_actual.race1_length }} {% if parent.setup_actual.timed_race %}minutes{% else %}laps{% endif %} race</b><br>
+            {% if parent.setup_actual.enforced_pitstop %}Mandatory pitstop{% endif %}
 
             <h3>
                 {% if session.previous_in_session %}
@@ -95,7 +94,7 @@
                 {% endif %}
             </h3>
             <p>
-                {% for stage in session.stages.all %}
+                {% for stage in parent.stages.all %}
                     <a class="btn
                         {% if session.result_of and session.result_of.session_stage == stage.stage %}
                             btn-primary
@@ -111,11 +110,8 @@
             </p>
 
             <p>
-                {% if session.parent %}
-                    {% include 'autostew_web_session/session_detail_lap_selector.html' with session=session.parent %}
-                {% else %}
-                    {% include 'autostew_web_session/session_detail_lap_selector.html' with session=session %}
-                {% endif %}
+                {% include 'autostew_web_session/session_detail_lap_selector.html' with session=parent %}
+
                 <a class="btn btn-{% if session.parent %}default{% else %}primary{% endif %}"
                    href="{% if session.parent %}{% url 'session:session' session.parent_id %}{% else %}#{% endif %}">
                     Latest
@@ -124,27 +120,27 @@
         </div>
         <div class="col-xs-12 col-md-4 placeholder" style="text-align: center">
             <h3>Aids</h3>
-            {% if not session.setup_actual.allow_custom_vehicle_setup %}<p>Default setup only</p>{% endif %}
+            {% if not parent.setup_actual.allow_custom_vehicle_setup %}<p>Default setup only</p>{% endif %}
             Driving aids:
-            {% if session.setup_actual.force_realistic_driving_aids %}
+            {% if parent.setup_actual.force_realistic_driving_aids %}
                 REALISTIC
             {% else %}
                 Aids:
-                {% if session.setup_actual.abs_allowed %}ABS{% endif %}
-                {% if session.setup_actual.sc_allowed %}SC{% endif %}
-                {% if session.setup_actual.tcs_allowed %}TCS{% endif %}
+                {% if parent.setup_actual.abs_allowed %}ABS{% endif %}
+                {% if parent.setup_actual.sc_allowed %}SC{% endif %}
+                {% if parent.setup_actual.tcs_allowed %}TCS{% endif %}
             {% endif %}
-            {% if session.setup_actual.force_manual %}manual{% else %}automatic{% endif %}
-            {% if session.setup_actual.mechanical_failures %}failures{% else %}no-failures{% endif %}
-            {% if session.setup_actual.auto_start_engine %}autoenginestart{% else %}manualenginestart{% endif %}
-            {% if session.setup_actual.ghost_griefers %}ghostgriefers{% else %}noghost{% endif %}
+            {% if parent.setup_actual.force_manual %}manual{% else %}automatic{% endif %}
+            {% if parent.setup_actual.mechanical_failures %}failures{% else %}no-failures{% endif %}
+            {% if parent.setup_actual.auto_start_engine %}autoenginestart{% else %}manualenginestart{% endif %}
+            {% if parent.setup_actual.ghost_griefers %}ghostgriefers{% else %}noghost{% endif %}
             <h3>Settings</h3>
-            {% if session.setup_actual.rolling_starts %}Rolling start<br>{% endif %}
-            {{ session.setup_actual.damage.name|title }} damage<br>
-            {{ session.setup_actual.tire_wear.name|title }} tire wear<br>
-            {{ session.setup_actual.fuel_usage.name|title }} fuel usage<br>
-            {{ session.setup_actual.penalties.name|title }} penalties<br>
-            {{ session.setup_actual.allowed_views.name|title }} view
+            {% if parent.setup_actual.rolling_starts %}Rolling start<br>{% endif %}
+            {{ parent.setup_actual.damage.name|title }} damage<br>
+            {{ parent.setup_actual.tire_wear.name|title }} tire wear<br>
+            {{ parent.setup_actual.fuel_usage.name|title }} fuel usage<br>
+            {{ parent.setup_actual.penalties.name|title }} penalties<br>
+            {{ parent.setup_actual.allowed_views.name|title }} view
         </div>
     </div>
 
@@ -169,7 +165,7 @@
                             <a href="{{ participant.get_absolute_url }}">
                                 <span class="glyphicon glyphicon-list-alt" aria-hidden="true" title="To race results"></span>
                             </a>
-                            {% if not participant.is_ai %}
+                            {% if participant.is_player %}
                                 <a href="{{ participant.member.steam_user.get_absolute_url }}">
                                     <span class="glyphicon glyphicon-user" aria-hidden="true" title="To profile"></span>
                                 </a>
@@ -178,16 +174,16 @@
                     </td>
                     <td>
                         <b>{{ participant.name }}</b>
+                        {% if participant.member.steam_user.safety_class %}
+                            <span class="label label-default">{{ participant.member.steam_user.safety_class }}</span>
+                        {% endif %}
                         <br>
-                        {% if participant.is_ai %}
+                        {% if not participant.is_player %}
                             <span class="label label-default">
                                 <span class="glyphicon glyphicon-cog" aria-hidden="true"></span>
-                                {{ session.setup_actual.opponent_difficulty }}
+                                {{ parent.setup_actual.opponent_difficulty }}
                             </span>
                         {% else %}
-                            {% if participant.member.steam_user.safety_class %}
-                                <span class="label label-default">{{ participant.member.steam_user.safety_class }}</span>
-                            {% endif %}
                             {% if participant.member.steam_user.elo_rating %}
                                 <span class="label label-default">{{ participant.member.steam_user.elo_rating }}</span>
                             {% endif %}
@@ -241,7 +237,7 @@
     </div>
 
     <p>
-        <a href="{% url 'session:events' session.id %}">Events</a><br>
-        <a href="{{ session.server.get_absolute_url }}">{{ session.server }}</a>
+        <a href="{% url 'session:events' parent.id %}">Events</a><br>
+        <a href="{{ parent.server.get_absolute_url }}">{{ parent.server }}</a>
     </p>
 {% endblock %}

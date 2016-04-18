@@ -47,10 +47,13 @@ class ApiCaller:
                 ])
         )
         r = None
+        start_time = time()
         while r is None:
             try:
                 r = requests.get(url)
-            except requests.RequestException as e:
+            except (requests.ConnectionError, requests.HTTPError) as e:
+                if time() - start_time > 60:
+                    raise e
                 logging.error("Request failed with {}, retrying".format(e))
                 sleep(1)
         if not r.ok:

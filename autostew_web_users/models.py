@@ -1,5 +1,6 @@
 from django.core.urlresolvers import reverse
 from django.db import models
+from math import floor
 
 from autostew_web_session import models as session_models
 
@@ -29,6 +30,9 @@ class SteamUser(models.Model):
 
     def get_performance_rating(self):
         return self.elo_rating
+
+    def get_kms(self):
+        return floor(self.total_distance / 10000)
 
     def push_elo_rating(self):
         if self.elo_rating is None:
@@ -64,7 +68,7 @@ class SteamUser(models.Model):
         if self.safety_rating is None:
             self.safety_rating = self.initial_safety_rating
         self.total_distance += distance
-        self.safety_rating *= (distance/1000)**self.per_km_safety_multiplier
+        self.safety_rating *= (distance/10000)**self.per_km_safety_multiplier
         self.update_safety_class()
         self.save()
 

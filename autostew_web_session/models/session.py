@@ -207,19 +207,20 @@ class Session(models.Model):
             v.race_position = positions_without_laptime
             v.save()
 
-# TODO
-"""
+    @property
+    def parent_or_self(self):
+        return self.parent if self.parent is not None else self
 
     @property
     def previous_in_session(self):
         try:
-            previous_timestamp = SessionSnapshot.objects.filter(
-                timestamp__lt=self.timestamp,
-                session=self.session,
+            previous_timestamp = Session.objects.filter(
+                last_update_timestamp__lt=self.timestamp,
+                parent=self.parent_or_self,
             ).aggregate(Max('timestamp'))['timestamp__max']
-            return SessionSnapshot.objects.get(
-                timestamp=previous_timestamp,
-                session=self.session
+            return Session.objects.get(
+                last_update_timestamp=previous_timestamp,
+                parent=self.parent_or_self
             )
         except self.DoesNotExist:
             return None
@@ -227,14 +228,13 @@ class Session(models.Model):
     @property
     def next_in_session(self):
         try:
-            next_timestamp = SessionSnapshot.objects.filter(
-                timestamp__gt=self.timestamp,
-                session=self.session,
+            next_timestamp = Session.objects.filter(
+                last_update_timestamp__gt=self.timestamp,
+                parent=self.parent_or_self,
             ).aggregate(Min('timestamp'))['timestamp__min']
-            return SessionSnapshot.objects.get(
-                timestamp=next_timestamp,
-                session=self.session
+            return Session.objects.get(
+                last_update_timestamp=next_timestamp,
+                parent=self.parent_or_self
             )
         except self.DoesNotExist:
             return None
-"""

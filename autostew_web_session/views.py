@@ -51,6 +51,15 @@ class SessionEvents(generic.ListView):
         return context
 
 
+class SessionView(generic.DetailView):
+    model = Session
+
+    def get_context_data(self, **kwargs):
+        context = super(SessionView, self).get_context_data(**kwargs)
+        context['parent'] = context['object'] if context['object'].parent is None else context['object'].parent
+        return context
+
+
 class SessionList(generic.ListView):
     model = Session
 
