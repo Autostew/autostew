@@ -1,3 +1,5 @@
+#!/bin/sh
+
 apt-get -y update
 apt-get -y upgrade
 
@@ -8,4 +10,4 @@ git clone https://github.com/Autostew/autostew.git
 cd autostew
 pip3 install -r requirements.txt
 
-source environment.sh prod
+. environment.sh prod
