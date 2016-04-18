@@ -17,4 +17,4 @@ VOLUME ["autostew_back/settings"]
 ENV DJANGO_SETTINGS_MODULE=autostew.settings.prod
 ENV SETTINGS_FILE=alpha
 
-CMD autostew_back.py -s $SETTINGS_FILE
+CMD /autostew/autostew_back.py -s $SETTINGS_FILE
