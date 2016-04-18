@@ -11,11 +11,9 @@ COPY dependencies.sh dependencies.sh
 RUN ./dependencies.sh
 
 WORKDIR /autostew
-RUN pip3 install -r requirements.txt
-
 VOLUME ["autostew/autostew_back/settings"]
 
 ENV SETTINGS_FILE=alpha
 
-RUN ./environment.sh prod
+RUN . environment.sh prod
 CMD autostew_back.py -s $SETTINGS_FILE
