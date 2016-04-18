@@ -357,7 +357,7 @@ class SessionStage(models.Model):
         return self.name
 
     def is_relevant(self):
-        return self.name in ("Race1", "Race2", "Qualifying")
+        return self.name in ("Race", "Race1", "Race2", "Qualifying")
 
     @classmethod
     def get_or_create_default(cls, name):

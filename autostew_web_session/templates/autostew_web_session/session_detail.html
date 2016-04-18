@@ -34,10 +34,10 @@
             {% endif %}</h4>
 
             <p>
-                Real time: {{ sessionsnapshot.timestamp|date }} {{ sessionsnapshot.timestamp|time }}<br>
+                Real time: {{ session.timestamp|date }} {{ session.timestamp|time }}<br>
                 In-game time (x{{ session.setup_actual.date_progression }}):
-                {{ sessionsnapshot.current_year }}-{{ sessionsnapshot.current_month }}-{{ sessionsnapshot.current_day }}
-                {{ sessionsnapshot.current_hour }}:{{ sessionsnapshot.current_minute }}
+                {{ session.current_year }}-{{ session.current_month }}-{{ session.current_day }}
+                {{ session.current_hour }}:{{ session.current_minute }}
             </p>
 
             <p>
@@ -51,19 +51,19 @@
                 (x{{ session.setup_actual.weather_progression }})
             </p>
             <p>
-                <i class="wi wi-thermometer" title="Ambient temperature"></i> {{ sessionsnapshot.temperature_ambient|temp }} ºC |
-                <span class="glyphicon glyphicon-road" title="Track temperature"></span> {{ sessionsnapshot.temperature_track|temp }} ºC |
-                <i class="wi wi-barometer" title="Air pressure"></i> {{ sessionsnapshot.air_pressure|pressure }} hPa
+                <i class="wi wi-thermometer" title="Ambient temperature"></i> {{ session.temperature_ambient|temp }} ºC |
+                <span class="glyphicon glyphicon-road" title="Track temperature"></span> {{ session.temperature_track|temp }} ºC |
+                <i class="wi wi-barometer" title="Air pressure"></i> {{ session.air_pressure|pressure }} hPa
                 <br>
-                Track wetness: {{ sessionsnapshot.wetness_avg|percent }}%
+                Track wetness: {{ session.wetness_avg|percent }}%
             </p>
         </div>
         <div class="col-xs-12 col-md-4 placeholder" style="text-align: center">
             <h2>
-                {% if sessionsnapshot.session_state.name == 'Race' %}
-                    {{ sessionsnapshot.session_stage.name|upper }}
+                {% if session.session_state.name == 'Race' %}
+                    {{ session.session_stage.name|upper }}
                 {% else %}
-                    {{ sessionsnapshot.session_state.name|upper }}
+                    {{ session.session_state.name|upper }}
                 {% endif %}
             </h2>
             {% if session.setup_actual.practice1_length %}{{ session.setup_actual.practice1_length }} minutes practice<br>{% endif %}
@@ -74,8 +74,8 @@
             {% if session.setup_actual.enforced_pitstop %}Mandatory pitstop{% endif %}
 
             <h3>
-                {% if sessionsnapshot.previous_in_session %}
-                    <a class="btn btn-default" href="{% url 'session:snapshot' sessionsnapshot.previous_in_session.id %}">
+                {% if session.previous_in_session %}
+                    <a class="btn btn-default" href="{% url 'session:snapshot' session.previous_in_session.id %}">
                         <span class="glyphicon glyphicon-triangle-left" aria-hidden="true"></span>
                     </a>
                 {% else %}
@@ -84,8 +84,8 @@
                     </a>
                 {% endif %}
                 Navigate
-                {% if sessionsnapshot.next_in_session %}
-                    <a class="btn btn-default" href="{% url 'session:snapshot' sessionsnapshot.next_in_session.id %}">
+                {% if session.next_in_session %}
+                    <a class="btn btn-default" href="{% url 'session:snapshot' session.next_in_session.id %}">
                         <span class="glyphicon glyphicon-triangle-right" aria-hidden="true"></span>
                     </a>
                 {% else %}
@@ -97,11 +97,11 @@
             <p>
                 {% for stage in session.stages.all %}
                     <a class="btn
-                        {% if sessionsnapshot.result_of and sessionsnapshot.result_of.session_stage == stage.stage %}
+                        {% if session.result_of and session.result_of.session_stage == stage.stage %}
                             btn-primary
-                        {% elif sessionsnapshot.session_stage == stage.stage and sessionsnapshot == session.current_snapshot %}
+                        {% elif session.session_stage == stage.stage and session == session.current_snapshot %}
                             btn-danger
-                        {% elif sessionsnapshot.session_stage == stage.stage %}
+                        {% elif session.session_stage == stage.stage %}
                             btn-info
                         {% else %}
                             btn-default
@@ -111,26 +111,13 @@
             </p>
 
             <p>
-                {% if session.racelapsnapshot_set.exists %}
-                    <div class="btn-group">
-                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            {% if sessionsnapshot.racelapsnapshot_set.first.exists %}
-                                Lap {{ sessionsnapshot.racelapsnapshot_set.first.lap }}
-                            {% else %}
-                                Go to lap
-                            {% endif %}
-                            <span class="caret"></span>
-                            <span class="sr-only">Toggle Dropdown</span>
-                        </button>
-                        <ul class="dropdown-menu">
-                            {% for lap in session.racelapsnapshot_set.all %}
-                                <li><a href="{{ lap.get_absolute_url }}">{{ lap.lap }}</a></li>
-                            {% endfor %}
-                        </ul>
-                    </div>
+                {% if session.parent %}
+                    {% include 'autostew_web_session/session_detail_lap_selector.html' with session=session.parent %}
+                {% else %}
+                    {% include 'autostew_web_session/session_detail_lap_selector.html' with session=session %}
                 {% endif %}
-                <a class="btn btn-{% if sessionsnapshot == session.current_snapshot %}primary{% else %}default{% endif %}"
-                   href="{% url 'session:session' session.id %}">
+                <a class="btn btn-{% if session.parent %}default{% else %}primary{% endif %}"
+                   href="{% if session.parent %}{% url 'session:session' session.parent_id %}{% else %}#{% endif %}">
                     Latest
                 </a>
             </p>
@@ -174,25 +161,25 @@
                     <th>Status</th>
                 </tr>
             </thead>
-            {% for participant in sessionsnapshot.participantsnapshot_set.all %}
+            {% for participant in session.participant_set.all %}
                 <tr>
                     <td>
                         <div style="font-size: 220%; float: left; clear: left; padding-right: 15px">
                             P{{ participant.race_position }}
-                            <a href="{{ participant.participant.get_absolute_url }}">
+                            <a href="{{ participant.get_absolute_url }}">
                                 <span class="glyphicon glyphicon-list-alt" aria-hidden="true" title="To race results"></span>
                             </a>
-                            {% if not participant.participant.is_ai %}
-                                <a href="{{ participant.participant.member.steam_user.get_absolute_url }}">
+                            {% if not participant.is_ai %}
+                                <a href="{{ participant.member.steam_user.get_absolute_url }}">
                                     <span class="glyphicon glyphicon-user" aria-hidden="true" title="To profile"></span>
                                 </a>
                             {% endif %}
                         </div>
                     </td>
                     <td>
-                        <b>{{ participant.participant.name }}</b>
+                        <b>{{ participant.name }}</b>
                         <br>
-                        {% if participant.participant.is_ai %}
+                        {% if participant.is_ai %}
                             <span class="label label-default">
                                 <span class="glyphicon glyphicon-cog" aria-hidden="true"></span>
                                 {{ session.setup_actual.opponent_difficulty }}
@@ -206,7 +193,7 @@
                             {% endif %}
                         {% endif %}
                         &nbsp;
-                        {{ participant.participant.vehicle.name }}
+                        {{ participant.vehicle.name }}
                     </td>
                     <td>
                         {{ participant.current_lap }}

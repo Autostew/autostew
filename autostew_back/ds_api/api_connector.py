@@ -17,7 +17,9 @@ class ApiConnector:
                 continue
             elif 'enum_model' in translation.keys():
                 try:
-                    value = getattr(self.object, translation['model_field']).ingame_id
+                    db_object = getattr(self.object, translation['model_field'])
+                    if db_object is not None:
+                        value = db_object.ingame_id
                 except Exception as e:
                     logging.critical("Failed trying to push {}".format(translation['model_field']))
                     raise e

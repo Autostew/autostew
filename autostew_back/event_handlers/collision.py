@@ -37,9 +37,9 @@ class HandleCollision(BaseEventHandler):
         cls.crash_notification(crash_points_increase, participant, server)
 
         if participant.member.steam_user.over_class_kick_impact_threshold(crash_points_increase):
-            participant.kick(server, server.back_crash_points_limit_ban_time)
+            participant.kick(server, server.back_crash_points_limit_ban_seconds)
         if server.back_crash_points_limit and participant.accumulated_crash_points > server.back_crash_points_limit:
-            participant.kick(server, server.back_crash_points_limit_ban_time)
+            participant.kick(server, server.back_crash_points_limit_ban_seconds)
         elif server.back_crash_points_limit and participant.accumulated_crash_points > warn_at * server.back_crash_points_limit:
             cls.crash_limit_warning(participant, server)
 

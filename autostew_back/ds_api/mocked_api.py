@@ -58,6 +58,7 @@ class FakeApi:
                 return MockedRequestsResult(file_input.read(), True)
         elif url.startswith("http://localhost:9000/api/session/set_attributes") or \
                 url.startswith("http://localhost:9000/api/session/set_next_attributes") or \
+                url.startswith("http://localhost:9000/api/session/kick") or \
                 url.startswith("http://localhost:9000/api/session/send_chat"):
             return MockedRequestsResult(api_result_ok, True)
         elif url in ("http://localhost:9000/api/log/range?count=1&offset=-1",

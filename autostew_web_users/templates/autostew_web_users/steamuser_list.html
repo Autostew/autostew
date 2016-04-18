@@ -13,6 +13,7 @@
                 <th>Name</th>
                 <th data-sortable-type="numeric">Safety class</th>
                 <th data-sortable-type="numeric">Performance rating</th>
+                <th data-sortable-type="numeric">Distance driven</th>
             </tr>
         </thead>
         <tbody>
@@ -35,6 +36,9 @@
                             {% else %}
                                 -
                             {% endif %}
+                        </td>
+                        <td>
+                            {{ user.total_distance }}
                         </td>
                     </tr>
                 {% endfor %}

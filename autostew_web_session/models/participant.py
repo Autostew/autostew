@@ -8,7 +8,7 @@ from autostew_web_session.models.session import Session
 
 class Participant(models.Model):
     class Meta:
-        ordering = ['name']
+        ordering = ['race_position']
 
     parent = models.ForeignKey('self', null=True, blank=True)
     member = models.ForeignKey('Member', null=True, blank=True)  # AI will be NULL
@@ -57,3 +57,6 @@ class Participant(models.Model):
 
     def send_chat(self, message, server):
         return server.send_chat(message, self.refid)
+
+    def kick(self, server, ban_seconds):
+        return server.kick(self.refid, ban_seconds)

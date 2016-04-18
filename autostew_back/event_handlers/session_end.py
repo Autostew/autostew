@@ -20,8 +20,7 @@ class HandleSessionEnd(BaseEventHandler):
 
     @classmethod
     def consume(cls, server, event: Event):
-        if server.current_session.session_stage.is_relevant():
-            server.current_session.finished = True
+        server.current_session.finished = True
         server.current_session.running = False
         server.current_session.save()
 

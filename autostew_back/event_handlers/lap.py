@@ -36,7 +36,7 @@ class HandleLap(BaseEventHandler):
         if event.member:
             event.member.steam_user.add_distance(event.distance_travelled)
 
-        if not server.current_session.session_stage.name == SessionStage.race1:
+        if not server.current_session.session_stage.name.startswith("Race"):
             server.current_session.reorder_by_best_time()
 
         if cls.is_new_fastest_lap(new_lap, server.current_session):

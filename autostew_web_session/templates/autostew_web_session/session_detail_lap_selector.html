@@ -1,0 +1,18 @@
+{% if session.racelapsnapshot_set.exists %}
+    <div class="btn-group">
+        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            {% if session.racelapsnapshot_set.first.exists %}
+                Lap {{ session.racelapsnapshot_set.first.lap }}
+            {% else %}
+                Go to lap
+            {% endif %}
+            <span class="caret"></span>
+            <span class="sr-only">Toggle Dropdown</span>
+        </button>
+        <ul class="dropdown-menu">
+            {% for lap in session.racelapsnapshot_set.all %}
+                <li><a href="{{ lap.get_absolute_url }}">{{ lap.lap }}</a></li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endif %}

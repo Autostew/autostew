@@ -87,6 +87,8 @@ class TestBack(TestCase):
             running=False,
         )
         self.api = FakeApi()
+        with mock.patch.object(requests, 'get', self.api.fake_request):
+            self.server.back_init_env(settings)
 
     def test_back_start(self):
         with mock.patch.object(requests, 'get', self.api.fake_request):
@@ -107,6 +109,7 @@ class TestBack(TestCase):
 
     def test_back_start_running_server_in_lobby_with_setup(self):
         self.api = FakeApi('autostew_back/tests/test_assets/session_in_lobby_one_player.json')
+
         setup = self.make_test_setup()
         setup.save()
         SetupQueueEntry.objects.create(order=0, setup=setup, server=self.server)
@@ -235,8 +238,7 @@ class TestBack(TestCase):
         self.assertEqual(session_setup.warmup_length, 0)
         self.assertEqual(session_setup.race1_length, 5)
         self.assertEqual(session_setup.race2_length, 0)
-        self.assertEqual(session_setup.privacy.name, PrivacyDefinition.public)
-        self.assertEqual(session_setup.friends_can_join, True)
+        self.assertEqual(session_setup.privacy.ingame_id, 0)
         self.assertEqual(session_setup.damage.name, "FULL")
         self.assertEqual(session_setup.tire_wear.name, "X2")
         self.assertEqual(session_setup.fuel_usage.name, "STANDARD")
@@ -249,19 +251,14 @@ class TestBack(TestCase):
         self.assertEqual(session_setup.weather_1.name, "Clear")
 
         session = Session.objects.all()[0]
-        session_snapshot = Session.objects.filter(parent=None)[0]
+        session_snapshot = Session.objects.exclude(parent=None)[0]
         self.assertEqual(session.server, server_in_db)
         self.assertEqual(session.setup_actual, session_setup)
         self.assertEqual(session.running, True)
         self.assertEqual(session.finished, False)
-        self.assertEqual(session.lobby_id, '109775242847201392')
         self.assertEqual(session.max_member_count, 22)
-        self.assertEqual(session.first_snapshot, session_snapshot)
-        self.assertEqual(session.current_snapshot, session_snapshot)
-        self.assertEqual(session.starting_snapshot_lobby, None)
-        self.assertEqual(session.starting_snapshot_to_track, None)
 
-        self.assertEqual(session_snapshot.session, session)
+        self.assertEqual(session_snapshot.parent, session)
         self.assertEqual(session_snapshot.session_state.name, "Lobby")
         self.assertEqual(session_snapshot.session_stage.name, "Practice1")
         self.assertEqual(session_snapshot.session_phase.name, "Invalid")
@@ -298,13 +295,13 @@ class TestBack(TestCase):
         # flags are not set, so they are not tested
 
         m_snap = Member.objects.exclude(parent=None)[0]
-        self.assertEqual(m_snap.member, member)
-        self.assertEqual(m_snap.snapshot, session_snapshot)
+        self.assertEqual(m_snap.parent, member)
+        self.assertEqual(m_snap.session, session_snapshot)
         self.assertEqual(m_snap.still_connected, True)
-        self.assertEqual(m_snap.load_state.name, MemberLoadState.unknown)
+        self.assertEqual(m_snap.ingame_state.name, "Connected")
         self.assertEqual(m_snap.ping, 10)
-        self.assertEqual(m_snap.index, 0)
-        self.assertEqual(m_snap.state.name, MemberState.connected)
+        self.assertEqual(m_snap.ingame_index, 0)
+        self.assertEqual(m_snap.ingame_state.name, MemberState.connected)
         self.assertEqual(m_snap.host, True)
 
     def test_create_session_in_race(self):
@@ -312,15 +309,6 @@ class TestBack(TestCase):
         Tests writing an in-qualifying session into the db
         """
         api = FakeApi('autostew_back/tests/test_assets/session_in_quali_two_players_14ai.json')
-        test_setup = self.make_test_setup()
-        test_setup.save(True)
-        SetupRotationEntry.objects.create(
-            order=0,
-            server=self.server,
-            setup=test_setup
-        )
-        with mock.patch.object(requests, 'get', api.fake_request):
-            self.server.back_start(settings, True)
         test_setup = self.make_test_setup()
         test_setup.save(True)
         SetupRotationEntry.objects.create(
@@ -365,8 +353,7 @@ class TestBack(TestCase):
         self.assertEqual(session_setup.warmup_length, 0)
         self.assertEqual(session_setup.race1_length, 5)
         self.assertEqual(session_setup.race2_length, 0)
-        self.assertEqual(session_setup.public, True)
-        self.assertEqual(session_setup.friends_can_join, True)
+        self.assertEqual(session_setup.privacy.ingame_id, 0)
         self.assertEqual(session_setup.damage.name, "FULL")
         self.assertEqual(session_setup.tire_wear.name, "X2")
         self.assertEqual(session_setup.fuel_usage.name, "STANDARD")
@@ -384,14 +371,9 @@ class TestBack(TestCase):
         self.assertEqual(session.setup_actual, session_setup)
         self.assertEqual(session.running, True)
         self.assertEqual(session.finished, False)
-        self.assertEqual(session.lobby_id, '109775242847201392')
         self.assertEqual(session.max_member_count, 22)
-        self.assertEqual(session.first_snapshot, session_snapshot)
-        self.assertEqual(session.current_snapshot, session_snapshot)
-        self.assertEqual(session.starting_snapshot_lobby, None)
-        self.assertEqual(session.starting_snapshot_to_track, None)
 
-        self.assertEqual(session_snapshot.session, session)
+        self.assertEqual(session_snapshot.parent, session)
         self.assertEqual(session_snapshot.session_state.name, "Race")
         self.assertEqual(session_snapshot.session_stage.name, "Qualifying")
         self.assertEqual(session_snapshot.session_phase.name, "Green")
@@ -444,13 +426,13 @@ class TestBack(TestCase):
         self.assertEqual(member.valid, True)
 
         m_snap = Member.objects.exclude(parent=None)[0]
-        self.assertEqual(m_snap.member, member)
-        self.assertEqual(m_snap.snapshot, session_snapshot)
+        self.assertEqual(m_snap.parent, member)
+        self.assertEqual(m_snap.session, session_snapshot)
         self.assertEqual(m_snap.still_connected, True)
-        self.assertEqual(m_snap.load_state.name, MemberLoadState.admin_started_race.value)
+        self.assertEqual(m_snap.ingame_load_state.name, MemberLoadState.admin_started_race.value)
         self.assertEqual(m_snap.ping, 14)
-        self.assertEqual(m_snap.index, 0)
-        self.assertEqual(m_snap.state.name, MemberState.connected.value)
+        self.assertEqual(m_snap.ingame_index, 0)
+        self.assertEqual(m_snap.ingame_state.name, MemberState.connected)
         self.assertEqual(m_snap.host, True)
 
 
@@ -481,13 +463,13 @@ class TestBack(TestCase):
         self.assertEqual(member.valid, True)
 
         m_snap = Member.objects.exclude(parent=None)[1]
-        self.assertEqual(m_snap.member, member)
-        self.assertEqual(m_snap.snapshot, session_snapshot)
+        self.assertEqual(m_snap.parent, member)
+        self.assertEqual(m_snap.session, session_snapshot)
         self.assertEqual(m_snap.still_connected, True)
-        self.assertEqual(m_snap.load_state.name, MemberLoadState.client_ready.value)
+        self.assertEqual(m_snap.ingame_load_state.name, MemberLoadState.client_ready.value)
         self.assertEqual(m_snap.ping, 73)
-        self.assertEqual(m_snap.index, 1)
-        self.assertEqual(m_snap.state.name, MemberState.connected.value)
+        self.assertEqual(m_snap.ingame_index, 1)
+        self.assertEqual(m_snap.ingame_state.name, MemberState.connected)
         self.assertEqual(m_snap.host, False)
 
         participant = Participant.objects.get(name="blak")

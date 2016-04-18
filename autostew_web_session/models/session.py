@@ -28,7 +28,7 @@ class SessionSetup(models.Model):
         help_text="How many cars can be on the field, don't set it higher than the track's grid size")
     max_players = models.IntegerField(
         help_text="How many human players can join the game")
-    opponent_difficulty = models.IntegerField(
+    opponent_difficulty = models.IntegerField(default=100,
         help_text="AI difficulty, 0 to 100")
 
     force_identical_vehicles = models.BooleanField()
@@ -53,12 +53,12 @@ class SessionSetup(models.Model):
     ghost_griefers = models.BooleanField()
     enforced_pitstop = models.BooleanField()
 
-    practice1_length = models.IntegerField(help_text="In minutes")
-    practice2_length = models.IntegerField(help_text="In minutes")
-    qualify_length = models.IntegerField(help_text="In minutes")
-    warmup_length = models.IntegerField(help_text="In minutes")
-    race1_length = models.IntegerField(help_text="In laps or minutes")
-    race2_length = models.IntegerField(help_text="In laps or minutes (this setting does not have any effect (yet?)")
+    practice1_length = models.IntegerField(help_text="In minutes", default=0)
+    practice2_length = models.IntegerField(help_text="In minutes", default=0)
+    qualify_length = models.IntegerField(help_text="In minutes", default=0)
+    warmup_length = models.IntegerField(help_text="In minutes", default=0)
+    race1_length = models.IntegerField(help_text="In laps or minutes", default=5)
+    race2_length = models.IntegerField(help_text="In laps or minutes (this setting does not have any effect (yet?)", default=0)
 
     privacy = models.ForeignKey('autostew_web_enums.PrivacyDefinition', null=True)
     damage = models.ForeignKey('autostew_web_enums.DamageDefinition', null=True)
@@ -71,18 +71,18 @@ class SessionSetup(models.Model):
         help_text="Only has a real effect if force_same_vehicle_class")
     vehicle = models.ForeignKey('Vehicle', null=True, blank=True,
         help_text="Only has a real effect if force_same_vehicle")
-    date_year = models.IntegerField(help_text="Race date, set to 0 for 'real date'")
-    date_month = models.IntegerField(help_text="Race date, set to 0 for 'real date'")
-    date_day = models.IntegerField(help_text="Race date, set to 0 for 'real date'")
-    date_hour = models.IntegerField()
-    date_minute = models.IntegerField()
-    date_progression = models.IntegerField(
+    date_year = models.IntegerField(help_text="Race date, set to 0 for 'real date'", default=0)
+    date_month = models.IntegerField(help_text="Race date, set to 0 for 'real date'", default=0)
+    date_day = models.IntegerField(help_text="Race date, set to 0 for 'real date'", default=0)
+    date_hour = models.IntegerField(default=9)
+    date_minute = models.IntegerField(default=0)
+    date_progression = models.IntegerField(default=1,
         help_text="Time multiplier, unconfirmed allowed values: 0, 1, 2, 5, 10, 30, 60"
     )
-    weather_progression = models.IntegerField(
+    weather_progression = models.IntegerField(default=1,
         help_text="Weather progression multiplier, unconfirmed allowed values: 0, 1, 2, 5, 10, 30, 60"
     )
-    weather_slots = models.IntegerField(
+    weather_slots = models.IntegerField(default=0,
         help_text="Set to 0 for 'real weather'"
     )
     weather_1 = models.ForeignKey('autostew_web_enums.WeatherDefinition', related_name='+', null=True, blank=True)

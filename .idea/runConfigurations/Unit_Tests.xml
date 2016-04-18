@@ -16,7 +16,7 @@
     <option name="TARGET" value="autostew_back/tests/unit autostew_web_session/tests/unit autostew_web_users/tests/unit autostew_web_home/tests/unit" />
     <option name="SETTINGS_FILE" value="" />
     <option name="CUSTOM_SETTINGS" value="false" />
-    <option name="USE_OPTIONS" value="true" />
+    <option name="USE_OPTIONS" value="false" />
     <option name="OPTIONS" value="" />
     <method />
   </configuration>

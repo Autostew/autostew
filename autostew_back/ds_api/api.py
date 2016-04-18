@@ -2,6 +2,7 @@ import json
 import logging
 import os
 from collections import defaultdict
+from time import sleep, time
 
 import requests
 
@@ -45,7 +46,13 @@ class ApiCaller:
                     for k, v in params.items()
                 ])
         )
-        r = requests.get(url)
+        r = None
+        while r is None:
+            try:
+                r = requests.get(url)
+            except requests.RequestException as e:
+                logging.error("Request failed with {}, retrying".format(e))
+                sleep(1)
         if not r.ok:
             message = 'Request to {url} returned {code}'.format(url=url, code=r.status_code)
             logging.warning(message)

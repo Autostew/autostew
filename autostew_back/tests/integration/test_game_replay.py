@@ -65,23 +65,22 @@ class TestGameReplay(TestCase):
                 while True:
                     self.server.back_poll_loop(only_one_run=True)
                     # TODO comment this back in
-#                    if len(Session.objects.all()):
-#                        response = self.client.get(Session.objects.all().order_by('-id')[0].get_absolute_url())
-#                        self.assertEqual(response.status_code, 200)
+                    if len(Session.objects.all()):
+                        response = self.client.get(Session.objects.all().order_by('-id')[0].get_absolute_url())
+                        self.assertEqual(response.status_code, 200)
             except api.RecordFinished:
                 pass
         self.server.back_destroy()
 
         self.assertFalse(Server.objects.filter(running=True).exists())
-        self.assertFalse(Session.objects.filter(running=True).exists())
         self.assertEqual(RaceLapSnapshot.objects.count(), 15)  # 15 laps
-        self.assertEqual(SteamUser.objects.get(display_name="blak").elo_rating, SteamUser.initial_rating)
+        self.assertEqual(SteamUser.objects.get(display_name="blak").elo_rating, SteamUser.initial_elo_rating)
         client = Client()
         response = client.get(reverse('session:sessions'))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, test_setup.name)
         for session in Session.objects.all():
-            if session.finished:
+            if session.finished and session.parent is None:
                 self.assertContains(response, session.get_absolute_url())
             else:
                 self.assertNotContains(response, session.get_absolute_url())

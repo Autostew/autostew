@@ -57,3 +57,6 @@ class Member(models.Model):
 
     def send_chat(self, message, server):
         return server.send_chat(message, self.refid)
+
+    def kick(self, server, ban_seconds):
+        return server.kick(self.refid, ban_seconds)

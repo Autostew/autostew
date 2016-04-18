@@ -31,7 +31,7 @@ class Track(models.Model):
             session__setup_actual__track=self,
             participant__vehicle=vehicle,
             count_this_lap=True,
-            participant__is_ai=False,
+            participant__is_player=True,
         ).values(
             'participant',
             'participant__member__steam_user__display_name',
@@ -43,7 +43,7 @@ class Track(models.Model):
             session__setup_actual__track=self,
             participant__vehicle__vehicle_class=vehicle_class,
             count_this_lap=True,
-            participant__is_ai=False,
+            participant__is_player=True,
         ).values(
             'participant__name',
             'participant__vehicle__name'

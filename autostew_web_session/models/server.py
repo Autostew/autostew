@@ -31,7 +31,7 @@ from autostew_back.ds_api.api_connector import ApiConnector
 from autostew_web_enums.models import SessionState, EventDefinition, GameModeDefinition, TireWearDefinition, \
     PenaltyDefinition, ParticipantAttributeDefinition, FuelUsageDefinition, SessionAttributeDefinition, \
     AllowedViewsDefinition, PlayerFlagDefinition, WeatherDefinition, DamageDefinition, SessionFlagDefinition, \
-    MemberAttributeDefinition
+    MemberAttributeDefinition, PrivacyDefinition
 from autostew_web_session.models import models as session_models
 from autostew_web_session.models.member import Member
 from autostew_web_session.models.event import Event
@@ -67,7 +67,7 @@ class Server(models.Model):
     back_reconnect = models.BooleanField(default=True)
     back_kicks = models.BooleanField(default=True)
     back_crash_points_limit = models.BooleanField(default=4000)
-    back_crash_points_limit_ban_time = models.BooleanField(default=0)
+    back_crash_points_limit_ban_seconds = models.IntegerField(default=0, help_text="In seconds")
     back_safety_rating = models.BooleanField(default=True)
     back_performance_rating = models.BooleanField(default=True)
     back_custom_motd = models.CharField(max_length=200, blank=True)
@@ -176,16 +176,21 @@ class Server(models.Model):
         for session_flag in lists['flags/session']['list']:
             if not SessionFlagDefinition.objects.filter(ingame_id=session_flag['value']).exists():
                 SessionFlagDefinition.objects.create(ingame_id=session_flag['value'], name=session_flag['name'])
+        PrivacyDefinition.objects.get_or_create(ingame_id=0, defaults={'name': 'Public'})
+        PrivacyDefinition.objects.get_or_create(ingame_id=1, defaults={'name': 'Friends only'})
+        PrivacyDefinition.objects.get_or_create(ingame_id=2, defaults={'name': 'Private'})
+
+    def back_init_env(self, settings):
+        self.settings = settings
+        self.back_init_api(False, settings)
+        self.back_pull_lists(self.api.get_lists())
 
     def back_start(self, settings, api_record=False):
         self.last_status_update_time = None
         self.settings = settings
         self.running = True
 
-        self.api = ApiCaller(
-            self,
-            record_destination=settings.api_record_destination if api_record is True else api_record
-        )
+        self.back_init_api(api_record, settings)
         self.back_pull_lists(self.api.get_lists())
         self.back_pull_server_status(self.api.get_status())
 
@@ -193,6 +198,13 @@ class Server(models.Model):
             self.back_start_session()
         self.last_status_update_time = time()
         self.save()
+
+    def back_init_api(self, api_record, settings):
+        if getattr(self, 'api', None) is None:
+            self.api = ApiCaller(
+                self,
+                record_destination=settings.api_record_destination if api_record is True else api_record
+            )
 
     def back_pull_session_setup(self):
         new_setup = SessionSetup()
@@ -304,6 +316,8 @@ class Server(models.Model):
                 pulled_participant.id = existing_participant.id
             except Participant.DoesNotExist:
                 pass
+            if not pulled_participant.is_player:
+                pulled_participant.member = None
             pulled_participant.session = self.current_session
             pulled_participant.still_connected = True
             pulled_participant.member = self.get_member(pulled_participant.refid)
@@ -379,41 +393,42 @@ class Server(models.Model):
             self.api.event_offset = event_offset
 
         while True:
-            tick_start = time()
+            with transaction.atomic():
+                tick_start = time()
 
-            if self.current_session:
-                self.clock()
-                self.update_player_latency()
-                self.back_full_pull()
+                if self.current_session:
+                    self.clock()
+                    self.update_player_latency()
+                    self.back_full_pull()
 
-            self.ping()
+                self.ping()
 
-            new_events = self.api.get_new_events()
-            logging.debug("Got {} new events".format(len(new_events)))
+                new_events = self.api.get_new_events()
+                logging.debug("Got {} new events".format(len(new_events)))
 
-            for raw_event in new_events:
-                new_event = Event()
-                new_event.raw = json.dumps(raw_event)
-                new_event.session = self.current_session
-                connector = ApiConnector(self.api, new_event, api_translations.event_base)
-                connector.pull_from_game(raw_event)
-                new_event.event_parse(self)
-                new_event.save()
+                for raw_event in new_events:
+                    new_event = Event()
+                    new_event.raw = json.dumps(raw_event)
+                    new_event.session = self.current_session
+                    connector = ApiConnector(self.api, new_event, api_translations.event_base)
+                    connector.pull_from_game(raw_event)
+                    new_event.event_parse(self)
+                    new_event.save()
 
-            for event in list(self.get_queued_events()):
+                for event in list(self.get_queued_events()):
+                    if one_by_one:
+                        input("Processing event {}".format(event))
+                    event.handle(self)
+
                 if one_by_one:
-                    input("Processing event {}".format(event))
-                event.handle(self)
+                    input("Tick (enter)")
 
-            if one_by_one:
-                input("Tick (enter)")
+                sleep_time = self.settings.event_poll_period - (time() - tick_start)
+                if sleep_time > 0:
+                    sleep(sleep_time)
 
-            sleep_time = self.settings.event_poll_period - (time() - tick_start)
-            if sleep_time > 0:
-                sleep(sleep_time)
-
-            if only_one_run:
-                return
+                if only_one_run:
+                    return
 
     @staticmethod
     def get_event_handlers():
@@ -460,6 +475,9 @@ class Server(models.Model):
 
     def send_chat(self, message, refid=None):
         return self.api.send_chat(message, refid)
+
+    def kick(self, refid, ban_seconds):
+        return self.api.kick(refid, ban_seconds)
 
     def back_destroy(self):
         if self.current_session:
