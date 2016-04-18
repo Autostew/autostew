@@ -9,5 +9,3 @@ git clone https://github.com/Autostew/autostew.git
 
 cd autostew
 pip3 install -r requirements.txt
-
-. environment.sh prod
