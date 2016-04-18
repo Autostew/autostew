@@ -14,8 +14,7 @@ WORKDIR /autostew
 VOLUME ["autostew/settings"]
 VOLUME ["autostew_back/settings"]
 
-ENV SETTINGS_ROOT=autostew.setting
-ENV DJANGO_SETTINGS_MODULE=prod
+ENV DJANGO_SETTINGS_MODULE=autostew.settings.prod
 ENV SETTINGS_FILE=alpha
 
 CMD autostew_back.py -s $SETTINGS_FILE
