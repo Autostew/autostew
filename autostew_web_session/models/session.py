@@ -199,7 +199,7 @@ class Session(models.Model):
             v.race_position = i + 1
             v.save()
         positions_without_laptime = len(participants_with_fastest_lap_set) + 1
-        for v in self.participant_set.filter(fastest_lap_time=0) + self.participant_set.filter(still_connected=False):
+        for v in self.participant_set.filter(fastest_lap_time=0) | self.participant_set.filter(still_connected=False):
             v.race_position = positions_without_laptime
             v.save()
 
