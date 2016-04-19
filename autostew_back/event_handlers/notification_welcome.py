@@ -33,7 +33,7 @@ class HandleNotificationWelcome(BaseEventHandler):
         for message in welcome_message:
             event.member.send_chat(
                 message.format(
-                    setup_name=server.get_current_setup_name(),
+                    setup_name=server.current_session.setup_actual.name,
                     player_name=event.member.name.get(),
                     safety_class_message=safety_class_message,
                     elo_rating_message=rating_message,
