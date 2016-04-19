@@ -51,20 +51,20 @@ class ApiCaller:
         while r is None:
             try:
                 r = requests.get(url)
-            except (requests.ConnectionError, requests.HTTPError) as e:
+                if not r.ok:
+                    message = 'Request to {url} returned {code}'.format(url=url, code=r.status_code)
+                    logging.warning(message)
+                    raise self.ApiResultNotOk(message)
+                parsed = json.loads(r.text)
+                if parsed['result'] != 'ok':
+                    message = 'Request to {url} result was {result}'.format(url=url, result=parsed['result'])
+                    logging.warning(message)
+                    raise self.ApiResultNotOk(message)
+            except (requests.ConnectionError, requests.HTTPError, self.ApiResultNotOk) as e:
                 if time() - start_time > 60:
                     raise e
                 logging.error("Request failed with {}, retrying".format(e))
                 sleep(1)
-        if not r.ok:
-            message = 'Request to {url} returned {code}'.format(url=url, code=r.status_code)
-            logging.warning(message)
-            raise self.ApiResultNotOk(message)
-        parsed = json.loads(r.text)
-        if parsed['result'] != 'ok':
-            message = 'Request to {url} result was {result}'.format(url=url, result=parsed['result'])
-            logging.warning(message)
-            raise self.ApiResultNotOk(message)
         return parsed.get('response', None)
 
     def record_result(self, type, content):
