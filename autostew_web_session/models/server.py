@@ -200,10 +200,6 @@ class Server(models.Model):
 
         if self.state.name == ServerState.running:
             self.back_start_session()
-        else:
-            setup_template = self.back_get_next_setup()
-            connector = ApiConnector(self.api, setup_template, api_translations.session_setup)
-            connector.push_to_game('session')
         self.last_status_update_time = time()
         self.save()
 
