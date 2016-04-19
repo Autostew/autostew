@@ -1,5 +1,4 @@
 import logging
-import types
 
 
 class ApiConnector:
@@ -26,7 +25,7 @@ class ApiConnector:
                     raise e
             else:
                 value = getattr(self.object, translation['model_field'])
-                if isinstance(value, types.BooleanType):
+                if type(value) == type(True):
                     value = int(value)
             params = {
                 '{api_type_name}_{api_field}'.format(
