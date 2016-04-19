@@ -33,7 +33,7 @@ class HandleLap(BaseEventHandler):
             distance_travelled=event.distance_travelled,
         )
 
-        if event.member:
+        if event.participant.is_player and event.member:
             event.member.steam_user.add_distance(event.distance_travelled)
 
         if not server.current_session.session_stage.name.startswith("Race"):
