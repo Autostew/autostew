@@ -32,7 +32,7 @@ class ApiConnector:
                     api_type_name=api_type_name,
                     api_field=translation['api_field']
                 ): value,
-                'copy_to_next': int(copy_to_next)
+                # 'copy_to_next': int(copy_to_next)
             }
             self.api._call("session/{method}".format(method=method), params=params)
 
