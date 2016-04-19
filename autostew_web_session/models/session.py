@@ -187,23 +187,19 @@ class Session(models.Model):
         return "{} - {}".format(self.id, self.setup_actual.name)
 
     def get_members_who_finished_race(self) -> QuerySet:
-        results_stage = self.get_race_stage()
-        if results_stage is None or results_stage.result_snapshot is None:
-            return None
-        snapshots = results_stage.result_snapshot.member_snapshots.all()
-        return Member.objects.filter(membersnapshot__in=snapshots)
+        return self.member_set.filter(still_connected=True)
 
     def get_members_who_participated(self):
         participants = autostew_web_session.models.participant.Participant.objects.filter(lap__in=self.lap_set.all())
         return Member.objects.filter(participant__in=participants)
 
     def reorder_by_best_time(self):
-        participants_with_fastest_lap_set = self.participant_set.filter(fastest_lap_time__gt=0)
+        participants_with_fastest_lap_set = self.participant_set.filter(fastest_lap_time__gt=0, still_connected=True)
         for i, v in enumerate(participants_with_fastest_lap_set.order_by('fastest_lap_time')):
             v.race_position = i + 1
             v.save()
         positions_without_laptime = len(participants_with_fastest_lap_set) + 1
-        for v in self.participant_set.filter(fastest_lap_time=0):
+        for v in self.participant_set.filter(fastest_lap_time=0) + self.participant_set.filter(still_connected=False):
             v.race_position = positions_without_laptime
             v.save()
 
