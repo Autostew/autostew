@@ -3,7 +3,6 @@ from django.db import models
 from django.db.models import Min
 
 from autostew_web_enums import models as enum_models
-from autostew_web_session.models.session import Session
 
 
 class Participant(models.Model):
@@ -12,7 +11,7 @@ class Participant(models.Model):
 
     parent = models.ForeignKey('self', null=True, blank=True)
     member = models.ForeignKey('Member', null=True, blank=True)  # AI will be NULL
-    session = models.ForeignKey(Session)
+    session = models.ForeignKey('Session')
     still_connected = models.BooleanField()
 
     ingame_id = models.IntegerField()

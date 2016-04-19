@@ -2,8 +2,7 @@ from django.core.urlresolvers import reverse
 from django.db import models
 from math import floor
 
-from autostew_web_session import models as session_models
-from autostew_web_session.models.session import Session
+from autostew_web_session.models import session as session_models
 
 
 class SteamUser(models.Model):
@@ -94,8 +93,8 @@ class SteamUser(models.Model):
             self.update_safety_class()
 
     def sessions_participated_in(self):
-        return Session.objects.filter(
-            id__in=Session.objects.filter(lap_set__participant__member__steam_user=self).values('id')
+        return session_models.Session.objects.filter(
+            id__in=session_models.Session.objects.filter(lap_set__participant__member__steam_user=self).values('id')
          )
 
     def over_class_kick_impact_threshold(self, crash_magnitude):
