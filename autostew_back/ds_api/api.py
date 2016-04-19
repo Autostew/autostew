@@ -46,9 +46,9 @@ class ApiCaller:
                     for k, v in params.items()
                 ])
         )
-        r = None
+        success = False
         start_time = time()
-        while r is None:
+        while not success:
             try:
                 r = requests.get(url)
                 if not r.ok:
@@ -60,6 +60,7 @@ class ApiCaller:
                     message = 'Request to {url} result was {result}'.format(url=url, result=parsed['result'])
                     logging.warning(message)
                     raise self.ApiResultNotOk(message)
+                success = True
             except (requests.ConnectionError, requests.HTTPError, self.ApiResultNotOk) as e:
                 if time() - start_time > 60:
                     raise e
