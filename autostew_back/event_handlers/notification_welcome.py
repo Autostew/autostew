@@ -38,7 +38,7 @@ class HandleNotificationWelcome(BaseEventHandler):
                     safety_class_message=safety_class_message,
                     elo_rating_message=rating_message,
                     custom_motd=server.back_custom_motd
-                )
+                ), server
             )
 
     @classmethod
