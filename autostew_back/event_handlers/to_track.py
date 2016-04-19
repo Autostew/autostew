@@ -16,5 +16,6 @@ class HandleToTrack(BaseEventHandler):
     @classmethod
     def consume(cls, server, event: Event):
         actual_setup = server.back_pull_session_setup()
+        actual_setup.name = server.current_session.setup_template.name
         server.current_session.setup_actual = actual_setup
         server.current_session.create_snapshot()

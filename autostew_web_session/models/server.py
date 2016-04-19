@@ -362,6 +362,7 @@ class Server(models.Model):
         connector = ApiConnector(self.api, setup_template, api_translations.session_setup)
         connector.push_to_game('session')
         actual_setup = self.back_pull_session_setup()
+        actual_setup.name = setup_template.name
 
         session = autostew_web_session.models.session.Session(
             server=self,
