@@ -68,7 +68,7 @@ class SteamUser(models.Model):
         if self.safety_rating is None:
             self.safety_rating = self.initial_safety_rating
         self.total_distance += distance
-        self.safety_rating *= (distance/10000)**self.per_km_safety_multiplier
+        self.safety_rating *= (distance/1000)**self.per_km_safety_multiplier
         self.update_safety_class()
         self.save()
 
