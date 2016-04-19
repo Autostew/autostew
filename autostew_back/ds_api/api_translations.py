@@ -129,6 +129,8 @@ member = [
 ]
 
 participant = [
+    {'subsection': 'attributes', 'model_field': 'vehicle', 'api_field': 'VehicleId', 'enum_model': Vehicle},
+    {'subsection': 'attributes', 'model_field': 'livery', 'api_field': 'LiveryId', 'enum_model': Livery, 'depends_on': 'vehicle'},
     {'subsection': 'attributes', 'model_field': 'current_lap', 'api_field': 'CurrentLap'},
     {'subsection': 'attributes', 'model_field': 'orientation', 'api_field': 'Orientation'},
     {'subsection': 'attributes', 'model_field': 'position_z', 'api_field': 'PositionZ'},
