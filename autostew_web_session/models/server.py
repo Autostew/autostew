@@ -66,7 +66,7 @@ class Server(models.Model):
     back_enabled = models.BooleanField(default=False)
     back_reconnect = models.BooleanField(default=True)
     back_kicks = models.BooleanField(default=True)
-    back_crash_points_limit = models.BooleanField(default=4000)
+    back_crash_points_limit = models.IntegerField(default=4000)
     back_crash_points_limit_ban_seconds = models.IntegerField(default=0, help_text="In seconds")
     back_safety_rating = models.BooleanField(default=True)
     back_performance_rating = models.BooleanField(default=True)
