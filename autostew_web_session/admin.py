@@ -3,7 +3,7 @@ from django.contrib import admin
 from autostew_web_session.models.event import Event
 from autostew_web_session.models.member import Member
 from autostew_web_session.models.participant import Participant
-from autostew_web_session.models.server import Server
+from autostew_web_session.models.server import Server, ServerState
 from autostew_web_session.models.session import SessionSetup, Session
 from .models.models import *
 
@@ -103,3 +103,4 @@ class EventAdmin(admin.ModelAdmin):
 admin.site.register(RaceLapSnapshot)
 admin.site.register(Lap)
 admin.site.register(Sector)
+admin.site.register(ServerState)
