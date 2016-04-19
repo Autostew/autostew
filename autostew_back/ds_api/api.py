@@ -36,7 +36,7 @@ class ApiCaller:
     def _cleanup_parameters(self, value: str):
         return str(value).translate({ord(i): None for i in '?&#'})
 
-    def _call(self, path: str, params={}):  # TODO handle errors
+    def _call(self, path: str, params={}, retry=True):  # TODO handle errors
         url = "{url}/api/{path}?{params}".format(
             url=self.server.api_url,
             path=path,
@@ -62,7 +62,7 @@ class ApiCaller:
                     raise self.ApiResultNotOk(message)
                 success = True
             except (requests.ConnectionError, requests.HTTPError, self.ApiResultNotOk) as e:
-                if time() - start_time > 60:
+                if time() - start_time > 60 or not retry:
                     raise e
                 logging.error("Request failed with {}, retrying".format(e))
                 sleep(1)
@@ -112,7 +112,7 @@ class ApiCaller:
         if player_refid is not None:
             params['refid'] = player_refid
         try:
-            return self._call("session/send_chat", params)
+            return self._call("session/send_chat", params, retry=False)
         except self.ApiResultNotOk:
             logging.error("Send chat to {} failed, message was: {}". format(player_refid, message))
             return None
