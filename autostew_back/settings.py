@@ -2,7 +2,7 @@ import logging
 
 logging.getLogger().setLevel(logging.INFO)
 logging.getLogger('django.db.backends').setLevel(logging.INFO)
-logging.getLogger('requests.packages.urllib3.connectionpool').setLevel(logging.WARNING)
+logging.getLogger('requests.packages.urllib3.connectionpool').setLevel(logging.INFO)
 
 
 event_poll_period = 1
