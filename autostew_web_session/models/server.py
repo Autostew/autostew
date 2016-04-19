@@ -257,12 +257,14 @@ class Server(models.Model):
                     steam_id=pulled_member.steam_id,
                     still_connected=True
                 )
+                pulled_member.steam_user.display_name = pulled_member.name
+                existing_member.vehicle = pulled_member.vehicle
+                existing_member.livery = pulled_member.livery
                 existing_member.name = pulled_member.name
                 pulled_member = existing_member
             except Member.DoesNotExist:
                 try:
                     pulled_member.steam_user = SteamUser.objects.get(steam_id=pulled_member.steam_id)
-                    pulled_member.steam_user.display_name = pulled_member.name
                     pulled_member.steam_user.save()
                 except SteamUser.DoesNotExist:
                     pulled_member.steam_user = SteamUser.objects.create(
@@ -321,6 +323,9 @@ class Server(models.Model):
                     refid=pulled_participant.refid,
                     still_connected=True
                 )
+                existing_participant.name = pulled_participant.name
+                existing_participant.vehicle = pulled_participant.vehicle
+                existing_participant.livery = pulled_participant.livery
                 pulled_participant.id = existing_participant.id
             except Participant.DoesNotExist:
                 pass
