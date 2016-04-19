@@ -3,7 +3,7 @@
 
 {% block content %}
     {% if session == parent and session.running %}
-    <script>setTimeout(function () { location.reload(1); }, 5000);</script>
+    <script>setTimeout(function () { location.reload(1); }, 10000);</script>
     {% endif %}
     <div class="row">
         <div class="col-xs-12 col-md-4 placeholder">
@@ -212,13 +212,17 @@
                         {{ participant.gap|milli_to_nicetime }}
                     </td>
                     <td>
-                        <span class="
-                            {% if participant.state.in_race %}
-                                label label-primary
-                            {% else %}
-                                label label-danger
-                            {% endif %}
-                        ">{{ participant.state.name }}</span>
+                        {% if participant.still_connected %}
+                            <span class="
+                                {% if participant.state.in_race %}
+                                    label label-primary
+                                {% else %}
+                                    label label-danger
+                                {% endif %}
+                            ">{{ participant.state.name }}</span>
+                        {% else %}
+                            <span class="label label-danger">{{ participant.member.leaving_reason.name }}</span>
+                        {% endif %}
                     </td>
                 </tr>
             {% endfor %}

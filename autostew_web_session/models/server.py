@@ -192,6 +192,8 @@ class Server(models.Model):
         self.last_status_update_time = None
         self.settings = settings
         self.running = True
+        self.current_session = None
+        self.save()
 
         self.back_init_api(api_record, settings)
         self.back_pull_lists(self.api.get_lists())
