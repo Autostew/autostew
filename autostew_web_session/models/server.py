@@ -406,9 +406,9 @@ class Server(models.Model):
             with transaction.atomic():
                 tick_start = time()
 
+                self.update_player_latency()
                 if self.current_session:
                     self.clock()
-                    self.update_player_latency()
                     self.back_full_pull()
 
                 self.ping()
@@ -477,7 +477,7 @@ class Server(models.Model):
         self.save()
 
     def update_player_latency(self):
-        if len(self.current_session.member_set.all()) == 0:
+        if self.current_session is None or len(self.current_session.member_set.all()) == 0:
             self.average_player_latency = None
         else:
             self.average_player_latency = sum([member.ping for member in self.current_session.member_set.all()]) / len(
