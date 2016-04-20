@@ -146,7 +146,7 @@
                     <th>Status</th>
                 </tr>
             </thead>
-            {% for participant in session.participant_set.all %}
+            {% for participant in session.get_connected_participants %}
                 <tr>
                     <td>
                         <div style="font-size: 220%; float: left; clear: left; padding-right: 15px">
