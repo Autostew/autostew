@@ -32,7 +32,7 @@ class SteamUser(models.Model):
         return self.elo_rating
 
     def get_kms(self):
-        return floor(self.total_distance / 10000)
+        return floor(self.total_distance / 1000)
 
     def push_elo_rating(self):
         if self.elo_rating is None:
