@@ -16,7 +16,7 @@
     <h2>Rotation</h2>
     <ul>
         {% for setup in server.setuprotationentry_set.all %}
-            <li>{{ setup.setup.name }}</li>
+            <li><a href="{{ setup.setup.get_absolute_url }}">{{ setup.setup.name }}</a></li>
         {% endfor %}
     </ul>
 
