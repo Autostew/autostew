@@ -1,6 +1,5 @@
 #!/bin/sh
 
-cd autostew
 git checkout $1
 git pull
 
