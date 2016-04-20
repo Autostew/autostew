@@ -8,7 +8,7 @@
     {% if server_list %}
         <div class="row">
             {% for server in server_list %}
-                <div class="col-xs-6 col-md-3 placeholder">
+                <div class="col-xs-12 col-md-6 placeholder">
                     {% include 'autostew_web_session/server_badge.html' with server=server %}
                 </div>
             {% endfor %}
