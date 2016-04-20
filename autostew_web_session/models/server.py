@@ -413,7 +413,8 @@ class Server(models.Model):
                 self.update_player_latency()
                 if self.current_session:
                     self.clock()
-                    self.back_full_pull()
+                    if not self.current_session.is_result:
+                        self.back_full_pull()
 
                 self.ping()
 

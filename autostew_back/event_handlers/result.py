@@ -16,6 +16,9 @@ class HandleResult(BaseEventHandler):
 
     @classmethod
     def consume(cls, server, event: Event):
+        if not server.current_session.is_result:
+            server.current_session.is_result = True
+            server.current_session.save()
         event.participant.fastest_lap_time = td_to_milli(event.fastest_lap_time)
         event.participant.lap = event.lap
         event.participant.state = event.participant_state

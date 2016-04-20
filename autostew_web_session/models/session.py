@@ -187,7 +187,9 @@ class Session(models.Model):
         return "{} - {}".format(self.id, self.setup_actual.name)
 
     def get_members_who_finished_race(self) -> QuerySet:
-        return self.parent_or_self.member_set.filter(still_connected=True)
+        if self.parent_or_self.is_result:
+            return self.parent_or_self.member_set.filter(still_connected=True)
+        return None
 
     def get_members_who_participated(self):
         participants = autostew_web_session.models.participant.Participant.objects.filter(lap__in=self.lap_set.all())
