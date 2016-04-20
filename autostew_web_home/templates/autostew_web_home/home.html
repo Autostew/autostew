@@ -35,31 +35,13 @@
             <h3>Servers</h3>
 
             {% if server_list %}
-                <ul>
+                <div class="row">
                     {% for server in server_list %}
-                        <li>
-                            {% if server.is_up %}
-                                <span class="label label-success">Connected</span>
-                            {% else %}
-                                <span class="label label-danger">Disconnected</span>
-                            {% endif %}
-                            <a href="{{ server.get_absolute_url }}">{{ server.name }}</a>
-                            {% if server.current_session %}
-                                <a href="{{ server.current_session.get_absolute_url }}">{{ server.current_session }}</a>
-                            {% endif %}
-                            {% if server.is_up %}
-                                <span class="label
-                                    {% if server.average_player_latency < 50 %}label-success
-                                    {% elif server.average_player_latency < 100 %}label-info
-                                    {% elif server.average_player_latency > 250 %}label-danger
-                                    {% elif server.average_player_latency > 150 %}label-warning
-                                    {% else %}label-default
-                                    {% endif %}
-                                ">{{ server.average_player_latency }} ms</span>
-                            {% endif %}
-                        </li>
+                        <div class="col-xs-6 col-md-3 placeholder">
+                            {% include 'autostew_web_session/server_badge.html' with server=server %}
+                        </div>
                     {% endfor %}
-                </ul>
+                </div>
             {% else %}
                 <h5>No servers are available!</h5>
             {% endif %}
