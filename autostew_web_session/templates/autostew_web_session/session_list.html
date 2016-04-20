@@ -13,7 +13,10 @@
             {% if sessions_history %}
                 <ul>
                     {% for session in sessions_history %}
-                        <li><a href="{{ session.get_absolute_url }}">{{ session }}</a></li>
+                        <li>
+                            <a href="{{ session.server.get_absolute_url }}">{{ session.server }}</a>
+                            <a href="{{ session.get_absolute_url }}">{{ session }}</a>
+                        </li>
                     {% endfor %}
                 </ul>
             {% else %}
@@ -26,40 +29,14 @@
             {% if sessions_in_progress %}
                 <ul>
                     {% for session in sessions_in_progress %}
-                        <li><a href="{{ session.get_absolute_url }}">{{ session }}</a></li>
+                        <li>
+                            <a href="{{ session.server.get_absolute_url }}">{{ session.server }}</a>
+                            <a href="{{ session.get_absolute_url }}">{{ session }}</a>
+                        </li>
                     {% endfor %}
                 </ul>
             {% else %}
                 <p>No sessions in progress</p>
-            {% endif %}
-        </div>
-
-    </div>
-    <div class="row">
-
-        <div class="col-xs-12 col-md-6 placeholder">
-            <h2>Planned</h2>
-            {% if sessions_planned %}
-                <ul>
-                    {% for session in sessions_planned %}
-                        <li><a href="{{ session.get_absolute_url }}">{{ session }}</a></li>
-                    {% endfor %}
-                </ul>
-            {% else %}
-                <p>No sessions planned</p>
-            {% endif %}
-        </div>
-
-        <div class="col-xs-12 col-md-6 placeholder">
-            <h2>In rotation</h2>
-            {% if setups_in_rotation %}
-                <ul>
-                    {% for setup in setups_in_rotation %}
-                        <li><a href="{{ setup.get_absolute_url }}">{{ setup.name }}</a></li>
-                    {% endfor %}
-                </ul>
-            {% else %}
-                <p>No sessions in rotation</p>
             {% endif %}
         </div>
     </div>

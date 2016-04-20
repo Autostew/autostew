@@ -12,14 +12,18 @@
         </small>
     </h1>
     {% include 'autostew_web_session/server_badge.html' with server=server %}
-    <p>Current session: <a href="{{ server.current_session.get_absolute_url }}">{{ server.current_session }}</a></p>
-    <p>Average latency: {{ server.average_player_latency }} ms</p>
-    <p>Last ping {{ server.time_since_last_ping }} seconds ago</p>
+
+    <h2>Rotation</h2>
+    <ul>
+        {% for setup in server.setuprotationentry_set.all %}
+            <li>{{ setup.setup.name }}</li>
+        {% endfor %}
+    </ul>
 
     <h2>Last sessions</h2>
-        <ul>
-            {% for session in server.get_latest_sessions %}
-                <li><a href="{{ session.get_absolute_url }}">{{ session }}</a></li>
-            {% endfor %}
-        </ul>
+    <ul>
+        {% for session in server.get_latest_sessions %}
+            <li><a href="{{ session.get_absolute_url }}">{{ session }}</a></li>
+        {% endfor %}
+    </ul>
 {% endblock %}
