@@ -25,7 +25,7 @@ class HandleNotificationPresentation(BaseEventHandler):
             server.send_chat(
                 m.format(
                     name=steam_user.display_name,
-                    safety=steam_user.safety_class.name,
+                    safety=steam_user.safety_class.name if steam_user.safety_class is not None else "Unrated",
                     elo=steam_user.elo_rating,
                 )
             )
