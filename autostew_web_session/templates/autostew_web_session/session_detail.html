@@ -230,6 +230,13 @@
     </div>
 
     <p>
+        Disconnected participants:
+        {% for participant in parent.get_disconnected_participants %}
+            {{ participant.name }} ({{ participant.member.leaving_reason.name }})
+        {% endfor %}
+    </p>
+
+    <p>
         <a href="{% url 'session:events' parent.id %}">Events</a><br>
         <a href="{{ parent.server.get_absolute_url }}">{{ parent.server }}</a>
     </p>
