@@ -239,7 +239,6 @@
     </p>
 
     <p>
-        <a href="{% url 'session:events' parent.id %}">Events</a><br>
-        <a href="{{ parent.server.get_absolute_url }}">{{ parent.server }}</a>
+        <a href="{% url 'session:events' parent.id %}">Events</a>
     </p>
 {% endblock %}
