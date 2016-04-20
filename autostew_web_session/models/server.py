@@ -98,6 +98,9 @@ class Server(models.Model):
     lobby_id = models.CharField(max_length=50, blank=True)
     max_member_count = models.IntegerField(default=0)
 
+    def get_latest_sessions(self, limit=10):
+        return reversed(self.session_set.filter(finished=True, parent=None)[:limit])
+
     @property
     def is_up(self):
         return self.running and self.time_since_last_ping < 120
