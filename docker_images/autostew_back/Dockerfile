@@ -10,10 +10,13 @@ COPY dependencies.sh dependencies.sh
 # install all dependencies
 RUN ./dependencies.sh
 
+COPY run_autostew_back.sh autostew/run_autostew_back.sh
+
 WORKDIR /autostew
 VOLUME ["autostew/settings"]
 
 ENV DJANGO_SETTINGS_MODULE=autostew.settings.prod
+ENV BRANCH=master
 ENV SERVER_ID=1
 
-CMD /autostew/autostew_back.py -i $SERVER_ID
+CMD ./run_autostew_back.sh $BRANCH $SERVER_ID
