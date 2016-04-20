@@ -11,13 +11,15 @@
         {{ server.current_session.session_stage.name }}
     {% endif %}
 
-    <span class="label
-        {% if server.average_player_latency < 50 %}label-success
-        {% elif server.average_player_latency < 100 %}label-info
-        {% elif server.average_player_latency > 250 %}label-danger
-        {% elif server.average_player_latency > 150 %}label-warning
-        {% else %}label-default
-        {% endif %}
-    ">{{ server.average_player_latency }} ms</span>
-
+    {% if server.average_player_latency %}
+        <span class="label
+            {% if server.average_player_latency < 50 %}label-success
+            {% elif server.average_player_latency < 100 %}label-info
+            {% elif server.average_player_latency > 250 %}label-danger
+            {% elif server.average_player_latency > 150 %}label-warning
+            {% else %}label-default
+            {% endif %}
+        ">{{ server.average_player_latency }} ms</span>
+    {% endif %}
+    
 {% endif %}
