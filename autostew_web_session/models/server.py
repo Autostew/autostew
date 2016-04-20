@@ -255,14 +255,13 @@ class Server(models.Model):
             try:
                 existing_member = Member.objects.get(
                     session=self.current_session,
-                    refid=pulled_member.refid,
-                    steam_id=pulled_member.steam_id,
-                    still_connected=True
+                    steam_id=pulled_member.steam_id
                 )
                 existing_member.steam_user.display_name = pulled_member.name
                 existing_member.vehicle = pulled_member.vehicle
                 existing_member.livery = pulled_member.livery
                 existing_member.name = pulled_member.name
+                existing_member.refid = pulled_member.refid
                 pulled_member = existing_member
             except Member.DoesNotExist:
                 try:
@@ -437,6 +436,7 @@ class Server(models.Model):
                     if one_by_one:
                         input("Processing event {}".format(event))
                     event.handle(self)
+                    self.refresh_from_db()
 
                 if one_by_one:
                     input("Tick (enter)")

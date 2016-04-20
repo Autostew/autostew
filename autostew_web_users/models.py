@@ -61,20 +61,22 @@ class SteamUser(models.Model):
         if self.safety_rating is None:
             self.safety_rating = self.initial_safety_rating
         self.safety_rating += points
-        self.update_safety_class()
+        result = self.update_safety_class()
         self.save()
+        return result
 
     def add_distance(self, distance):
         if self.safety_rating is None:
             self.safety_rating = self.initial_safety_rating
         self.total_distance += distance
         self.safety_rating *= self.per_km_safety_multiplier**(distance/1000)
-        self.update_safety_class()
+        result = self.update_safety_class()
         self.save()
+        return result
 
     def update_safety_class(self):
         if not SafetyClass.objects.exists():
-            return
+            return False
         if self.safety_class is None:
             self.safety_class = SafetyClass.objects.get(initial_class=True)
         if self.safety_rating is None:
@@ -85,12 +87,15 @@ class SteamUser(models.Model):
         ):
             self.safety_class = self.safety_class.class_below
             self.update_safety_class()
+            return True
         if (
                     hasattr(self.safety_class, 'class_above') and
                     self.safety_rating < self.safety_class.class_above.raise_to_this_class_threshold
         ):
             self.safety_class = self.safety_class.class_above
             self.update_safety_class()
+            return True
+        return False
 
     def sessions_participated_in(self):
         return session_models.Session.objects.filter(
