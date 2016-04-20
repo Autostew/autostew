@@ -15,6 +15,7 @@ from autostew_back.event_handlers.ignored_events import HandleIgnore
 from autostew_back.event_handlers.lap import HandleLap
 from autostew_back.event_handlers.notification_leader_entered_last_lap import HandleNotificationLeaderEnteredLastLap
 from autostew_back.event_handlers.notification_new_session_start import HandleNotificationNewSessionStart
+from autostew_back.event_handlers.notification_presentation import HandleNotificationPresentation
 from autostew_back.event_handlers.notification_race_start import HandleNotificationRaceStart
 from autostew_back.event_handlers.notification_welcome import HandleNotificationWelcome
 from autostew_back.event_handlers.notification_winner_finished_race import HandleNotificationWinnerFinishedRace
@@ -449,6 +450,7 @@ class Server(models.Model):
             HandleLap,
             HandleNotificationLeaderEnteredLastLap,
             HandleNotificationNewSessionStart,
+            HandleNotificationPresentation,
             HandleNotificationRaceStart,
             HandleNotificationWelcome,
             HandleNotificationWinnerFinishedRace,
