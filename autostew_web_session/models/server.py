@@ -346,6 +346,7 @@ class Server(models.Model):
 
             if not found:
                 participant.still_connected = False
+                participant.race_position = 0
                 participant.save()
 
     def back_get_next_setup(self):

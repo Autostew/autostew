@@ -187,7 +187,7 @@ class Session(models.Model):
         return "{} - {}".format(self.id, self.setup_actual.name)
 
     def get_members_who_finished_race(self) -> QuerySet:
-        return self.member_set.filter(still_connected=True)
+        return self.parent_or_self.member_set.filter(still_connected=True)
 
     def get_members_who_participated(self):
         participants = autostew_web_session.models.participant.Participant.objects.filter(lap__in=self.lap_set.all())
@@ -202,6 +202,12 @@ class Session(models.Model):
         for v in self.participant_set.filter(fastest_lap_time=0) | self.participant_set.filter(still_connected=False):
             v.race_position = positions_without_laptime
             v.save()
+
+    def get_connected_participants(self):
+        return self.participant_set.filter(still_connected=True)
+
+    def get_disconnected_participants(self):
+        return self.participant_set.filter(still_connected=False)
 
     @property
     def parent_or_self(self):
