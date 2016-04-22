@@ -19,6 +19,7 @@ INSTALLED_APPS = [
     'autostew_web_enums',
     'autostew_web_session',
     'autostew_web_users',
+    'autostew_web_account',
     'autostew_back',
 ]
 

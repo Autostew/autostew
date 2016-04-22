@@ -324,17 +324,17 @@ class Server(models.Model):
                     refid=pulled_participant.refid,
                     still_connected=True
                 )
-                existing_participant.name = pulled_participant.name
-                existing_participant.vehicle = pulled_participant.vehicle
-                existing_participant.livery = pulled_participant.livery
+                pulled_participant.name = existing_participant.name
+                pulled_participant.vehicle = existing_participant.vehicle
+                pulled_participant.livery = existing_participant.livery
                 pulled_participant.id = existing_participant.id
             except Participant.DoesNotExist:
                 pass
+            pulled_participant.member = self.get_member(pulled_participant.refid)
             if not pulled_participant.is_player:
                 pulled_participant.member = None
             pulled_participant.session = self.current_session
             pulled_participant.still_connected = True
-            pulled_participant.member = self.get_member(pulled_participant.refid)
             pulled_participant.save()
 
         self.back_mark_disconnected_participants(status)
