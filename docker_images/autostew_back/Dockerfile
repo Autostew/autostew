@@ -1,4 +1,4 @@
-# This dockerfile is used to run the autostew webserver
+# This dockerfile is used to run the autostew backend service
 
 FROM ubuntu:14.04
 Maintainer Michael Wittig <witmic1@gmail.com>
