@@ -6,7 +6,7 @@
     {% endif %}
     <a href="{{ server.get_absolute_url }}">{{ server.name }}</a>
     {% if server.is_up %}
-
+        <br>
         {% if server.current_session %}
             <a href="{{ server.current_session.get_absolute_url }}">{{ server.current_session }}</a>
             {{ server.current_session.session_stage.name }}
