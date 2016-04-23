@@ -350,20 +350,12 @@ class Server(models.Model):
                 participant.save()
 
     def back_get_next_setup(self):
-        peek = (
-            not self.session_state or
-            self.session_state.name != SessionState.lobby or
-            self.state != ServerState.running
-        )
-
-        queued_setup = self.pop_next_queued_setup(peek)
+        queued_setup = self.pop_next_queued_setup(False)
         if queued_setup:
             return queued_setup
-
         if not self.setup_rotation.exists():
             raise NoSessionSetupTemplateAvailableException("No setup rotation or queued!")
-        if not peek:
-            self.setup_rotation_index += 1
+        self.setup_rotation_index += 1
         if self.setup_rotation_index >= len(self.setup_rotation.all()):
             self.setup_rotation_index = 0
         self.save()
