@@ -19,6 +19,7 @@ from autostew_back.event_handlers.notification_presentation import HandleNotific
 from autostew_back.event_handlers.notification_race_start import HandleNotificationRaceStart
 from autostew_back.event_handlers.notification_welcome import HandleNotificationWelcome
 from autostew_back.event_handlers.notification_winner_finished_race import HandleNotificationWinnerFinishedRace
+from autostew_back.event_handlers.player_left import HandlePlayerLeft
 from autostew_back.event_handlers.race_lap_snapshot import HandleRaceLapSnapshot
 from autostew_back.event_handlers.result import HandleResult
 from autostew_back.event_handlers.sector import HandleSector
@@ -324,9 +325,6 @@ class Server(models.Model):
                     refid=pulled_participant.refid,
                     still_connected=True
                 )
-                pulled_participant.name = existing_participant.name
-                pulled_participant.vehicle = existing_participant.vehicle
-                pulled_participant.livery = existing_participant.livery
                 pulled_participant.id = existing_participant.id
             except Participant.DoesNotExist:
                 pass
@@ -459,6 +457,7 @@ class Server(models.Model):
             HandleNotificationRaceStart,
             HandleNotificationWelcome,
             HandleNotificationWinnerFinishedRace,
+            HandlePlayerLeft,
             HandleRaceLapSnapshot,
             HandleResult,
             HandleSector,
@@ -504,3 +503,42 @@ class Server(models.Model):
             self.current_session.save()
         self.running = False
         self.save()
+
+    def back_close_session(self):
+        self.current_session.finished = True
+        self.current_session.running = False
+        self.current_session.save()
+
+        for member in self.current_session.member_set.all():
+            member.steam_user.push_elo_rating()
+
+        for member in self.current_session.get_members_who_participated():
+            for opponent in self.current_session.get_members_who_participated():
+                if member == opponent:
+                    continue
+                member.steam_user.update_elo_rating(
+                    opponent.steam_user,
+                    self._versus_result(member, opponent)
+                )
+
+        self.current_session = None
+        self.save()
+
+    def _versus_result(self, member: Member, opponent: Member) -> float:
+        if not self.current_session.get_members_who_finished_race():
+            return None
+        member_stayed = member in self.current_session.get_members_who_finished_race()
+        opponent_stayed = opponent in self.current_session.get_members_who_finished_race()
+
+        if not member_stayed and not opponent_stayed:
+            return 0.5
+        if member_stayed and not opponent_stayed:
+            return 1
+        if opponent_stayed and not member_stayed:
+            return 0
+        if member_stayed and opponent_stayed:
+            if member.get_participant(self.current_session).race_position < opponent.get_participant(self.current_session).race_position:
+                return 1
+            else:
+                return 0
+

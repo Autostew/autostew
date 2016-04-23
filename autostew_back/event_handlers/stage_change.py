@@ -16,6 +16,7 @@ class HandleStageChange(BaseEventHandler):
     @classmethod
     def consume(cls, server, event: Event):
         server.current_session.create_snapshot()
+        server.current_session.is_result = False
         server.current_session.fastest_lap_time = None
         server.current_session.session_stage = event.new_session_stage
         server.current_session.save()

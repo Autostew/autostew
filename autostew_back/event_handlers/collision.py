@@ -1,5 +1,5 @@
 from autostew_back.event_handlers.base_event_handler import BaseEventHandler
-from autostew_web_enums.models import EventType
+from autostew_web_enums.models import EventType, ParticipantState
 from autostew_web_session.models.event import Event
 from autostew_web_session.models.participant import Participant
 
@@ -20,6 +20,10 @@ class HandleCollision(BaseEventHandler):
     def consume(cls, server, event: Event):
         magnitude = event.magnitude if event.human_to_human else int(event.magnitude * environment_crash_multiplier)
         if event.ai_involved:
+            return
+        if event.participant.state.name != ParticipantState.racing:
+            return
+        if event.other_participant and event.other_participant.state.name != ParticipantState.racing:
             return
         if event.participant.is_player:
             cls.add_crash_points(magnitude, event.participant, server, event.other_participant)

@@ -137,7 +137,8 @@ class Session(models.Model):
 
     fastest_lap = models.ForeignKey('Lap', null=True, blank=True, related_name='+')
 
-    is_result = models.BooleanField(default=0)
+    is_result = models.BooleanField(default=False)
+    is_final_result = models.BooleanField(default=False)
     timestamp = models.DateTimeField(auto_now_add=True)
     session_state = models.ForeignKey("autostew_web_enums.SessionState", null=True, blank=True)
     session_stage = models.ForeignKey("autostew_web_enums.SessionStage", null=True, blank=True)
@@ -206,10 +207,10 @@ class Session(models.Model):
             v.save()
 
     def get_connected_participants(self):
-        return self.participant_set.filter(still_connected=True)
+        return self.participant_set.filter(still_connected=True) | self.participant_set.filter(has_final_result=True)
 
     def get_disconnected_participants(self):
-        return self.participant_set.filter(still_connected=False)
+        return self.participant_set.filter(still_connected=False, has_final_result=False)
 
     @property
     def parent_or_self(self):

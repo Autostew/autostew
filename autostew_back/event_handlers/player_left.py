@@ -10,7 +10,7 @@ class HandlePlayerLeft(BaseEventHandler):
     @classmethod
     def can_consume(cls, server, event: Event):
         return (
-            event.type.name == EventType.PlayerLeft and
+            event.type.name == EventType.player_left and
             event.member is not None
         )
 

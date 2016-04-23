@@ -13,6 +13,7 @@ class Participant(models.Model):
     member = models.ForeignKey('Member', null=True, blank=True)  # AI will be NULL
     session = models.ForeignKey('Session')
     still_connected = models.BooleanField()
+    has_final_result = models.BooleanField(default=False)
 
     ingame_id = models.IntegerField()
     refid = models.IntegerField()
