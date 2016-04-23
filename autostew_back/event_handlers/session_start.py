@@ -11,7 +11,7 @@ class HandleSessionStart(BaseEventHandler):
     def can_consume(cls, server, event: Event):
         return (
             event.type.name == EventType.state_changed and
-            event.new_session_state == SessionState.lobby and
+            event.new_session_state.name == SessionState.lobby and
             server.current_session is None
         ) or (
             event.type.name == EventType.session_created
