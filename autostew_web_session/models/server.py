@@ -194,6 +194,7 @@ class Server(models.Model):
         self.back_pull_lists(self.api.get_lists())
 
     def back_start(self, settings, api_record=False):
+        self.refresh_from_db()
         self.last_status_update_time = None
         self.settings = settings
         self.running = True
@@ -378,6 +379,7 @@ class Server(models.Model):
         )
         session.save()
 
+        self.refresh_from_db()
         self.current_session = session
         self.save()
 
@@ -473,6 +475,7 @@ class Server(models.Model):
             )
 
     def ping(self):
+        self.refresh_from_db()
         self.last_ping = timezone.make_aware(datetime.datetime.now())
         self.save()
 
@@ -490,6 +493,7 @@ class Server(models.Model):
         return self.api.kick(refid, ban_seconds)
 
     def back_destroy(self):
+        self.refresh_from_db()
         if self.current_session:
             self.current_session.running = False
             self.current_session.save()
@@ -497,6 +501,7 @@ class Server(models.Model):
         self.save()
 
     def back_close_session(self):
+        self.refresh_from_db()
         self.current_session.finished = True
         self.current_session.running = False
         self.current_session.save()

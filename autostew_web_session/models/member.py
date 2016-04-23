@@ -53,7 +53,7 @@ class Member(models.Model):
         return snapshot
 
     def get_participant(self, session):
-        return session.participant_set.filter(is_player=True, refid=self.refid)
+        return session.participant_set.filter(is_player=True, refid=self.refid)[0]
 
     def send_chat(self, message, server):
         return server.send_chat(message, self.refid)
