@@ -9,7 +9,7 @@ class HandleToTrack(BaseEventHandler):
     def can_consume(cls, server, event: Event):
         return (
             event.type.name == EventType.state_changed and
-            event.new_session_state == SessionState.race and
+            event.new_session_state.name == SessionState.race and
             server.current_session is not None
         )
 
