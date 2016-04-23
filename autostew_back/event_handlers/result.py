@@ -30,5 +30,5 @@ class HandleResult(BaseEventHandler):
         event.participant.total_time = td_to_milli(event.total_time)
         event.participant.save()
 
-        if not server.current_session.participant_set.filter(has_final_result=False).exists():
+        if not server.current_session.participant_set.filter(has_final_result=False, still_connected=True).exists():
             server.back_close_session()
