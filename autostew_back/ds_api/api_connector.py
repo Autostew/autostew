@@ -11,6 +11,8 @@ class ApiConnector:
         flag_fields = []
         method = "set_next_attributes" if for_next_session else "set_attributes"
         for translation in self.translations:
+            if 'push_if' in translation.keys() and not translation['push_if'](self.object):
+                continue
             if 'flag' in translation.keys():
                 if not translation['api_field'] in flag_fields:
                     flag_fields.append(translation['api_field'])
