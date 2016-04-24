@@ -66,6 +66,10 @@ class Server(models.Model):
     contact = models.EmailField(blank=True)
     api_url = models.CharField(max_length=200,
                                help_text="Dedicated Server HTTP API URL, like http://user:pwd@host:port/")
+    api_username = models.CharField(max_length=40, blank=True)
+    api_password = models.CharField(max_length=40, blank=True)
+    api_address = models.CharField(max_length=100)
+    api_port = models.IntegerField(default=9000)
 
     back_verified = models.BooleanField(default=False)
     back_enabled = models.BooleanField(default=False)
@@ -98,6 +102,14 @@ class Server(models.Model):
     session_state = models.ForeignKey('autostew_web_enums.SessionState', null=True, blank=True)
     lobby_id = models.CharField(max_length=50, blank=True)
     max_member_count = models.IntegerField(default=0)
+
+    def get_api_url(self):
+        return self.api_url if self.api_url else "http://{}:{}@{}:{}".format(
+            self.api_username,
+            self.api_password,
+            self.api_address,
+            self.api_port,
+        )
 
     def get_latest_sessions(self, limit=10):
         return self.session_set.filter(finished=True, parent=None).reverse()[:limit]
