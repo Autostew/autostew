@@ -14,7 +14,8 @@ class HandleSessionStart(BaseEventHandler):
             event.new_session_state.name == SessionState.lobby and
             server.current_session is None
         ) or (
-            event.type.name == EventType.session_created
+            event.type.name == EventType.session_created and
+            server.current_session is None
         )
 
     @classmethod

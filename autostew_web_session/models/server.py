@@ -332,6 +332,8 @@ class Server(models.Model):
             pulled_participant.member = self.get_member(pulled_participant.refid)
             if not pulled_participant.is_player:
                 pulled_participant.member = None
+            if pulled_participant.member and not pulled_participant.name:
+                pulled_participant.name = pulled_participant.member.name
             pulled_participant.session = self.current_session
             pulled_participant.still_connected = True
             pulled_participant.save()
