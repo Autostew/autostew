@@ -122,7 +122,7 @@ class ApiCaller:
         if ban_seconds:
             params['ban'] = ban_seconds
         try:
-            return self._call("session/kick", params)
+            return self._call("session/kick", params, retry=False)
         except self.ApiResultNotOk:
             logging.error("Kicking player {} failed". format(player_refid))
             return None
