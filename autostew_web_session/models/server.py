@@ -280,6 +280,7 @@ class Server(models.Model):
             except Member.DoesNotExist:
                 try:
                     pulled_member.steam_user = SteamUser.objects.get(steam_id=pulled_member.steam_id)
+                    pulled_member.steam_user.display_name = pulled_member.name
                     pulled_member.steam_user.save()
                 except SteamUser.DoesNotExist:
                     pulled_member.steam_user = SteamUser.objects.create(
