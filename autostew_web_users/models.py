@@ -6,7 +6,7 @@ from autostew_web_session.models import session as session_models
 
 
 class SteamUser(models.Model):
-    per_km_safety_multiplier = 0.999
+    per_km_safety_multiplier = 0.99
     initial_safety_rating = 10000
     elo_k = 5
     initial_elo_rating = 1000
