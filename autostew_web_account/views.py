@@ -2,7 +2,7 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect, render, get_object_or_404
 
 from autostew_web_session.models.server import Server
 from autostew_web_users.models import SafetyClass
@@ -79,3 +79,25 @@ def account_view(request):
         'safety_classes': SafetyClass.objects.all(),
     }
     return render(request, 'autostew_web_account/home.html', context)
+
+
+@login_required
+def add_view(request):
+    pass
+
+
+@login_required
+def settings_view(request, pk):
+    server = get_object_or_404(Server, pk=pk)
+    context = {'server': server}
+    return render(request, 'autostew_web_account/server_settings.html', context)
+
+
+@login_required
+def rotation_view(request, pk):
+    pass
+
+
+@login_required
+def queue_view(request, pk):
+    pass
