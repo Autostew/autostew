@@ -12,7 +12,7 @@ api_record_destination = "api_record"
 
 
 api_compatibility = {
-    'build_version': [87, 88],
+    'build_version': [87, 88, 89],
     'lua_version': [301],
     'protocol_version': [135, 136],
 }
