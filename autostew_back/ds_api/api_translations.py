@@ -4,10 +4,10 @@ from autostew_web_enums.models import SessionFlagDefinition, DamageDefinition, T
 from autostew_web_session.models.models import Track, VehicleClass, Vehicle, Livery
 
 session_setup = [
-    {'model_field': 'server_controls_setup', 'api_field': 'ServerControlsSetup'},
-    {'model_field': 'server_controls_track', 'api_field': 'ServerControlsTrack'},
-    {'model_field': 'server_controls_vehicle_class', 'api_field': 'ServerControlsVehicleClass'},
-    {'model_field': 'server_controls_vehicle', 'api_field': 'ServerControlsVehicle'},
+    {'model_field': 'server_controls_setup', 'api_field': 'ServerControlsSetup', 'push_if': (lambda model: False)},
+    {'model_field': 'server_controls_track', 'api_field': 'ServerControlsTrack', 'push_if': (lambda model: model.server_controls_setup)},
+    {'model_field': 'server_controls_vehicle_class', 'api_field': 'ServerControlsVehicleClass', 'push_if': (lambda model: model.server_controls_setup)},
+    {'model_field': 'server_controls_vehicle', 'api_field': 'ServerControlsVehicle', 'push_if': (lambda model: model.server_controls_setup)},
     {'model_field': 'grid_size', 'api_field': 'GridSize', 'push_if': (lambda model: model.server_controls_setup)},
     {'model_field': 'max_players', 'api_field': 'MaxPlayers', 'push_if': (lambda model: model.server_controls_setup)},
     {'model_field': 'opponent_difficulty', 'api_field': 'OpponentDifficulty', 'push_if': (lambda model: model.server_controls_setup)},

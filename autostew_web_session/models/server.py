@@ -1,10 +1,9 @@
 import datetime
 import json
 import logging
-from datetime import timedelta
 from time import time, sleep
 
-from decorator import decorator
+from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.db import models, transaction
 from django.utils import timezone
@@ -64,6 +63,7 @@ class Server(models.Model):
     name = models.CharField(max_length=50, unique=True,
                             help_text='To successfully rename a server you will need to change it\'s settings too')
     contact = models.EmailField(blank=True)
+    owner = models.ForeignKey(User, null=True)
     api_url = models.CharField(max_length=200,
                                help_text="Dedicated Server HTTP API URL, like http://user:pwd@host:port/")
     api_username = models.CharField(max_length=40, blank=True)
@@ -377,11 +377,16 @@ class Server(models.Model):
         return self.setup_rotation.all()[self.setup_rotation_index]
 
     def back_start_session(self):
-        setup_template = self.back_get_next_setup()
-        connector = ApiConnector(self.api, setup_template, api_translations.session_setup)
-        connector.push_to_game('session')
         actual_setup = self.back_pull_session_setup()
-        actual_setup.name = setup_template.name
+        if actual_setup.server_controls_setup:
+            setup_template = self.back_get_next_setup()
+            connector = ApiConnector(self.api, setup_template, api_translations.session_setup)
+            connector.push_to_game('session')
+            actual_setup = self.back_pull_session_setup()
+            actual_setup.name = setup_template.name
+        else:
+            actual_setup.name = "player-defined"
+            setup_template = actual_setup
 
         session = autostew_web_session.models.session.Session(
             server=self,
@@ -494,11 +499,11 @@ class Server(models.Model):
         self.save()
 
     def update_player_latency(self):
-        if self.current_session is None or len(self.current_session.member_set.all()) == 0:
+        if self.current_session is None or len(self.current_session.member_set.filter(still_connected=True)) == 0:
             self.average_player_latency = None
         else:
-            self.average_player_latency = sum([member.ping for member in self.current_session.member_set.all()]) / len(
-                self.current_session.member_set.all())
+            self.average_player_latency = sum([member.ping for member in self.current_session.member_set.filter(still_connected=True)]) / len(
+                self.current_session.member_set.filter(still_connected=True))
 
     def send_chat(self, message, refid=None):
         return self.api.send_chat(message, refid)

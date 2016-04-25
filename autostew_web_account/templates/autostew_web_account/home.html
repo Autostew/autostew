@@ -1,0 +1,100 @@
+{% extends "autostew_web_home/base.html" %}
+
+{% block content %}
+
+    <h1 class="page-header">Hey {{ user.username }}</h1>
+
+    {% for server in servers %}
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">{{ server.name }}</h3>
+            </div>
+            <div class="panel-body">
+                <form method="post" action="{% url 'account:edit_server' %}">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="name">Name</label>
+                        <input type="text" class="form-control" id="name" value="{{ server.name }}" name="name">
+                    </div>
+                    <div class="form-group">
+                        <label for="api_username">API username</label>
+                        <input type="text" class="form-control" id="api_username" value="{{ server.api_username }}" name="api_username">
+                    </div>
+                    <div class="form-group">
+                        <label for="api_password">API password</label>
+                        <input type="api_password" class="form-control" id="api_password" value="{{ server.api_password }}" name="api_password">
+                    </div>
+                    <div class="form-group">
+                        <label for="api_address">API address (IP or DNS)</label>
+                        <input type="text" class="form-control" id="api_address" value="{{ server.api_address }}" name="api_address">
+                    </div>
+                    <div class="form-group">
+                        <label for="api_port">API port</label>
+                        <input type="number" class="form-control" id="api_port" value="{{ server.api_port }}" name="api_port">
+                    </div>
+
+                    <div class="checkbox">
+                        <label for="back_enabled">
+                            <input type="checkbox" id="back_enabled" {% if server.back_enabled %}checked="checked"{% endif %} name="back_enabled">
+                            Autostew enabled
+                        </label>
+                    </div>
+                    <div class="checkbox">
+                        <label for="back_reconnect">
+                            <input type="checkbox" id="back_reconnect" {% if server.back_reconnect %}checked="checked"{% endif %} name="back_reconnect">
+                            Auto reconnect
+                        </label>
+                    </div>
+                    <div class="checkbox">
+                        <label for="back_kicks">
+                            <input type="checkbox" id="back_kicks" {% if server.back_kicks %}checked="checked"{% endif %} name="back_kicks">
+                            Kicking enabled
+                        </label>
+                    </div>
+                    <div class="checkbox">
+                        <label for="back_safety_rating">
+                            <input type="checkbox" id="back_safety_rating" {% if server.back_safety_rating %}checked="checked"{% endif %} name="back_safety_rating">
+                            Safety rating enabled
+                        </label>
+                    </div>
+                    <div class="checkbox">
+                        <label for="back_performance_rating">
+                            <input type="checkbox" id="back_performance_rating" {% if server.back_performance_rating %}checked="checked"{% endif %} name="back_performance_rating">
+                            Performance rating enabled
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label for="back_crash_points_limit">Crash points limit per stage</label>
+                        <input type="number" class="form-control" id="back_crash_points_limit" value="{{ server.back_crash_points_limit }}" name="back_crash_points_limit">
+                    </div>
+                    <div class="form-group">
+                        <label for="back_crash_points_limit_ban_seconds">Ban time in seconds when crash limit exceeded (0 to disable)</label>
+                        <input type="number" class="form-control" id="back_crash_points_limit_ban_seconds" value="{{ server.back_crash_points_limit_ban_seconds }}" name="back_crash_points_limit_ban_seconds">
+                    </div>
+                    <div class="form-group">
+                        <label for="back_custom_motd">Welcome message (one line!)</label>
+                        <input type="number" class="form-control" id="back_custom_motd" value="{{ server.back_custom_motd }}" name="back_custom_motd">
+                    </div>
+                    <div class="form-group">
+                        <label>Minimum allowed driver safety class</label>
+                        <select name="back_minimal_safety_class" id="back_minimal_safety_class">
+                            <option value="0" {% if not server.back_minimal_safety_class %}selected="selected"{% endif %}>No limit</option>
+                            {% for class in safety_classes %}
+                                <option value="{{ class.id }}" {% if class == server.back_minimal_safety_class %}selected="selected"{% endif %}>
+                                    {{ class.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn btn-default">Save changes</button>
+                        Rotation
+                        Queue
+                </form>
+            </div>
+        </div>
+    {% empty %}
+        <p>You own no registered dedicated servers</p>
+    {% endfor %}
+    <h2>Add dedicated server</h2>
+{% endblock %}

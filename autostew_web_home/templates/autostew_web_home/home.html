@@ -1,7 +1,7 @@
 {% extends "autostew_web_home/base.html" %}
 
 {% block content %}
-    {% if user.is_authenticated and unread_messages %}
+    {% if user.is_authenticated and user.is_staff and unread_messages %}
         <div class="alert alert-info">
             There are {{ unread_messages|length }} unread messages.
         </div>

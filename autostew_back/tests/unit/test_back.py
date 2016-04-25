@@ -202,7 +202,7 @@ class TestBack(TestCase):
         with mock.patch.object(requests, 'get', api.fake_request):
             self.server.back_start(settings, True)
         self.assertEqual(Server.objects.count(), 1)
-        self.assertEqual(SessionSetup.objects.count(), 2)
+        self.assertEqual(SessionSetup.objects.count(), 3)
         self.assertEqual(Session.objects.filter(parent=None).count(), 1)
         self.assertEqual(Session.objects.count(), 2)
         self.assertEqual(Member.objects.filter(parent=None).count(), 1)
@@ -318,7 +318,7 @@ class TestBack(TestCase):
         with mock.patch.object(requests, 'get', api.fake_request):
             self.server.back_start(settings)
         self.assertEqual(Server.objects.count(), 1)
-        self.assertEqual(SessionSetup.objects.count(), 2)
+        self.assertEqual(SessionSetup.objects.count(), 3)
         self.assertEqual(Session.objects.count(), 2)
         self.assertEqual(Member.objects.count(), 4)
         self.assertEqual(Participant.objects.count(), 32)

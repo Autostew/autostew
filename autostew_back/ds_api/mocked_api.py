@@ -33,6 +33,9 @@ class MockedServer:
         self.settings = MockedSettings()
         self.api_url = "http://localhost:9000"
 
+    def get_api_url(self):
+        return self.api_url
+
 
 class FakeApi:
     def __init__(

@@ -15,7 +15,6 @@ urlpatterns = [
     url(r'^tracks/(?P<pk>[0-9]+)/?$', TrackDetailView.as_view(), name='track'),
     url(r'^list/?$', SessionList.as_view(), name='sessions'),
     url(r'^servers/?$', ListView.as_view(model=Server), name='servers'),
-    url(r'^servers/admin/?$', TemplateView.as_view(template_name='autostew_web_session/ds_admin.html'), name='ds_admin'),
     url(r'^servers/(?P<slug>.+)/?$', DetailView.as_view(model=Server, slug_field='name'), name='server'),
     url(r'^(?P<pk>[0-9]+)/?$', SessionView.as_view(), name='session'),
     url(r'^(?P<pk>[0-9]+)/events/?$', views.SessionEvents.as_view(), name='events'),
