@@ -110,6 +110,12 @@ def add_view(request):
 def settings_view(request, pk):
     server = get_object_or_404(Server, pk=pk)
     context = {'server': server}
+    messages.add_message(
+        request,
+        messages.WARNING,
+        "This page is here for preview only. You won't be able to save your changes yet!",
+        extra_tags='danger'
+    )
     return render(request, 'autostew_web_account/server_settings.html', context)
 
 

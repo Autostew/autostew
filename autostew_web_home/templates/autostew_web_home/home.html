@@ -70,7 +70,16 @@
         </div>
         <div class="col-xs-12 col-md-4 placeholder">
             <h3>Announcements</h3>
-            <h4>Performance &amp; new DSs <small>2016-04-26</small></h4>
+            <h4>DS admin zone now open <small>2016-04-26</small></h4>
+            <p>
+                <a href="{% url 'account:home' %}">Check it out here!</a> You are now able to add your DS there and also
+                configure the setup queue and rotation.
+            </p>
+            <p>
+                Mind that the DS settings page is still in development.
+            </p>
+            <hr>
+            <h4>Performance &amp; new DSs <small>2016-04-25</small></h4>
             <p>
                 We are having a lot of parallel races today, which is really good news! But we also experienced some
                 performance issues due to that. We expanded our servers, so now everything should run smoother.
@@ -103,17 +112,6 @@
             <p>
                 PS: Don't worry, the previous ratings are still there, even if it doesn't show.
                 To make it visible again, just complete a lap and you should be back where you were :)
-            </p>
-            <hr>
-            <h4>Status update <small>2016-04-15</small></h4>
-            <p>
-                We added a (for now static) DS admin zone!
-            </p>
-            <p>
-                We are currently working on some big changes on the
-                internal Autostew architecture which should improve its stability and allow easier future development.
-                When we release this (which will be in the next days) we will probably need to delete the session
-                history to make things easier for us.
             </p>
         </div>
     </div>

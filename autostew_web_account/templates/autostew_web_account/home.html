@@ -4,6 +4,23 @@
 
     <h1 class="page-header">Hey {{ user.username }}</h1>
 
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">
+                <strong>Please mind</strong>
+            </h3>
+        </div>
+        <div class="panel-body">
+            <p>
+                The setup queue and setup rotation will only have an effect if the <strong>controlGameSetup</strong>
+                option is set to <strong>true</strong> in your server.cfg!
+            </p>
+            <p>
+                Remember to restart your DS if you change this setting.
+            </p>
+        </div>
+    </div>
+
     {% for server in servers %}
         <div class="panel panel-default">
             <div class="panel-heading">
@@ -14,7 +31,7 @@
             </div>
             <div class="panel-body">
                 {% include 'autostew_web_session/server_badge.html' with server=session.server %}
-                <a class="btn btn-default" href="{% comment %}{% url 'account:settings' server.id %}{% endcomment %}#" disabled>
+                <a class="btn btn-default" href="{% url 'account:settings' server.id %}">
                     Settings
                 </a>
                 <a class="btn btn-default" href="{% url 'account:rotation' server.id %}">
