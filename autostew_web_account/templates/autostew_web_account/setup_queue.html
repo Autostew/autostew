@@ -7,9 +7,9 @@
     <ul>
         {% for entry in server.setupqueueentry_set.all %}
             <li>
-                <strong>{{ entry.setup.name }}</strong>
                 <a class="btn btn-default" href="{{ setup.get_absolute_url }}">View</a>
                 <a class="btn btn-danger" href="{% url 'account:remove_queued_setup' server.id entry.id %}">Remove</a>
+                <strong>{{ entry.setup.name }}</strong>
             </li>
         {% empty %}
             <li>Queue empty</li>
@@ -20,9 +20,9 @@
     <ul>
         {% for setup in setup_templates %}
             <li>
-                <strong>{{ setup.name }}</strong>
                 <a class="btn btn-default" href="{{ setup.get_absolute_url }}">View</a>
                 <a class="btn btn-success" href="{% url 'account:add_setup_to_queue' server.id setup.id %}">Add</a>
+                <strong>{{ setup.name }}</strong>
             </li>
         {% empty %}
             <li>No setups available</li>

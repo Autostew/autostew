@@ -30,7 +30,7 @@
                 </h3>
             </div>
             <div class="panel-body">
-                {% include 'autostew_web_session/server_badge.html' with server=session.server %}
+                {% include 'autostew_web_session/server_badge.html' with server=server %}
                 <a class="btn btn-default" href="{% url 'account:settings' server.id %}">
                     Settings
                 </a>
