@@ -74,7 +74,7 @@ class SetupQueueEntryAdmin(admin.ModelAdmin):
 @admin.register(Server)
 class ServerAdmin(admin.ModelAdmin):
     list_filter = ['running', 'back_verified']
-    list_display = ['name', 'back_verified', 'running', 'last_ping', 'average_player_latency', 'current_session']
+    list_display = ['name', 'owner', 'back_verified', 'running', 'last_ping', 'average_player_latency', 'current_session']
     search_fields = ['name', 'current_session__setup_actual__track__name']
 
 
