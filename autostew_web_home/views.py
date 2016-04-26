@@ -10,5 +10,6 @@ class HomeView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(HomeView, self).get_context_data(**kwargs)
         context['unread_messages'] = ContactMessage.objects.filter(read=False)
+        context['unverified_servers'] = Server.objects.filter(back_verified=False)
         context['server_list'] = Server.objects.all()
         return context

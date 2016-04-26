@@ -6,6 +6,11 @@
             There are {{ unread_messages|length }} unread messages.
         </div>
     {% endif %}
+    {% if user.is_authenticated and user.is_staff and unverified_servers %}
+        <div class="alert alert-success">
+            There are {{ unverified_servers|length }} unverified servers.
+        </div>
+    {% endif %}
 
     <h1 class="page-header">Autostew <small>making online racing fun!</small></h1>
 
