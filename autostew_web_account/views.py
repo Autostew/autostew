@@ -83,7 +83,7 @@ def account_view(request):
 
 @login_required
 def add_view(request):
-    pass
+    return render(request, 'autostew_web_account/add_server.html')
 
 
 @login_required
