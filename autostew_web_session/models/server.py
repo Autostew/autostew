@@ -64,11 +64,11 @@ class Server(models.Model):
                             help_text='To successfully rename a server you will need to change it\'s settings too')
     contact = models.EmailField(blank=True)
     owner = models.ForeignKey(User, null=True)
-    api_url = models.CharField(max_length=200,
+    api_url = models.CharField(max_length=200, blank=True,
                                help_text="Dedicated Server HTTP API URL, like http://user:pwd@host:port/")
     api_username = models.CharField(max_length=40, blank=True)
     api_password = models.CharField(max_length=40, blank=True)
-    api_address = models.CharField(max_length=100)
+    api_address = models.CharField(max_length=100, blank=True)
     api_port = models.IntegerField(default=9000)
 
     back_verified = models.BooleanField(default=False)
