@@ -2,9 +2,6 @@
 {% load extra_filters %}
 
 {% block content %}
-    {% if session == parent and session.running %}
-    <script>setTimeout(function () { location.reload(1); }, 10000);</script>
-    {% endif %}
     <div class="row">
         <div class="col-xs-12 col-md-4 placeholder">
             <h3>
@@ -69,6 +66,12 @@
                 {% endif %}
             </h2>
 
+            {% if session == parent and session.running %}
+                <script>var autorefresh = setTimeout(function () { location.reload(1); }, 10000);</script>
+                <p><button class="btn btn-default" onclick="clearTimeout(autorefresh)">
+                    <span class="glyphicon glyphicon-pause"></span> refresh
+                </button></p>
+            {% endif %}
             {% include 'autostew_web_session/server_badge.html' with server=session.server %}
 
             <h3>
