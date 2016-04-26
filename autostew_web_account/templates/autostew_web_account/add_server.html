@@ -15,7 +15,7 @@
                 These instructions assume that you did get your DS working without Autostew and want to connect it to
                 Autostew. If you need help setting up your DS initially, you can look up the
                 <a href="http://forum.projectcarsgame.com/showthread.php?22370-Dedicated-Server-HowTo-(Work-in-Progress)">
-                official forum thread</a>.
+                    official forum thread</a>.
             </p>
             <p>
                 If you are struggling to get your DS running, try asking for help in the Project CARS forums. You can
@@ -82,6 +82,23 @@ httpApiGroups : {
         </div>
     </div>
 
+    <script>
+        function update_url() {
+            var newurl = (
+                    "http://" +
+                    document.getElementById("api_username").value +
+                    ":" +
+                    document.getElementById("api_password").value +
+                    "@" +
+                    document.getElementById("api_address").value +
+                    ":" +
+                    document.getElementById("api_port").value
+            );
+            document.getElementById("urltest").textContent = newurl;
+            document.getElementById("urltest").href = newurl;
+        }
+    </script>
+
     <form method="post" action="{% url 'account:add' %}">
         {% csrf_token %}
         <div class="form-group">
@@ -90,20 +107,32 @@ httpApiGroups : {
         </div>
         <div class="form-group">
             <label for="api_username">HTTP API username</label>
-            <input type="text" class="form-control" id="api_username" value="" name="api_username" placeholder="The username you created in the httpApiUsers section">
+            <input type="text" class="form-control" id="api_username" value="" name="api_username"
+                   placeholder="The username you created in the httpApiUsers section"
+                   onkeydown="update_url()" onchange="update_url()" oninput="update_url()">
         </div>
         <div class="form-group">
             <label for="api_password">HTTP API password</label>
-            <input type="api_password" class="form-control" id="api_password" value="" name="api_password" placeholder="The password you set in the httpApiUsers section">
+            <input type="text" class="form-control" id="api_password" value="" name="api_password"
+                   placeholder="The password you set in the httpApiUsers section"
+                    onkeydown="update_url()" onchange="update_url()" oninput="update_url()">
         </div>
         <div class="form-group">
             <label for="api_address">HTTP API address (IP or DNS)</label>
-            <input type="text" class="form-control" id="api_address" value="" name="api_address" placeholder="The address of your DS">
+            <input type="text" class="form-control" id="api_address" value="" name="api_address"
+                   placeholder="The address of your DS"
+                    onkeydown="update_url()" onchange="update_url()" oninput="update_url()">
         </div>
         <div class="form-group">
             <label for="api_port">HTTP API port</label>
-            <input type="number" class="form-control" id="api_port" value="9000" name="api_port">
+            <input type="number" class="form-control" id="api_port" value="9000" name="api_port"
+                   onkeydown="update_url()" onchange="update_url()" oninput="update_url()">
         </div>
-        <button type="submit" class="btn btn-default">Submit</button>
+        <h3>Check if it works!</h3>
+        <p>
+            <strong>If everything is correct, you should be able to see your DS admin page by opening this URL:
+            <a href="#" id="urltest" target="_blank"></a></strong>
+        </p>
+        <p>Does it look okay? Then <button type="submit" class="btn btn-default">submit it!</button></p>
     </form>
 {% endblock %}
