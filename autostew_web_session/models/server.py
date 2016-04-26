@@ -92,7 +92,7 @@ class Server(models.Model):
                                          blank=True,
                                          help_text="If set, this will be the next setup used")
 
-    running = models.BooleanField(help_text="This value should not be changed manually")
+    running = models.BooleanField(default=False, help_text="This value should not be changed manually")
     current_session = models.ForeignKey('Session', null=True, related_name='+', blank=True)
     last_ping = models.DateTimeField(null=True, blank=True,
                                      help_text="Last time the server reported to be alive")

@@ -7,9 +7,13 @@
     {% for server in servers %}
         <div class="panel panel-default">
             <div class="panel-heading">
-                <h3 class="panel-title">{{ server.name }}</h3>
+                <h3 class="panel-title">
+                    {% if not server.back_verified %}<span class="label label-danger">unverified</span>{% endif %}
+                    {{ server.name }}
+                </h3>
             </div>
             <div class="panel-body">
+                {% include 'autostew_web_session/server_badge.html' with server=session.server %}
                 <a class="btn btn-default" href="{% url 'account:settings' server.id %}">
                     Settings
                 </a>

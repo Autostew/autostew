@@ -83,7 +83,25 @@ def account_view(request):
 
 @login_required
 def add_view(request):
-    return render(request, 'autostew_web_account/add_server.html')
+    if request.POST:
+        Server.objects.create(
+            name=request.POST.get('name'),
+            api_username=request.POST.get('api_username'),
+            api_password=request.POST.get('api_password'),
+            api_address=request.POST.get('api_address'),
+            api_port=request.POST.get('api_port'),
+            owner=request.user,
+            max_member_count=32,
+        )
+        messages.add_message(
+            request,
+            messages.SUCCESS,
+            "Your DS has been registered. It will be manually verified and activated, so please be patient as this may take some times (from hours up to some days if we are currently too busy).",
+            extra_tags='success'
+        )
+        return redirect('account:home')
+    else:
+        return render(request, 'autostew_web_account/add_server.html')
 
 
 @login_required
@@ -95,9 +113,13 @@ def settings_view(request, pk):
 
 @login_required
 def rotation_view(request, pk):
-    pass
+    server = get_object_or_404(Server, pk=pk)
+    context = {'server': server}
+    return render(request, 'autostew_web_account/setup_rotation.html', context)
 
 
 @login_required
 def queue_view(request, pk):
-    pass
+    server = get_object_or_404(Server, pk=pk)
+    context = {'server': server}
+    return render(request, 'autostew_web_account/setup_queue.html', context)
