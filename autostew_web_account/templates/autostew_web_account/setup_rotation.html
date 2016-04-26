@@ -1,0 +1,32 @@
+{% extends "autostew_web_home/base.html" %}
+
+{% block content %}
+
+    <h1 class="page-header">Setup rotation for {{ server.name }}</h1>
+    <h4>Rotated setups</h4>
+    <ul>
+        {% for entry in server.setuprotationentry_set.all %}
+            <li>
+                <strong>{{ entry.setup.name }}</strong>
+                <a class="btn btn-default" href="{{ setup.get_absolute_url }}">View</a>
+                <a class="btn btn-danger" href="{% url 'account:remove_rotated_setup' server.id entry.id %}">Remove</a>
+            </li>
+        {% empty %}
+            <li>Rotation empty</li>
+        {% endfor %}
+    </ul>
+    <hr>
+    <h4>Available setups</h4>
+    <ul>
+        {% for setup in setup_templates %}
+            <li>
+                <strong>{{ setup.name }}</strong>
+                <a class="btn btn-default" href="{{ setup.get_absolute_url }}">View</a>
+                <a class="btn btn-success" href="{% url 'account:add_setup_to_rotation' server.id setup.id %}">Add</a>
+            </li>
+        {% empty %}
+            <li>No setups available</li>
+        {% endfor %}
+    </ul>
+    <a class="btn btn-default" href="{% url 'session:create_setup' %}">Create new setup</a>
+{% endblock %}

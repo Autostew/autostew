@@ -4,7 +4,9 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.shortcuts import redirect, render, get_object_or_404
 
+from autostew_web_session.models.models import SetupRotationEntry, SetupQueueEntry
 from autostew_web_session.models.server import Server
+from autostew_web_session.models.session import SessionSetup
 from autostew_web_users.models import SafetyClass
 
 
@@ -114,12 +116,56 @@ def settings_view(request, pk):
 @login_required
 def rotation_view(request, pk):
     server = get_object_or_404(Server, pk=pk)
-    context = {'server': server}
+    context = {'server': server, 'setup_templates': SessionSetup.objects.filter(is_template=True)}
     return render(request, 'autostew_web_account/setup_rotation.html', context)
 
 
 @login_required
 def queue_view(request, pk):
     server = get_object_or_404(Server, pk=pk)
-    context = {'server': server}
+    context = {'server': server, 'setup_templates': SessionSetup.objects.filter(is_template=True)}
     return render(request, 'autostew_web_account/setup_queue.html', context)
+
+
+@login_required
+def remove_rotated_setup(request, server_pk, entry_pk):
+    server = get_object_or_404(Server, pk=server_pk, owner=request.user)
+    entry = get_object_or_404(SetupRotationEntry, pk=entry_pk, server=server)
+    entry.delete()
+    messages.add_message(request, messages.SUCCESS, "The setup has been removed from the rotation.", extra_tags='success')
+    return redirect('account:rotation', pk=server.id)
+
+
+@login_required
+def add_setup_to_rotation(request, server_pk, setup_pk):
+    server = get_object_or_404(Server, pk=server_pk, owner=request.user)
+    setup = get_object_or_404(SessionSetup, pk=setup_pk, is_template=True)
+    SetupRotationEntry.objects.create(
+        order=len(SetupRotationEntry.objects.filter(server=server)),
+        setup=setup,
+        server=server,
+    )
+    messages.add_message(request, messages.SUCCESS, "The setup has been added to the rotation.", extra_tags='success')
+    return redirect('account:rotation', pk=server.id)
+
+
+@login_required
+def remove_queued_setup(request, server_pk, entry_pk):
+    server = get_object_or_404(Server, pk=server_pk, owner=request.user)
+    entry = get_object_or_404(SetupQueueEntry, pk=entry_pk, server=server)
+    entry.delete()
+    messages.add_message(request, messages.SUCCESS, "The setup has been removed from the queue.", extra_tags='success')
+    return redirect('account:queue', pk=server.id)
+
+
+@login_required
+def add_setup_to_queue(request, server_pk, setup_pk):
+    server = get_object_or_404(Server, pk=server_pk, owner=request.user)
+    setup = get_object_or_404(SessionSetup, pk=setup_pk, is_template=True)
+    SetupQueueEntry.objects.create(
+        order=len(SetupQueueEntry.objects.filter(server=server)),
+        setup=setup,
+        server=server,
+    )
+    messages.add_message(request, messages.SUCCESS, "The setup has been added to the queue.", extra_tags='success')
+    return redirect('account:queue', pk=server.id)

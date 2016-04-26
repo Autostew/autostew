@@ -14,7 +14,7 @@
             </div>
             <div class="panel-body">
                 {% include 'autostew_web_session/server_badge.html' with server=session.server %}
-                <a class="btn btn-default" href="{% url 'account:settings' server.id %}">
+                <a class="btn btn-default" href="{% comment %}{% url 'account:settings' server.id %}{% endcomment %}#" disabled>
                     Settings
                 </a>
                 <a class="btn btn-default" href="{% url 'account:rotation' server.id %}">
