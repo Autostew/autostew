@@ -212,7 +212,7 @@ class TestBack(TestCase):
         server_in_db = Server.objects.all()[0]
         self.assertTrue(server_in_db.running)
 
-        session_setup = SessionSetup.objects.get(is_template=False)
+        session_setup = SessionSetup.objects.filter(is_template=False)[0]
         self.assertTrue(session_setup.server_controls_setup)
         self.assertTrue(session_setup.server_controls_track)
         self.assertFalse(session_setup.server_controls_vehicle)
@@ -326,7 +326,7 @@ class TestBack(TestCase):
         server_in_db = Server.objects.all()[0]
         self.assertTrue(server_in_db.running)
 
-        session_setup = SessionSetup.objects.get(is_template=False)
+        session_setup = SessionSetup.objects.filter(is_template=False)[0]
         self.assertTrue(session_setup.server_controls_setup)
         self.assertTrue(session_setup.server_controls_track)
         self.assertFalse(session_setup.server_controls_vehicle)
