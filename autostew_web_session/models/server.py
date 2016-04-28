@@ -381,7 +381,11 @@ class Server(models.Model):
     def back_start_session(self):
         actual_setup = self.back_pull_session_setup()
         if actual_setup.server_controls_setup:
-            setup_template = self.back_get_next_setup()
+            try:
+                setup_template = self.back_get_next_setup()
+            except NoSessionSetupTemplateAvailableException:
+                setup_template = actual_setup
+                setup_template.name = "No setup (rotation and queue empy)"
             connector = ApiConnector(self.api, setup_template, api_translations.session_setup)
             connector.push_to_game('session')
             actual_setup = self.back_pull_session_setup()
