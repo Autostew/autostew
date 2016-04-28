@@ -109,28 +109,36 @@
             </p>
         </div>
         <div class="col-xs-12 col-md-4 placeholder" style="text-align: center">
-            <h3>Aids</h3>
-            {% if not parent.setup_actual.allow_custom_vehicle_setup %}<p>Default setup only</p>{% endif %}
-            Driving aids:
-            {% if parent.setup_actual.force_realistic_driving_aids %}
-                REALISTIC
-            {% else %}
-                Aids:
-                {% if parent.setup_actual.abs_allowed %}ABS{% endif %}
-                {% if parent.setup_actual.sc_allowed %}SC{% endif %}
-                {% if parent.setup_actual.tcs_allowed %}TCS{% endif %}
-            {% endif %}
-            {% if parent.setup_actual.force_manual %}manual{% else %}automatic{% endif %}
-            {% if parent.setup_actual.mechanical_failures %}failures{% else %}no-failures{% endif %}
-            {% if parent.setup_actual.auto_start_engine %}autoenginestart{% else %}manualenginestart{% endif %}
-            {% if parent.setup_actual.ghost_griefers %}ghostgriefers{% else %}noghost{% endif %}
+
             <h3>Settings</h3>
-            {% if parent.setup_actual.rolling_starts %}Rolling start<br>{% endif %}
-            {{ parent.setup_actual.damage.name|title }} damage<br>
-            {{ parent.setup_actual.tire_wear.name|title }} tire wear<br>
-            {{ parent.setup_actual.fuel_usage.name|title }} fuel usage<br>
-            {{ parent.setup_actual.penalties.name|title }} penalties<br>
-            {{ parent.setup_actual.allowed_views.name|title }} view
+            <p>
+                {% if parent.setup_actual.rolling_starts %}Rolling start<br>{% endif %}
+                {{ parent.setup_actual.damage.name|title }} damage<br>
+                {{ parent.setup_actual.tire_wear.name|title }} tire wear<br>
+                {{ parent.setup_actual.fuel_usage.name|title }} fuel usage<br>
+                {{ parent.setup_actual.penalties.name|title }} penalties<br>
+                {{ parent.setup_actual.allowed_views.name|title }} view
+            </p>
+
+            <p>
+                <span class="label label-{% if parent.setup_actual.allow_custom_vehicle_setup %}success{% else %}danger{% endif %}">Custom car setups</span>
+                {% if parent.setup_actual.force_realistic_driving_aids %}
+                    <span class="label label-success">Realistic aids</span>
+                    <span class="label label-warning">ABS</span>
+                    <span class="label label-warning">SC</span>
+                    <span class="label label-warning">TCS</span>
+                {% else %}
+                    <span class="label label-{% if parent.setup_actual.abs_allowed %}success{% else %}danger{% endif %}">ABS</span>
+                    <span class="label label-{% if parent.setup_actual.sc_allowed %}success{% else %}danger{% endif %}">SC</span>
+                    <span class="label label-{% if parent.setup_actual.tcs_allowed %}success{% else %}danger{% endif %}">TCS</span>
+                {% endif %}
+
+                <span class="label label-{% if parent.setup_actual.force_manual %}danger{% else %}success{% endif %}">Allow automatic</span>
+                <span class="label label-{% if parent.setup_actual.mechanical_failures %}success{% else %}danger{% endif %}">Mechanical failures</span>
+                <span class="label label-{% if parent.setup_actual.auto_start_engine %}success{% else %}danger{% endif %}">Auto engine start</span>
+                <span class="label label-{% if parent.setup_actual.ghost_griefers %}success{% else %}danger{% endif %}">Ghost griefers</span>
+            </p>
+
         </div>
     </div>
 
