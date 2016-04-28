@@ -128,6 +128,7 @@ class SafetyClass(models.Model):
     kick_on_impact_threshold = models.IntegerField(null=True, blank=True)
     initial_class = models.BooleanField(default=False)
     impact_weight = models.IntegerField(default=1)
+    label_class = models.CharField(max_length=20, default="default")
 
     def __str__(self):
         return self.name

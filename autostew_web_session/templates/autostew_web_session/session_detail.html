@@ -164,8 +164,8 @@
                     </td>
                     <td>
                         <b>{{ participant.name }}</b>
-                        {% if participant.member.steam_user.safety_class %}
-                            <span class="label label-default">{{ participant.member.steam_user.safety_class }}</span>
+                        {% if participant.is_player %}
+                            {% include 'autostew_web_users/safetyclass_label.html' with safetyclass=participant.member.steam_user.safety_class %}
                         {% endif %}
                         <br>
                         {% if not participant.is_player %}

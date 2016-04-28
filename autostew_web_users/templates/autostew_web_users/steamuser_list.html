@@ -24,11 +24,7 @@
                             <a href="{{ user.get_absolute_url }}">{{ user.display_name }}</a>
                         </td>
                         <td data-value="{{ user.safety_rating|default_if_none:1000000 }}">
-                            {% if user.safety_class %}
-                                <span class="label label-default">{{ user.safety_class.name }}</span>
-                            {% else %}
-                                -
-                            {% endif %}
+                            {% include 'autostew_web_users/safetyclass_label.html' with safetyclass=user.safety_class %}
                         </td>
                         <td>
                             {% if user.elo_rating %}
