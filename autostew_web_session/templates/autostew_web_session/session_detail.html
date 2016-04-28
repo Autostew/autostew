@@ -59,11 +59,7 @@
         </div>
         <div class="col-xs-12 col-md-4 placeholder" style="text-align: center">
             <h2>
-                {% if session.session_state.name == 'Race' %}
-                    {{ session.session_stage.name|upper }}
-                {% else %}
-                    {{ session.session_state.name|upper }}
-                {% endif %}
+                {{ session.get_nice_state|upper }}
             </h2>
 
             {% if session == parent and session.running %}

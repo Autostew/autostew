@@ -6,6 +6,7 @@ from django.db.models import QuerySet, Max, Min
 
 import autostew_web_session.models.participant
 from autostew_web_enums import models as enum_models
+from autostew_web_enums.models import SessionState
 from autostew_web_session.models.member import Member
 
 
@@ -211,6 +212,11 @@ class Session(models.Model):
 
     def get_disconnected_participants(self):
         return self.participant_set.filter(still_connected=False, has_final_result=False)
+
+    def get_nice_state(self):
+        if self.session_state.name == SessionState.race:
+            return self.session_stage.name
+        return self.session_state.name
 
     @property
     def parent_or_self(self):

@@ -21,7 +21,7 @@
         <br>
         {% if server.current_session %}
             <a href="{{ server.current_session.get_absolute_url }}">{{ server.current_session }}</a>
-            {{ server.current_session.session_stage.name }}
+            {{ server.current_session.get_nice_state }}
         {% endif %}
 
     {% endif %}
