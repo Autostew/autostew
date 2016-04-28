@@ -205,6 +205,7 @@ class Server(models.Model):
         self.back_init_api(False, settings)
         self.back_pull_lists(self.api.get_lists())
 
+    @transaction.atomic
     def back_start(self, settings, api_record=False):
         self.refresh_from_db()
         self.last_status_update_time = None
@@ -388,6 +389,7 @@ class Server(models.Model):
         else:
             actual_setup.name = "player-defined"
             setup_template = actual_setup
+        actual_setup.save()
 
         session = autostew_web_session.models.session.Session(
             server=self,
@@ -399,14 +401,11 @@ class Server(models.Model):
         )
         session.save()
 
-        self.refresh_from_db()
-        self.current_session = session
-        self.save()
-
-        self.back_full_pull()
-
-        self.current_session.create_snapshot()
-        self.save()
+        with transaction.atomic():
+            self.refresh_from_db()
+            self.current_session = session
+            self.back_full_pull()
+            self.save()
         return session
 
     def get_queued_events(self):
@@ -423,6 +422,7 @@ class Server(models.Model):
         while True:
             with transaction.atomic():
                 tick_start = time()
+                self.refresh_from_db()
 
                 self.update_player_latency()
                 if self.current_session:
@@ -431,34 +431,36 @@ class Server(models.Model):
                         self.back_full_pull()
 
                 self.ping()
+                self.save()
 
-                new_events = self.api.get_new_events()
-                logging.debug("Got {} new events".format(len(new_events)))
+            new_events = self.api.get_new_events()
+            logging.debug("Got {} new events".format(len(new_events)))
 
-                for raw_event in new_events:
-                    new_event = Event()
-                    new_event.raw = json.dumps(raw_event)
-                    new_event.session = self.current_session
-                    connector = ApiConnector(self.api, new_event, api_translations.event_base)
-                    connector.pull_from_game(raw_event)
-                    new_event.event_parse(self)
-                    new_event.save()
+            for raw_event in new_events:
+                new_event = Event()
+                new_event.raw = json.dumps(raw_event)
+                new_event.session = self.current_session
+                connector = ApiConnector(self.api, new_event, api_translations.event_base)
+                connector.pull_from_game(raw_event)
+                new_event.event_parse(self)
+                new_event.save()
 
-                for event in list(self.get_queued_events()):
-                    if one_by_one:
-                        input("Processing event {}".format(event))
+            for event in list(self.get_queued_events()):
+                if one_by_one:
+                    input("Processing event {}".format(event))
+                with transaction.atomic():
                     event.handle(self)
                     self.refresh_from_db()
 
-                if one_by_one:
-                    input("Tick (enter)")
+            if one_by_one:
+                input("Tick (enter)")
 
-                sleep_time = self.settings.event_poll_period - (time() - tick_start)
-                if sleep_time > 0:
-                    sleep(sleep_time)
+            sleep_time = self.settings.event_poll_period - (time() - tick_start)
+            if sleep_time > 0:
+                sleep(sleep_time)
 
-                if only_one_run:
-                    return
+            if only_one_run:
+                return
 
     @staticmethod
     def get_event_handlers():
@@ -494,17 +496,18 @@ class Server(models.Model):
                 self.current_session.current_minute)
             )
 
+    @transaction.atomic
     def ping(self):
         self.refresh_from_db()
         self.last_ping = timezone.make_aware(datetime.datetime.now())
         self.save()
 
     def update_player_latency(self):
-        if self.current_session is None or len(self.current_session.member_set.filter(still_connected=True)) == 0:
+        if not self.current_session or len(self.current_session.member_set.filter(still_connected=True)) == 0:
             self.average_player_latency = None
         else:
-            self.average_player_latency = sum([member.ping for member in self.current_session.member_set.filter(still_connected=True)]) / len(
-                self.current_session.member_set.filter(still_connected=True))
+            connected_members = self.current_session.member_set.filter(still_connected=True)
+            self.average_player_latency = sum([member.ping for member in connected_members]) / len(connected_members)
 
     def send_chat(self, message, refid=None):
         return self.api.send_chat(message, refid)
@@ -520,6 +523,7 @@ class Server(models.Model):
         self.running = False
         self.save()
 
+    @transaction.atomic
     def back_close_session(self):
         self.refresh_from_db()
         self.current_session.finished = True
