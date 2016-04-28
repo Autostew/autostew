@@ -513,7 +513,8 @@ class Server(models.Model):
         return self.api.send_chat(message, refid)
 
     def kick(self, refid, ban_seconds):
-        return self.api.kick(refid, ban_seconds)
+        if self.back_kicks:
+            return self.api.kick(refid, ban_seconds)
 
     def back_destroy(self):
         self.refresh_from_db()

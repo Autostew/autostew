@@ -108,7 +108,7 @@ def add_view(request):
 
 @login_required
 def settings_view(request, pk):
-    server = get_object_or_404(Server, pk=pk)
+    server = get_object_or_404(Server, pk=pk, owner=request.user)
     context = {'server': server}
     messages.add_message(
         request,
@@ -121,14 +121,14 @@ def settings_view(request, pk):
 
 @login_required
 def rotation_view(request, pk):
-    server = get_object_or_404(Server, pk=pk)
+    server = get_object_or_404(Server, pk=pk, owner=request.user)
     context = {'server': server, 'setup_templates': SessionSetup.objects.filter(is_template=True)}
     return render(request, 'autostew_web_account/setup_rotation.html', context)
 
 
 @login_required
 def queue_view(request, pk):
-    server = get_object_or_404(Server, pk=pk)
+    server = get_object_or_404(Server, pk=pk, owner=request.user)
     context = {'server': server, 'setup_templates': SessionSetup.objects.filter(is_template=True)}
     return render(request, 'autostew_web_account/setup_queue.html', context)
 
@@ -175,3 +175,12 @@ def add_setup_to_queue(request, server_pk, setup_pk):
     )
     messages.add_message(request, messages.SUCCESS, "The setup has been added to the queue.", extra_tags='success')
     return redirect('account:queue', pk=server.id)
+
+
+@login_required
+def toggle_kicks_view(request, pk):
+    server = get_object_or_404(Server, pk=pk, owner=request.user)
+    server.back_kicks = not server.back_kicks
+    server.save()
+    messages.add_message(request, messages.SUCCESS, "Toggled kicks.", extra_tags='success')
+    return redirect('account:home')

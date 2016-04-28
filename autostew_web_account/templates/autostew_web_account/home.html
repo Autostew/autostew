@@ -31,6 +31,15 @@
             </div>
             <div class="panel-body">
                 {% include 'autostew_web_session/server_badge.html' with server=server %}
+                <ul>
+                    <li>
+                        {% if server.back_kicks %}
+                            Kicking enabled <a class="btn btn-danger btn-sm" href="{% url 'account:toggle_kicks' server.id %}">Disable</a>
+                        {% else %}
+                            Kicking disabled <a class="btn btn-success btn-sm" href="{% url 'account:toggle_kicks' server.id %}">Enable</a>
+                        {% endif %}
+                    </li>
+                </ul>
                 <a class="btn btn-default" href="{% url 'account:settings' server.id %}">
                     Settings
                 </a>

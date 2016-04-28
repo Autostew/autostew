@@ -7,8 +7,8 @@
     <ul>
         {% for entry in server.setuprotationentry_set.all %}
             <li>
-                <a class="btn btn-default" href="{{ setup.get_absolute_url }}">View</a>
-                <a class="btn btn-danger" href="{% url 'account:remove_rotated_setup' server.id entry.id %}">Remove</a>
+                <a class="btn btn-default btn-xs" href="{{ setup.get_absolute_url }}">View</a>
+                <a class="btn btn-danger btn-xs" href="{% url 'account:remove_rotated_setup' server.id entry.id %}">Remove</a>
                 <strong>{{ entry.setup.name }}</strong>
             </li>
         {% empty %}
@@ -20,8 +20,8 @@
     <ul>
         {% for setup in setup_templates %}
             <li>
-                <a class="btn btn-default" href="{{ setup.get_absolute_url }}">View</a>
-                <a class="btn btn-success" href="{% url 'account:add_setup_to_rotation' server.id setup.id %}">Add</a>
+                <a class="btn btn-default btn-xs" href="{{ setup.get_absolute_url }}">View</a>
+                <a class="btn btn-success btn-xs" href="{% url 'account:add_setup_to_rotation' server.id setup.id %}">Add</a>
                 <strong>{{ setup.name }}</strong>
             </li>
         {% empty %}
