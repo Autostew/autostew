@@ -2,23 +2,33 @@
 
 {% block content %}
     <h1>{{ steamuser.display_name }}</h1>
-    <p>
-        Safety class:
-        {% if steamuser.safety_class %}
-            <span class="label label-default">{{ steamuser.safety_class.name }}</span>
-            ({{ steamuser.safety_rating }})
-        {% else %}
-            none yet
-        {% endif %}
-    </p>
-    <p>
-        Rating:
-        {% if steamuser.get_performance_rating %}
-            {{ steamuser.get_performance_rating }}
-        {% else %}
-            none yet
-        {% endif %}
-    </p>
+
+    <div class="row" style="text-align: center">
+        <div class="col-xs-12 col-md-4 placeholder">
+            <h4>Distance logged</h4>
+            <h2>{{ steamuser.get_kms }} km</h2>
+        </div>
+
+        <div class="col-xs-12 col-md-4 placeholder">
+            <h4>Safety class</h4>
+            {% if steamuser.safety_class %}
+                <h2><span class="label label-default">{{ steamuser.safety_class.name }}</span></h2>
+                <h4>({{ steamuser.safety_rating }})</h4>
+            {% else %}
+                <h4>none yet</h4>
+            {% endif %}
+        </div>
+
+        <div class="col-xs-12 col-md-4 placeholder">
+            <h4>Rating</h4>
+            {% if steamuser.get_performance_rating %}
+                <h2>{{ steamuser.get_performance_rating }}</h2>
+                <h4>Last change: {{ steamuser.get_performance_rating_diff }}</h4>
+            {% else %}
+                <h4>none yet</h4>
+            {% endif %}
+        </div>
+    </div>
 
     <h2>Sessions</h2>
     <ul>

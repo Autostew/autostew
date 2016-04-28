@@ -31,6 +31,11 @@ class SteamUser(models.Model):
     def get_performance_rating(self):
         return self.elo_rating
 
+    def get_performance_rating_diff(self):
+        if self.elo_rating and self.previous_elo_rating:
+            return self.elo_rating - self.previous_elo_rating
+        return None
+
     def get_kms(self):
         return floor(self.total_distance / 1000)
 
@@ -100,7 +105,7 @@ class SteamUser(models.Model):
     def sessions_participated_in(self):
         return session_models.Session.objects.filter(
             id__in=session_models.Session.objects.filter(lap_set__participant__member__steam_user=self).values('id')
-         )
+         ).reverse()
 
     def over_class_kick_impact_threshold(self, crash_magnitude):
         return (self.safety_class and

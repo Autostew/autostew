@@ -111,8 +111,8 @@ class Server(models.Model):
             self.api_port,
         )
 
-    def get_latest_sessions(self, limit=10):
-        return self.session_set.filter(finished=True, parent=None).reverse()[:limit]
+    def get_latest_sessions(self, limit=30):
+        return self.session_set.filter(finished=True, parent=None, is_final_result=True).reverse()[:limit]
 
     @property
     def is_up(self):
