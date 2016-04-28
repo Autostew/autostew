@@ -13,17 +13,30 @@
     </h1>
     {% include 'autostew_web_session/server_badge.html' with server=server %}
 
-    <h2>Rotation</h2>
-    <ul>
-        {% for setup in server.setuprotationentry_set.all %}
-            <li><a href="{{ setup.setup.get_absolute_url }}">{{ setup.setup.name }}</a></li>
-        {% endfor %}
-    </ul>
+    {% if server.setupqueueentry_set.exists %}
+        <h2>Setup queue</h2>
+        <ul>
+            {% for setup in server.setupqueueentry_set.all %}
+                <li><a href="{{ setup.setup.get_absolute_url }}">{{ setup.setup.name }}</a></li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    {% if server.setuprotationentry_set.exists %}
+        <h2>Rotation</h2>
+        <ul>
+            {% for setup in server.setuprotationentry_set.all %}
+                <li><a href="{{ setup.setup.get_absolute_url }}">{{ setup.setup.name }}</a></li>
+            {% endfor %}
+        </ul>
+    {% endif %}
 
     <h2>Last sessions</h2>
     <ul>
         {% for session in server.get_latest_sessions %}
             <li><a href="{{ session.get_absolute_url }}">{{ session }}</a></li>
+        {% empty %}
+            <li>No sessions yet.</li>
         {% endfor %}
     </ul>
 {% endblock %}
