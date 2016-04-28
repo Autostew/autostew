@@ -1,6 +1,7 @@
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.db.models import Min
+from django.db.models.aggregates import Sum
 
 from autostew_web_enums import models as enum_models
 
@@ -47,6 +48,9 @@ class Participant(models.Model):
     def get_absolute_url(self):
         return reverse('session:participant', args=[str(self.session.id), str(self.ingame_id)])
 
+    def self_or_parent(self):
+        return self.parent if self.parent else self
+
     def create_snapshot(self, session_snapshot):
         snapshot = Participant.objects.get(pk=self.pk)
         snapshot.pk = None
@@ -64,14 +68,22 @@ class Participant(models.Model):
     def gap(self):
         if self.race_position == 1:
             return None
+        leader = Participant.objects.get(session=self.session, race_position=1)
         if self.session.session_stage.name.startswith("Race") or self.session.finished:
-            if not self.total_time:
+            if self.total_time:
+                return self.total_time - leader.total_time
+            if leader.current_lap != self.current_lap:
                 return None
-            return self.total_time - Participant.objects.get(session=self.session, race_position=1).total_time
-        else:
-            if not self.fastest_lap_time:
+            return None
+            """my_total_time = self.self_or_parent().lap_set.filter(lap__lt=self.current_lap).aggregate(Sum('lap_time'))['lap_time__sum']
+            leader_total_time = leader.self_or_parent().lap_set.filter(lap__lt=self.current_lap).aggregate(Sum('lap_time'))['lap_time__sum']
+            if my_total_time is None or leader_total_time is None:
                 return None
-            return self.fastest_lap_time - Participant.objects.get(session=self.session, race_position=1).fastest_lap_time
+            return my_total_time - leader_total_time"""
+
+        if not self.fastest_lap_time:
+            return None
+        return self.fastest_lap_time - leader.fastest_lap_time
 
     def fastest_lap_is_fastest_in_race(self):
         if not self.fastest_lap_time:

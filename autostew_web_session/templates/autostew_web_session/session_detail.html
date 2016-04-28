@@ -144,6 +144,7 @@
                 <tr>
                     <th></th>
                     <th>Name</th>
+                    <th>Grid P</th>
                     <th>Lap</th>
                     <th>Last lap</th>
                     <th>Best lap</th>
@@ -184,6 +185,9 @@
                         {% endif %}
                         &nbsp;
                         {{ participant.vehicle.name }}
+                    </td>
+                    <td>
+                        {{ participant.grid_position }}
                     </td>
                     <td>
                         {{ participant.current_lap }}
@@ -231,6 +235,18 @@
                     </td>
                 </tr>
             {% endfor %}
+            <tfoot>
+                <tr>
+                    <th></th>
+                    <th>Name</th>
+                    <th>Grid P</th>
+                    <th>Lap</th>
+                    <th>Last lap</th>
+                    <th>Best lap</th>
+                    <th>Gap</th>
+                    <th>Status</th>
+                </tr>
+            </tfoot>
         </table>
     </div>
 
