@@ -38,7 +38,7 @@ class HandleCollision(BaseEventHandler):
         participant.accumulated_crash_points += crash_points_increase
         participant.member.steam_user.add_crash_points(crash_points_increase)
 
-        cls.crash_notification(crash_points_increase, participant, server)
+        cls.crash_notification(crash_points_increase, participant, server, opponent)
 
         if participant.member.steam_user.over_class_kick_impact_threshold(crash_points_increase):
             participant.kick(server, server.back_crash_points_limit_ban_seconds)
@@ -60,12 +60,11 @@ class HandleCollision(BaseEventHandler):
         return 1
 
     @classmethod
-    def crash_notification(cls, crash_points_increase, participant, server):
+    def crash_notification(cls, crash_points_increase, participant, server, opponent: Participant=None):
         participant.send_chat("", server)
-        participant.send_chat(
-            "CONTACT logged for {points} points.".format(points=crash_points_increase),
-            server
-        )
+        if opponent:
+            participant.send_chat("CONTACT with {}".format(opponent.name))
+        participant.send_chat("CONTACT logged for {points} points.".format(points=crash_points_increase),server)
 
     @classmethod
     def crash_limit_warning(cls, participant, server):
