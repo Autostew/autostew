@@ -2,6 +2,7 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.http.response import HttpResponseNotFound
 from django.shortcuts import redirect, render, get_object_or_404
 
 from autostew_web_session.models.models import SetupRotationEntry, SetupQueueEntry
@@ -183,4 +184,26 @@ def toggle_kicks_view(request, pk):
     server.back_kicks = not server.back_kicks
     server.save()
     messages.add_message(request, messages.SUCCESS, "Toggled kicks.", extra_tags='success')
+    return redirect('account:home')
+
+
+@login_required
+def set_crash_points_limit(request, pk):
+    if not request.POST:
+        return HttpResponseNotFound()
+    server = get_object_or_404(Server, pk=pk, owner=request.user)
+    server.back_crash_points_limit = request.POST.get('back_crash_points_limit')
+    server.save()
+    messages.add_message(request, messages.SUCCESS, "Crash points limit set to {}.".format(request.POST.get('back_crash_points_limit')), extra_tags='success')
+    return redirect('account:home')
+
+
+@login_required
+def set_custom_motd(request, pk):
+    if not request.POST:
+        return HttpResponseNotFound()
+    server = get_object_or_404(Server, pk=pk, owner=request.user)
+    server.back_custom_motd = request.POST.get('back_custom_motd')
+    server.save()
+    messages.add_message(request, messages.SUCCESS, "Welcome message changed.", extra_tags='success')
     return redirect('account:home')
