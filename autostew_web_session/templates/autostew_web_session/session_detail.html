@@ -154,7 +154,7 @@
             </thead>
             {% for participant in session.get_connected_participants %}
                 <tr>
-                    <td>
+                    <td style="white-space: nowrap; width: 1%;">
                         <div style="font-size: 220%; float: left; clear: left; padding-right: 15px">
                             P{{ participant.race_position }}
                             <a href="{{ participant.get_absolute_url }}">
