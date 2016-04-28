@@ -193,9 +193,9 @@
 
                             <span class="
                                 {% if participant.last_lap_is_fastest_in_race %}
-                                    label label-primary
+                                    label label-success
                                 {% elif participant.last_lap_is_fastest_in_shapshot %}
-                                    label label-info
+                                    label label-default
                                 {% endif %}
                             ">{{ participant.last_lap_time|milli_to_nicetime }}</span>
                         {% else %}

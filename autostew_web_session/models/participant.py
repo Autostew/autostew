@@ -72,3 +72,27 @@ class Participant(models.Model):
             if not self.fastest_lap_time:
                 return None
             return self.fastest_lap_time - Participant.objects.get(session=self.session, race_position=1).fastest_lap_time
+
+    def fastest_lap_is_fastest_in_race(self):
+        if not self.fastest_lap_time:
+            return False
+        connected_participants = self.session.get_connected_participants()
+        faster_laps = connected_participants.filter(fastest_lap_time__gt=0,
+                                                    fastest_lap_time__lt=self.fastest_lap_time)
+        return not faster_laps.exists()
+
+    def last_lap_is_fastest_in_race(self):
+        if not self.last_lap_time:
+            return False
+        connected_participants = self.session.get_connected_participants()
+        faster_laps = connected_participants.filter(fastest_lap_time__gt=0,
+                                                    fastest_lap_time__lt=self.last_lap_time)
+        return not faster_laps.exists()
+
+    def last_lap_is_fastest_in_shapshot(self):
+        if not self.last_lap_time:
+            return False
+        connected_participants = self.session.get_connected_participants()
+        faster_laps = connected_participants.filter(last_lap_time__gt=0,
+                                                    last_lap_time__lt=self.last_lap_time)
+        return not faster_laps.exists()
