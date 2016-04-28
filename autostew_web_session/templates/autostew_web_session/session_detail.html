@@ -5,17 +5,13 @@
     <div class="row">
         <div class="col-xs-12 col-md-4 placeholder">
             <h3>
-                Race
+                <a href="{{ parent.setup_actual.get_absolute_url }}">
+                    {{ parent.setup_actual.name }}
+                </a>
                 {% if parent.finished %}<span class="label label-success">finished</span>
                 {% elif parent.running %}<span class="label label-danger">in progress</span>
                 {% endif %}
             </h3>
-
-            <h4>
-                <a href="{{ parent.setup_actual.get_absolute_url }}">
-                    {{ parent.setup_actual.name }}
-                </a>
-            </h4>
 
             <h4>
                 {{ parent.setup_actual.track.name }}
