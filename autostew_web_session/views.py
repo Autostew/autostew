@@ -20,22 +20,8 @@ class CreateSessionView(FormView):
     success_url = reverse_lazy('session:setups')
 
     def form_valid(self, form):
-        logging.debug("valid form data for session setup has been posted.")
         form.save()
         return super(CreateSessionView, self).form_valid(form)
-
-
-def session_stage(request, pk, stage_name):
-    session = get_object_or_404(Session, pk=pk)
-    if session.current_snapshot.session_stage.name == stage_name:
-        target_snapshot = session.current_snapshot
-    else:
-        stage = get_object_or_404(models.SessionStage, session=session, stage__name=stage_name)
-        if stage.result_snapshot:
-            target_snapshot = stage.result_snapshot
-        else:
-            target_snapshot = stage.starting_snapshot  # TODO should be get_latest_snapshot_in_stage
-    return SnapshotView.as_view()(request, pk=target_snapshot.id)
 
 
 class SessionEvents(generic.ListView):

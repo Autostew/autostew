@@ -218,6 +218,7 @@ class Server(models.Model):
         self.back_pull_lists(self.api.get_lists())
         self.back_pull_server_status(self.api.get_status())
         self.send_chat("Autostew starting...")
+        self.save()
 
         if self.state.name == ServerState.running:
             self.back_start_session()
@@ -520,6 +521,7 @@ class Server(models.Model):
         if self.back_kicks:
             return self.api.kick(refid, ban_seconds)
 
+    @transaction.atomic
     def back_destroy(self):
         self.refresh_from_db()
         if self.current_session:
