@@ -63,8 +63,8 @@ class HandleCollision(BaseEventHandler):
     def crash_notification(cls, crash_points_increase, participant, server, opponent: Participant=None):
         participant.send_chat("", server)
         if opponent:
-            participant.send_chat("CONTACT with {}".format(opponent.name))
-        participant.send_chat("CONTACT logged for {points} points.".format(points=crash_points_increase),server)
+            participant.send_chat("CONTACT with {}".format(opponent.name), server)
+        participant.send_chat("CONTACT logged for {points} points.".format(points=crash_points_increase), server)
 
     @classmethod
     def crash_limit_warning(cls, participant, server):
