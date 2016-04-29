@@ -2,7 +2,7 @@ from django.db import models
 
 
 class EventDefinition(models.Model):
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=50, db_index=True)
     type = models.CharField(max_length=50)
     description = models.CharField(max_length=50)
     attributes = models.TextField(max_length=200)
@@ -17,7 +17,7 @@ class EventDefinition(models.Model):
 
 class GameModeDefinition(models.Model):
     name = models.CharField(max_length=50)
-    ingame_id = models.IntegerField(help_text='pCars internal ID')
+    ingame_id = models.IntegerField(help_text='pCars internal ID', db_index=True)
 
     def __str__(self):
         return self.name
@@ -29,7 +29,7 @@ class GameModeDefinition(models.Model):
 
 class TireWearDefinition(models.Model):
     name = models.CharField(max_length=50)
-    ingame_id = models.IntegerField(help_text='pCars internal ID')
+    ingame_id = models.IntegerField(help_text='pCars internal ID', db_index=True)
 
     def __str__(self):
         return self.name
@@ -41,7 +41,7 @@ class TireWearDefinition(models.Model):
 
 class PenaltyDefinition(models.Model):
     name = models.CharField(max_length=50)
-    ingame_id = models.IntegerField(help_text='pCars internal ID')
+    ingame_id = models.IntegerField(help_text='pCars internal ID', db_index=True)
 
     def __str__(self):
         return self.name
@@ -53,7 +53,7 @@ class PenaltyDefinition(models.Model):
 
 class FuelUsageDefinition(models.Model):
     name = models.CharField(max_length=50)
-    ingame_id = models.IntegerField(help_text='pCars internal ID')
+    ingame_id = models.IntegerField(help_text='pCars internal ID', db_index=True)
 
     def __str__(self):
         return self.name
@@ -65,7 +65,7 @@ class FuelUsageDefinition(models.Model):
 
 class AllowedViewsDefinition(models.Model):
     name = models.CharField(max_length=50)
-    ingame_id = models.IntegerField(help_text='pCars internal ID')
+    ingame_id = models.IntegerField(help_text='pCars internal ID', db_index=True)
 
     def __str__(self):
         return self.name
@@ -97,7 +97,7 @@ class PlayerFlagDefinition(models.Model):
     valid = 1073741824
 
     name = models.CharField(max_length=50)
-    ingame_id = models.IntegerField(help_text='pCars internal ID')
+    ingame_id = models.IntegerField(help_text='pCars internal ID', db_index=True)
 
     def __str__(self):
         return self.name
@@ -126,7 +126,7 @@ class WeatherDefinition(models.Model):
         'Clear': '<i class="wi wi-day-sunny" title="{}"></i>',
     }
     name = models.CharField(max_length=50)
-    ingame_id = models.IntegerField(help_text='pCars internal ID')
+    ingame_id = models.IntegerField(help_text='pCars internal ID', db_index=True)
 
     def get_icon_or_name(self):
         return WeatherDefinition.name_to_icon.get(self.name, self.name).format(self.name)
@@ -145,7 +145,7 @@ class PrivacyDefinition(models.Model):
     private = 2
 
     name = models.CharField(max_length=50)
-    ingame_id = models.IntegerField(help_text='pCars internal ID')
+    ingame_id = models.IntegerField(help_text='pCars internal ID', db_index=True)
 
     def __str__(self):
         return self.name
@@ -157,7 +157,7 @@ class PrivacyDefinition(models.Model):
 
 class DamageDefinition(models.Model):
     name = models.CharField(max_length=50)
-    ingame_id = models.IntegerField(help_text='pCars internal ID')
+    ingame_id = models.IntegerField(help_text='pCars internal ID', db_index=True)
 
     def __str__(self):
         return self.name
@@ -185,7 +185,7 @@ class SessionFlagDefinition(models.Model):
     enforced_pitstop = 4194304
 
     name = models.CharField(max_length=50)
-    ingame_id = models.IntegerField(help_text='pCars internal ID')
+    ingame_id = models.IntegerField(help_text='pCars internal ID', db_index=True)
 
     def __str__(self):
         return self.name
@@ -196,7 +196,7 @@ class SessionFlagDefinition(models.Model):
 
 
 class SessionAttributeDefinition(models.Model):
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=50, db_index=True)
     type = models.CharField(max_length=50)
     access = models.CharField(max_length=50)
     description = models.CharField(max_length=500)
@@ -206,7 +206,7 @@ class SessionAttributeDefinition(models.Model):
 
 
 class MemberAttributeDefinition(models.Model):
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=50, db_index=True)
     type = models.CharField(max_length=50)
     access = models.CharField(max_length=50)
     description = models.CharField(max_length=500)
@@ -216,7 +216,7 @@ class MemberAttributeDefinition(models.Model):
 
 
 class ParticipantAttributeDefinition(models.Model):
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=50, db_index=True)
     type = models.CharField(max_length=50)
     access = models.CharField(max_length=50)
     description = models.CharField(max_length=500)
@@ -246,7 +246,7 @@ class EventType(models.Model):
     cut_track_end = 'CutTrackEnd'
     impact = 'Impact'
 
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=50, db_index=True)
 
     def __str__(self):
         return self.name
@@ -261,7 +261,7 @@ class LeavingReason(models.Model):
     kicked = 2
     disconnected = 5
 
-    ingame_id = models.IntegerField()
+    ingame_id = models.IntegerField(db_index=True)
     name = models.CharField(max_length=50)
 
     def __str__(self):
@@ -279,7 +279,7 @@ class MemberLoadState(models.Model):
     client_ready = 'CLIENT_READY'
     unknown = 'UNKNOWN'
 
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=50, db_index=True)
 
     def __str__(self):
         return self.name
@@ -290,7 +290,7 @@ class MemberLoadState(models.Model):
 
 
 class MemberState(models.Model):
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=50, db_index=True)
 
     def __str__(self):
         return self.name
@@ -312,7 +312,7 @@ class ParticipantState(models.Model):
     in_pits = 'InPits'
     exiting_pits = 'ExitingPits'
 
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=50, db_index=True)
 
     def __str__(self):
         return self.name
@@ -333,7 +333,7 @@ class SessionState(models.Model):
     post_race = 'PostRace'
     returning = 'Returning'
 
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=50, db_index=True)
 
     def __str__(self):
         return self.name
@@ -351,7 +351,7 @@ class SessionStage(models.Model):
     formationlap = 'FormationLap'
     race1 = 'Race1'
 
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=50, db_index=True)
 
     def __str__(self):
         return self.name
@@ -372,7 +372,7 @@ class SessionPhase(models.Model):
     green = 'Green'
     invalid = 'Invalid'
 
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=50, db_index=True)
 
     def __str__(self):
         return self.name

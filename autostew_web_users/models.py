@@ -14,7 +14,7 @@ class SteamUser(models.Model):
 
     class Meta:
         ordering = ['display_name']
-    steam_id = models.CharField(max_length=100)
+    steam_id = models.CharField(max_length=100, db_index=True)
     display_name = models.CharField(max_length=100)
     previous_elo_rating = models.IntegerField(null=True)
     elo_rating = models.IntegerField(null=True)
@@ -119,7 +119,7 @@ class SteamUser(models.Model):
 class SafetyClass(models.Model):
     class Meta:
         ordering = ['order']
-    order = models.IntegerField()
+    order = models.IntegerField(db_index=True)
     name = models.CharField(max_length=50)
     description = models.TextField(blank=True)
     class_below = models.OneToOneField('SafetyClass', null=True, blank=True, related_name='class_above')

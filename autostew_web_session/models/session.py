@@ -15,7 +15,7 @@ class SessionSetup(models.Model):
         ordering = ['name']
 
     name = models.CharField(max_length=100, blank=True)
-    is_template = models.BooleanField()
+    is_template = models.BooleanField(db_index=True)
 
     server_controls_setup = models.BooleanField(
         help_text="If true, players won't be able to control the race setup")
@@ -129,8 +129,8 @@ class Session(models.Model):
     schedule_time = models.TimeField(null=True, blank=True, help_text="Time this schedule will run")
     schedule_date = models.DateField(null=True, blank=True,
                                      help_text="Date this schedule will run, if blank will run daily")
-    running = models.BooleanField(help_text="If true, this race is currently running")
-    finished = models.BooleanField(help_text="If true, this race finished")
+    running = models.BooleanField(help_text="If true, this race is currently running", db_index=True)
+    finished = models.BooleanField(help_text="If true, this race finished", db_index=True)
 
     max_member_count = models.IntegerField(null=True, blank=True)
 
@@ -138,8 +138,8 @@ class Session(models.Model):
 
     fastest_lap = models.ForeignKey('Lap', null=True, blank=True, related_name='+')
 
-    is_result = models.BooleanField(default=False)
-    is_final_result = models.BooleanField(default=False)
+    is_result = models.BooleanField(default=False, db_index=True)
+    is_final_result = models.BooleanField(default=False, db_index=True)
     timestamp = models.DateTimeField(auto_now_add=True)
     session_state = models.ForeignKey("autostew_web_enums.SessionState", null=True, blank=True)
     session_stage = models.ForeignKey("autostew_web_enums.SessionStage", null=True, blank=True)

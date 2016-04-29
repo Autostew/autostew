@@ -9,7 +9,7 @@ class Track(models.Model):
     class Meta:
         ordering = ['name']
 
-    ingame_id = models.IntegerField(help_text='pCars internal ID')
+    ingame_id = models.IntegerField(help_text='pCars internal ID', db_index=True)
     name = models.CharField(max_length=100)
     grid_size = models.SmallIntegerField()
     track_latitude = models.IntegerField(default=0)
@@ -55,7 +55,7 @@ class VehicleClass(models.Model):
         ordering = ['name']
 
     name = models.CharField(max_length=50)
-    ingame_id = models.IntegerField(help_text='pCars internal ID')
+    ingame_id = models.IntegerField(help_text='pCars internal ID', db_index=True)
 
     def __str__(self):
         return self.name
@@ -70,7 +70,7 @@ class Vehicle(models.Model):
         ordering = ['name']
 
     name = models.CharField(max_length=50)
-    ingame_id = models.IntegerField(help_text='pCars internal ID')
+    ingame_id = models.IntegerField(help_text='pCars internal ID', db_index=True)
     vehicle_class = models.ForeignKey(VehicleClass, null=True)
 
     def __str__(self):
@@ -87,7 +87,7 @@ class Livery(models.Model):
         verbose_name_plural = "Liveries"
 
     name = models.CharField(max_length=50)
-    id_for_vehicle = models.IntegerField(help_text='pCars internal ID')
+    id_for_vehicle = models.IntegerField(help_text='pCars internal ID', db_index=True)
     vehicle = models.ForeignKey(Vehicle, null=True)
 
     @classmethod
