@@ -20,7 +20,6 @@ urlpatterns = [
     url(r'^(?P<pk>[0-9]+)/?$', SessionView.as_view(), name='session'),
     url(r'^(?P<pk>[0-9]+)/events/?$', views.SessionEvents.as_view(), name='events'),
     url(r'^(?P<session_id>[0-9]+)/participant/(?P<participant_id>[0-9]+)/?$', ParticipantDetailView.as_view(), name='participant'),
-    url(r'^(?P<pk>[0-9]+)/(?P<stage_name>[A-Za-z0-9]+)/?$', views.session_stage, name='session_stage'),
     url(r'^snapshot/(?P<pk>[0-9]+)/?$', SessionView.as_view(), name='snapshot'),
     url(r'^setup/create/?$', login_required(views.CreateSessionView.as_view()), name='create_setup'),
     url(r'^setup/list/?$', ListView.as_view(model=SessionSetup, queryset=SessionSetup.objects.filter(is_template=True)), name='setups'),
