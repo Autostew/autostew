@@ -128,7 +128,7 @@
                     <span class="label label-{% if parent.setup_actual.tcs_allowed %}success{% else %}danger{% endif %}">TCS</span>
                 {% endif %}
 
-                <span class="label label-{% if parent.setup_actual.force_manual %}danger{% else %}success{% endif %}">Allow automatic</span>
+                <span class="label label-{% if parent.setup_actual.force_manual %}danger{% else %}success{% endif %}">Automatic transm.</span>
                 <span class="label label-{% if parent.setup_actual.mechanical_failures %}success{% else %}danger{% endif %}">Mechanical failures</span>
                 <span class="label label-{% if parent.setup_actual.auto_start_engine %}success{% else %}danger{% endif %}">Auto engine start</span>
                 <span class="label label-{% if parent.setup_actual.ghost_griefers %}success{% else %}danger{% endif %}">Ghost griefers</span>
@@ -143,7 +143,6 @@
                 <tr>
                     <th></th>
                     <th>Name</th>
-                    <th>Grid P</th>
                     <th>Lap</th>
                     <th>Last lap</th>
                     <th>Best lap</th>
@@ -184,9 +183,6 @@
                         {% endif %}
                         &nbsp;
                         {{ participant.vehicle.name }}
-                    </td>
-                    <td>
-                        {{ participant.grid_position }}
                     </td>
                     <td>
                         {{ participant.current_lap }}
