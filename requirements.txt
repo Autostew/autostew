@@ -2,5 +2,6 @@ pytz==2016.3
 decorator==4.0.9
 Django==1.9.2
 django-registration==2.0.4
+djangorestframework==3.3.3
 factory-boy==2.6.1
 requests==2.9.1
