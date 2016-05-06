@@ -115,7 +115,7 @@ class Session(models.Model):
     class Meta:
         ordering = ['start_timestamp']
 
-    parent = models.ForeignKey('self', null=True, blank=True)
+    parent = models.ForeignKey('self', null=True, blank=True, related_name='children')
     server = models.ForeignKey('Server')
     setup_template = models.ForeignKey(SessionSetup, limit_choices_to={'is_template': True}, related_name='+',
                                        help_text="This setup is feeded to the game")
