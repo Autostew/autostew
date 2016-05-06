@@ -8,7 +8,7 @@ from django.test.client import Client
 
 from autostew_back import settings
 from autostew_back.ds_api.mocked_api import ApiReplay, FakeApi
-from autostew_back.tests.unit.test_back import TestBack
+from autostew_back.tests.integration.test_back import TestBack
 from autostew_web_session.models.models import RaceLapSnapshot, SetupRotationEntry
 from autostew_web_session.models.server import Server
 from autostew_web_session.models.session import Session
