@@ -51,7 +51,7 @@ class SessionList(generic.ListView):
 
     def get_context_data(self, **kwargs):
         context = super(SessionList, self).get_context_data(**kwargs)
-        context['sessions_in_progress'] = Session.objects.filter(running=True, finished=False, parent=None)
+        context['sessions_in_progress'] = (server.current_session for server in Server.objects.all() if server.current_session)
         context['sessions_history'] = Session.objects.filter(finished=True, parent=None, is_final_result=True).order_by('-id')[:30]
         context['setups_in_rotation'] = SessionSetup.objects.filter(rotated_in_server__in=Server.objects.all())
         return context
