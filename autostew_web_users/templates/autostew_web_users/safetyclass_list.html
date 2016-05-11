@@ -7,7 +7,9 @@
 
     {% if safetyclass_list %}
         {% for class in safetyclass_list %}
-            <h2>{{ class.name }}</h2>
+            <h2>
+                {% include 'autostew_web_users/safetyclass_label.html' with safetyclass=class %}
+            </h2>
             {% if class.initial_class %}
                 <p><b>New players start in this class.</b></p>
             {% endif %}
