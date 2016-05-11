@@ -7,7 +7,7 @@ class ApiConnector:
         self.object = target_model
         self.translations = translations
 
-    def push_to_game(self, api_type_name, for_next_session=False, copy_to_next=False):
+    def push_to_game(self, api_type_name, for_next_session=False, copy_to_next=False, retry=True):
         flag_fields = []
         method = "set_next_attributes" if for_next_session else "set_attributes"
         for translation in self.translations:
@@ -36,7 +36,7 @@ class ApiConnector:
                 ): value,
                 # 'copy_to_next': int(copy_to_next)
             }
-            self.api._call("session/{method}".format(method=method), params=params)
+            self.api._call("session/{method}".format(method=method), params=params, retry=retry)
 
         for flag_field in flag_fields:
             value = 0
@@ -50,7 +50,7 @@ class ApiConnector:
                 ): value,
                 # 'copy_to_next': int(copy_to_next)
             }
-            self.api._call("session/{method}".format(method=method), params=params)
+            self.api._call("session/{method}".format(method=method), params=params, retry=retry)
 
     def pull_from_game(self, api_result):
         for translation in self.translations:

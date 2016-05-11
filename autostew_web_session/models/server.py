@@ -27,7 +27,7 @@ from autostew_back.event_handlers.session_start import HandleSessionStart
 from autostew_back.event_handlers.stage_change import HandleStageChange
 from autostew_back.event_handlers.to_track import HandleToTrack
 from autostew_back.ds_api import api_translations
-from autostew_back.ds_api.api import ApiCaller
+from autostew_back.ds_api.api import ApiCaller, ApiResultNotOk
 from autostew_back.ds_api.api_connector import ApiConnector
 from autostew_web_enums.models import SessionState, EventDefinition, GameModeDefinition, TireWearDefinition, \
     PenaltyDefinition, ParticipantAttributeDefinition, FuelUsageDefinition, SessionAttributeDefinition, \
@@ -388,7 +388,10 @@ class Server(models.Model):
                 setup_template = actual_setup
                 setup_template.name = "No setup (rotation and queue empy)"
             connector = ApiConnector(self.api, setup_template, api_translations.session_setup)
-            connector.push_to_game('session')
+            try:
+                connector.push_to_game('session')
+            except ApiResultNotOk as e:
+                logging.warning("Failed to push setup: {}".format(e))
             actual_setup = self.back_pull_session_setup()
             actual_setup.name = setup_template.name
         else:
