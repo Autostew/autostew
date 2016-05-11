@@ -16,6 +16,7 @@ class Event(models.Model):
         ordering = ['ingame_index']
 
     session = models.ForeignKey('Session', null=True, blank=True)
+    server = models.ForeignKey('Server', null=True, blank=True)
     type = models.ForeignKey('autostew_web_enums.EventType')
     timestamp = models.DateTimeField()
     ingame_index = models.IntegerField()

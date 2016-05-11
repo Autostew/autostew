@@ -421,7 +421,7 @@ class Server(models.Model):
     def get_queued_events(self):
         if self.current_session is None:
             return None
-        return Event.objects.filter(session=self.current_session, retries_remaining__gt=0, handled=False)
+        return Event.objects.filter(server=self, retries_remaining__gt=0, handled=False)
 
     def back_poll_loop(self, event_offset=None, only_one_run=False, one_by_one=False):
         if not only_one_run:
@@ -452,6 +452,7 @@ class Server(models.Model):
                 new_event = Event()
                 new_event.raw = json.dumps(raw_event)
                 new_event.session = self.current_session
+                new_event.server = self
                 connector = ApiConnector(self.api, new_event, api_translations.event_base)
                 connector.pull_from_game(raw_event)
                 new_event.event_parse(self)
