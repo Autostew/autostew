@@ -389,7 +389,7 @@ class Server(models.Model):
                 setup_template.name = "No setup (rotation and queue empy)"
             connector = ApiConnector(self.api, setup_template, api_translations.session_setup)
             try:
-                connector.push_to_game('session')
+                connector.push_to_game('session', retry=False)
                 actual_setup = self.back_pull_session_setup()
                 actual_setup.name = setup_template.name
             except ApiCaller.ApiResultNotOk as e:
