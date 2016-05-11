@@ -419,6 +419,8 @@ class Server(models.Model):
         return session
 
     def get_queued_events(self):
+        if self.current_session is None:
+            return None
         return Event.objects.filter(session=self.current_session, retries_remaining__gt=0, handled=False)
 
     def back_poll_loop(self, event_offset=None, only_one_run=False, one_by_one=False):
@@ -455,12 +457,14 @@ class Server(models.Model):
                 new_event.event_parse(self)
                 new_event.save()
 
-            for event in list(self.get_queued_events()):
-                if one_by_one:
-                    input("Processing event {}".format(event))
-                with transaction.atomic():
-                    event.handle(self)
-                    self.refresh_from_db()
+            queued_events = self.get_queued_events()
+            if queued_events:
+                for event in list(queued_events):
+                    if one_by_one:
+                        input("Processing event {}".format(event))
+                    with transaction.atomic():
+                        event.handle(self)
+                        self.refresh_from_db()
 
             if one_by_one:
                 input("Tick (enter)")
