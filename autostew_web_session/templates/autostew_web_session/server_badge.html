@@ -1,28 +1,23 @@
 <div class="well well-sm">
     {% if server.is_up %}
+        {% if server.current_session %}
+            <a href="{{ server.current_session.get_absolute_url }}">{{ server.current_session }}</a>
+            {{ server.current_session.get_nice_state }}
+            <br>
+        {% endif %}
         <span class="label label-success">❯</span>
     {% else %}
         <span class="label label-danger">✖</span>
     {% endif %}
     <a href="{{ server.get_absolute_url }}">{{ server.name }}</a>
-    {% if server.is_up %}
-
-        {% if server.average_player_latency %}
-            <span class="label
-                {% if server.average_player_latency < 50 %}label-success
-                {% elif server.average_player_latency < 100 %}label-info
-                {% elif server.average_player_latency > 250 %}label-danger
-                {% elif server.average_player_latency > 150 %}label-warning
-                {% else %}label-default
-                {% endif %}
-            ">{{ server.average_player_latency }} ms</span>
-        {% endif %}
-
-        <br>
-        {% if server.current_session %}
-            <a href="{{ server.current_session.get_absolute_url }}">{{ server.current_session }}</a>
-            {{ server.current_session.get_nice_state }}
-        {% endif %}
-
+    {% if server.is_up and server.average_player_latency %}
+        <span class="label
+            {% if server.average_player_latency < 50 %}label-success
+            {% elif server.average_player_latency < 100 %}label-info
+            {% elif server.average_player_latency > 250 %}label-danger
+            {% elif server.average_player_latency > 150 %}label-warning
+            {% else %}label-default
+            {% endif %}
+        ">{{ server.average_player_latency }} ms</span>
     {% endif %}
 </div>
