@@ -11,5 +11,6 @@ class HomeView(TemplateView):
         context = super(HomeView, self).get_context_data(**kwargs)
         context['unread_messages'] = ContactMessage.objects.filter(read=False)
         context['unverified_servers'] = Server.objects.filter(back_verified=False)
-        context['server_list'] = Server.objects.all()
+        context['servers_in_race'] = [server for server in Server.objects.filter(current_session__isnull=False) if server.is_up]
+        context['servers_online'] = [server for server in Server.objects.filter(current_session__isnull=True) if server.is_up]
         return context

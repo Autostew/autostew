@@ -38,18 +38,26 @@
                 <li>Managing of dedicated server through the web interface.</li>
             </ul>
 
-            <h3>Servers</h3>
-
-            {% if server_list %}
+            {% if servers_in_race %}
+                <h3>Current events</h3>
                 <div class="row">
-                    {% for server in server_list %}
+                    {% for server in servers_in_race %}
                         <div class="col-xs-12 col-md-6 placeholder">
                             {% include 'autostew_web_session/server_badge.html' with server=server %}
                         </div>
                     {% endfor %}
                 </div>
-            {% else %}
-                <h5>No servers are available!</h5>
+            {% endif %}
+
+            {% if servers_online %}
+                <h3>Idle servers</h3>
+                <div class="row">
+                    {% for server in servers_online %}
+                        <div class="col-xs-12 col-md-6 placeholder">
+                            {% include 'autostew_web_session/server_badge.html' with server=server %}
+                        </div>
+                    {% endfor %}
+                </div>
             {% endif %}
 
             <h3>
