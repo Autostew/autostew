@@ -390,10 +390,12 @@ class Server(models.Model):
             connector = ApiConnector(self.api, setup_template, api_translations.session_setup)
             try:
                 connector.push_to_game('session')
+                actual_setup = self.back_pull_session_setup()
+                actual_setup.name = setup_template.name
             except ApiResultNotOk as e:
                 logging.warning("Failed to push setup: {}".format(e))
-            actual_setup = self.back_pull_session_setup()
-            actual_setup.name = setup_template.name
+                actual_setup = self.back_pull_session_setup()
+                actual_setup.name = "server-defined"
         else:
             actual_setup.name = "player-defined"
             setup_template = actual_setup
