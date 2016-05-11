@@ -39,7 +39,7 @@
             </ul>
 
             {% if servers_in_race %}
-                <h3>Current events</h3>
+                <h2>Current events</h2>
                 <div class="row">
                     {% for server in servers_in_race %}
                         <div class="col-xs-12 col-md-6 placeholder">
@@ -50,7 +50,7 @@
             {% endif %}
 
             {% if servers_online %}
-                <h3>Idle servers</h3>
+                <h2>Idle servers</h2>
                 <div class="row">
                     {% for server in servers_online %}
                         <div class="col-xs-12 col-md-6 placeholder">
@@ -60,21 +60,11 @@
                 </div>
             {% endif %}
 
-            <h3>
-                More to come!
-            </h3>
             <p>
                 Want to know more? Look what we are
                 <a href="https://waffle.io/Autostew/autostew">currently doing</a>
                 and <a href="https://waffle.io/Autostew/autostew?label=help%20wanted">where we can use help</a>.
             </p>
-            <p>These are some features we are planning to work on soon:</p>
-            <ul>
-                <li>Dedicated servers restricted by driver safety rating.</li>
-                <li>Kick players who are AFK, who lag excessively or break specific rules.</li>
-                <li>Voting of race setups.</li>
-                <li>And maybe more!</li>
-            </ul>
         </div>
         <div class="col-xs-12 col-md-4 placeholder">
             <h3>Announcements</h3>
