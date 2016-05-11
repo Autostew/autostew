@@ -27,7 +27,7 @@ from autostew_back.event_handlers.session_start import HandleSessionStart
 from autostew_back.event_handlers.stage_change import HandleStageChange
 from autostew_back.event_handlers.to_track import HandleToTrack
 from autostew_back.ds_api import api_translations
-from autostew_back.ds_api.api import ApiCaller, ApiResultNotOk
+from autostew_back.ds_api.api import ApiCaller
 from autostew_back.ds_api.api_connector import ApiConnector
 from autostew_web_enums.models import SessionState, EventDefinition, GameModeDefinition, TireWearDefinition, \
     PenaltyDefinition, ParticipantAttributeDefinition, FuelUsageDefinition, SessionAttributeDefinition, \
@@ -392,7 +392,7 @@ class Server(models.Model):
                 connector.push_to_game('session')
                 actual_setup = self.back_pull_session_setup()
                 actual_setup.name = setup_template.name
-            except ApiResultNotOk as e:
+            except ApiCaller.ApiResultNotOk as e:
                 logging.warning("Failed to push setup: {}".format(e))
                 actual_setup = self.back_pull_session_setup()
                 actual_setup.name = "server-defined"
