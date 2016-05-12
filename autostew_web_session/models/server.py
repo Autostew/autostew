@@ -455,11 +455,11 @@ class Server(models.Model):
 
             for raw_event in new_events:
                 new_event = Event()
+                connector = ApiConnector(self.api, new_event, api_translations.event_base)
+                connector.pull_from_game(raw_event)
                 new_event.raw = json.dumps(raw_event)
                 new_event.session = self.current_session
                 new_event.server = self
-                connector = ApiConnector(self.api, new_event, api_translations.event_base)
-                connector.pull_from_game(raw_event)
                 new_event.event_parse(self)
                 new_event.save()
                 self.back_process_event(event, one_by_one)
