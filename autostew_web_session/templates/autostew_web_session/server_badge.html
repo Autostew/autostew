@@ -2,7 +2,7 @@
     {% if server.is_up %}
 
         {% if server.current_session %}
-            <span class="label label-success">{{ server.current_session.get_connected_members|length }}</span>
+            <span class="label label-success">{{ server.current_session.get_connected_members|length }} drivers</span>
             <a href="{{ server.current_session.get_absolute_url }}">{{ server.current_session }}</a>
             {{ server.current_session.get_nice_state }}
             <br>
