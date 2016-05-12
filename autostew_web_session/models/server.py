@@ -460,7 +460,7 @@ class Server(models.Model):
                 new_event.raw = json.dumps(raw_event)
                 new_event.session = self.current_session
                 new_event.server = self
-                new_event.event_parse(self)
+                new_event.event_parse()
                 new_event.save()
                 self.back_process_event(event, one_by_one)
 
