@@ -188,6 +188,9 @@ class Session(models.Model):
     def __str__(self):
         return "{} - {}".format(self.id, self.setup_actual.name)
 
+    def get_connected_members(self) -> QuerySet:
+        return self.member_set.filter(still_connected=True)
+
     def get_members_who_finished_race(self) -> QuerySet:
         if self.parent_or_self.is_result:
             return self.parent_or_self.member_set.filter(still_connected=True)
