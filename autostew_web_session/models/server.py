@@ -445,6 +445,11 @@ class Server(models.Model):
                 self.ping()
                 self.save()
 
+            queued_events = self.get_queued_events()
+            if queued_events:
+                for event in list(queued_events):
+                    self.back_process_event(event, one_by_one)
+
             new_events = self.api.get_new_events()
             logging.debug("Got {} new events".format(len(new_events)))
 
@@ -457,15 +462,7 @@ class Server(models.Model):
                 connector.pull_from_game(raw_event)
                 new_event.event_parse(self)
                 new_event.save()
-
-            queued_events = self.get_queued_events()
-            if queued_events:
-                for event in list(queued_events):
-                    if one_by_one:
-                        input("Processing event {}".format(event))
-                    with transaction.atomic():
-                        event.handle(self)
-                        self.refresh_from_db()
+                self.back_process_event(event, one_by_one)
 
             if one_by_one:
                 input("Tick (enter)")
@@ -476,6 +473,13 @@ class Server(models.Model):
 
             if only_one_run:
                 return
+
+    def back_process_event(self, event, one_by_one):
+        if one_by_one:
+            input("Processing event {}".format(event))
+        with transaction.atomic():
+            event.handle(self)
+            self.refresh_from_db()
 
     @staticmethod
     def get_event_handlers():
