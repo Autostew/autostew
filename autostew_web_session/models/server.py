@@ -394,7 +394,7 @@ class Server(models.Model):
                 actual_setup.name = setup_template.name
             except ApiCaller.ApiResultNotOk as e:
                 logging.warning("Failed to push setup: {}".format(e))
-                actual_setup = self.back_pull_session_setup()
+                setup_template = actual_setup
                 actual_setup.name = "server-defined"
         else:
             actual_setup.name = "player-defined"
