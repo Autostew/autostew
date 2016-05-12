@@ -19,6 +19,7 @@ class HandleSessionEnd(BaseEventHandler):
         ) or (
             event.type.name == EventType.state_changed and
             event.new_session_state == SessionState.post_race and
+            server.current_session is not None and
             server.current_session.is_final_result
         )
 

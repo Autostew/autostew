@@ -11,14 +11,13 @@ class HandleSessionStart(BaseEventHandler):
     def can_consume(cls, server, event: Event):
         return (
             event.type.name == EventType.state_changed and
-            event.new_session_state.name == SessionState.lobby and
-            server.current_session is None
+            event.new_session_state.name == SessionState.lobby
         ) or (
-            event.type.name == EventType.session_created and
-            server.current_session is None
+            event.type.name == EventType.session_created
         )
 
     @classmethod
     def consume(cls, server, event: Event):
-        sleep(3)
+        if server.current_session is not None:
+            server.back_close_session()
         server.back_start_session()
