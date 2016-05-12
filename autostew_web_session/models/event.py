@@ -33,20 +33,20 @@ class Event(models.Model):
         self.timestamp = timezone.make_aware(datetime.datetime.fromtimestamp(jsonformatted_event['time']))
         if 'refid' in jsonformatted_event.keys():
             try:
-                self.member = self.get_member(jsonformatted_event['refid'])
+                self.member = self.server.get_member(jsonformatted_event['refid'])
                 if 'participantid' in jsonformatted_event.keys():
-                    self.participant = self.get_participant(jsonformatted_event['participantid'], jsonformatted_event['refid'])
+                    self.participant = self.server.get_participant(jsonformatted_event['participantid'], jsonformatted_event['refid'])
             except (Member.DoesNotExist, Participant.DoesNotExist):
                 pass
         if self.get_attribute('RefId'):
             try:
-                self.recipient = self.get_member(self.get_attribute('RefId'))
+                self.recipient = self.server.get_member(self.get_attribute('RefId'))
             except Member.DoesNotExist:
                 pass
         other_participant_id = self.get_attribute('OtherParticipantId')
         if other_participant_id and other_participant_id != -1:
             try:
-                self.other_participant = self.get_participant(other_participant_id)
+                self.other_participant = self.server.get_participant(other_participant_id)
             except Participant.DoesNotExist:
                 pass
 
