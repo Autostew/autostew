@@ -462,7 +462,7 @@ class Server(models.Model):
                 new_event.server = self
                 new_event.event_parse()
                 new_event.save()
-                self.back_process_event(event, one_by_one)
+                self.back_process_event(new_event, one_by_one)
 
             if one_by_one:
                 input("Tick (enter)")
