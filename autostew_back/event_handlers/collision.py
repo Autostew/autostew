@@ -35,6 +35,7 @@ class HandleCollision(BaseEventHandler):
         if opponent:
             crash_points_increase *= cls.get_interclass_multiplier(participant, opponent)
 
+        crash_points_increase = round(crash_points_increase)
         participant.accumulated_crash_points += crash_points_increase
         participant.member.steam_user.add_crash_points(crash_points_increase)
 
