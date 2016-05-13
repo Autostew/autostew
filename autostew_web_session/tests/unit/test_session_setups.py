@@ -5,6 +5,5 @@ from autostew_web_session.tests.factories.session_setup_factories import Session
 
 class TrackTests(TestCase):
     def test_can_create_session_setup(self):
-        pass
-        #track = SessionSetupFactory()
-        #self.assertNotNone(track)
+        track = SessionSetupFactory()
+        self.assertIsNotNone(track)

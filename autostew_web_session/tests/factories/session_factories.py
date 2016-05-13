@@ -5,6 +5,7 @@ from autostew_web_session.models.session import Session
 from autostew_web_session.tests.factories.enum_factories import SessionStateFactory, SessionStageFactory, \
     SessionPhaseFactory
 from autostew_web_session.tests.factories.server_factories import ServerFactory
+from autostew_web_session.tests.factories.session_setup_factories import SessionSetupFactory
 
 
 class SessionFactory(factory.django.DjangoModelFactory):
@@ -13,7 +14,7 @@ class SessionFactory(factory.django.DjangoModelFactory):
 
     parent = None
     server = factory.SubFactory(ServerFactory)
-    setup_template = None
+    setup_template = factory.SubFactory(SessionSetupFactory)
     setup_actual = None
 
     schedule_time = None

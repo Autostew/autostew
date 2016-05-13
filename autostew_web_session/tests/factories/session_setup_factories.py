@@ -1,5 +1,3 @@
-import factory
-
 from autostew_web_session.models.session import SessionSetup
 from autostew_web_session.tests.factories.enum_factories import *
 

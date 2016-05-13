@@ -54,7 +54,8 @@ class TestApiConnector(TestCase):
         translator.push_to_game('type')
         api._call.assert_called_once_with(
             'session/set_attributes',
-            params={'type_Practice1Length': 'foo'}
+            params={'type_Practice1Length': 'foo'},
+            retry=True
         )
 
     def test_connector_pull_with_enum(self):
@@ -75,7 +76,8 @@ class TestApiConnector(TestCase):
         translator.push_to_game('type')
         api._call.assert_called_once_with(
             'session/set_attributes',
-            params={'type_DamageType': 2}
+            params={'type_DamageType': 2},
+            retry=True
         )
 
     def test_connector_pull_flag_empty(self):
@@ -112,7 +114,8 @@ class TestApiConnector(TestCase):
         translator.push_to_game('type')
         api._call.assert_called_once_with(
             'session/set_attributes',
-            params={'type_Flags': 0}
+            params={'type_Flags': 0},
+            retry=True
         )
 
     def test_connector_push_flag_one(self):
@@ -125,7 +128,8 @@ class TestApiConnector(TestCase):
         translator.push_to_game('type')
         api._call.assert_called_once_with(
             'session/set_attributes',
-            params={'type_Flags': 1}
+            params={'type_Flags': 1},
+            retry=True
         )
 
     def test_connector_push_flag_multiple(self):
@@ -138,5 +142,6 @@ class TestApiConnector(TestCase):
         translator.push_to_game('type')
         api._call.assert_called_once_with(
             'session/set_attributes',
-            params={'type_Flags': 3}
+            params={'type_Flags': 3},
+            retry=True
         )
