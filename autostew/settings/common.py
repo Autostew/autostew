@@ -14,13 +14,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'autostew_web_home',
+    'autostew_back',
+    'autostew_web_account',
+    'autostew_web_api',
     'autostew_web_contact',
     'autostew_web_enums',
+    'autostew_web_home',
     'autostew_web_session',
     'autostew_web_users',
-    'autostew_web_account',
-    'autostew_back',
     'rest_framework',
 ]
 
