@@ -12,9 +12,6 @@
 
             <h4>
                 {{ parent.setup_actual.track.name }}
-                <small><a href="{{ parent.setup_actual.get_track_url }}" class="btn btn-default">
-                    Leaderboard
-                </a></small>
             </h4>
 
             <h4>{{ parent.setup_actual.get_vehicle_restriction }}</h4>
@@ -125,9 +122,14 @@
                 <span class="label label-{% if parent.setup_actual.ghost_griefers %}success{% else %}danger{% endif %}">Ghost griefers</span>
             </p>
 
-                <a href="{{ parent.setup_actual.get_absolute_url }}">
-                    {{ parent.setup_actual.name }}
+            <p>
+                <a href="{{ parent.setup_actual.get_absolute_url }}" class="btn btn-default">
+                    View setup
                 </a>
+                <a href="{{ parent.setup_actual.get_track_url }}" class="btn btn-default">
+                    Leaderboard
+                </a>
+            </p>
         </div>
     </div>
 
