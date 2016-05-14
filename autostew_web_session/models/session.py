@@ -92,6 +92,16 @@ class SessionSetup(models.Model):
     weather_4 = models.ForeignKey('autostew_web_enums.WeatherDefinition', related_name='+', null=True, blank=True)
     game_mode = models.ForeignKey('autostew_web_enums.GameModeDefinition', related_name='+', null=True, blank=True)
 
+    def get_race_length_unit(self):
+        return "minutes" if self.timed_race else "laps"
+
+    def get_vehicle_restriction(self):
+        if self.force_identical_vehicles:
+            return self.vehicle_class
+        if self.force_same_vehicle_class:
+            return self.vehicle.vehicle_class
+        return None
+
     def get_track_url(self):
         if self.force_identical_vehicles:
             get = '?vehicle={}'.format(self.vehicle.ingame_id)
@@ -186,7 +196,12 @@ class Session(models.Model):
         return reverse('session:session', args=[str(self.id)])
 
     def __str__(self):
-        return "{} - {}".format(self.id, self.setup_actual.name)
+        return "{track} {restriction} {length} {unit}".format(
+            self.setup_actual.track.name,
+            self.setup_actual.get_vehicle_restriction(),
+            self.setup_actual.race1_length,
+            self.setup_actual.get_race_length_unit(),
+        )
 
     def get_connected_members(self) -> QuerySet:
         return self.member_set.filter(still_connected=True)
