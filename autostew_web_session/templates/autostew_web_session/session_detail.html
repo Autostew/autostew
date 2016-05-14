@@ -5,9 +5,6 @@
     <div class="row">
         <div class="col-xs-12 col-md-4 placeholder">
             <h3>
-                <a href="{{ parent.setup_actual.get_absolute_url }}">
-                    {{ parent.setup_actual.name }}
-                </a>
                 {% if parent.finished %}<span class="label label-success">finished</span>
                 {% elif parent.running %}<span class="label label-danger">in progress</span>
                 {% endif %}
@@ -20,13 +17,7 @@
                 </a></small>
             </h4>
 
-            <h4>{% if parent.setup_actual.force_identical_vehicles %}
-                {{ parent.setup_actual.vehicle.name }}
-            {% elif parent.setup_actual.force_same_vehicle_class %}
-                {{ parent.setup_actual.vehicle_class.name }}
-            {% else %}
-                No vehicle restriction
-            {% endif %}</h4>
+            <h4>{{ parent.setup_actual.get_vehicle_restriction }}</h4>
 
             <p>
                 Real time: {{ session.timestamp|date }} {{ session.timestamp|time }}<br>
@@ -92,7 +83,7 @@
             {% if parent.setup_actual.practice2_length %}{{ parent.setup_actual.practice2_length }} minutes practice<br>{% endif %}
             {% if parent.setup_actual.qualify_length %}{{ parent.setup_actual.qualify_length }} minutes qualifying<br>{% endif %}
             {% if parent.setup_actual.warmup_length %}{{ parent.setup_actual.warmup_length }} minutes warmup<br>{% endif %}
-            <b>{{ parent.setup_actual.race1_length }} {% if parent.setup_actual.timed_race %}minutes{% else %}laps{% endif %} race</b><br>
+            <b>{{ parent.setup_actual.race1_length }} {{ parent.setup_actual.get_race_length_unit }} race</b><br>
             {% if parent.setup_actual.enforced_pitstop %}Mandatory pitstop{% endif %}
 
             <p>
@@ -134,6 +125,9 @@
                 <span class="label label-{% if parent.setup_actual.ghost_griefers %}success{% else %}danger{% endif %}">Ghost griefers</span>
             </p>
 
+                <a href="{{ parent.setup_actual.get_absolute_url }}">
+                    {{ parent.setup_actual.name }}
+                </a>
         </div>
     </div>
 

@@ -197,10 +197,10 @@ class Session(models.Model):
 
     def __str__(self):
         return "{track} {restriction} {length} {unit}".format(
-            self.setup_actual.track.name,
-            self.setup_actual.get_vehicle_restriction(),
-            self.setup_actual.race1_length,
-            self.setup_actual.get_race_length_unit(),
+            track=self.setup_actual.track.name,
+            restriction=self.setup_actual.get_vehicle_restriction(),
+            length=self.setup_actual.race1_length,
+            unit=self.setup_actual.get_race_length_unit(),
         )
 
     def get_connected_members(self) -> QuerySet:
