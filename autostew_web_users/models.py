@@ -84,6 +84,8 @@ class SteamUser(models.Model):
             return False
         if self.safety_class is None:
             self.safety_class = SafetyClass.objects.get(initial_class=True)
+            self.save()
+            return True
         if self.safety_rating is None:
             self.safety_rating = self.initial_safety_rating
         if (

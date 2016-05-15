@@ -34,7 +34,10 @@ class HandleLap(BaseEventHandler):
         )
 
         if event.participant.is_player and event.member:
-            event.member.steam_user.add_distance(event.distance_travelled)
+            class_changed = event.member.steam_user.add_distance(event.distance_travelled)
+
+            if class_changed:
+                event.member.send_chat("Your SAFETY CLASS is now {}".format(event.member.steam_user.safety_class), server)
 
         if not server.current_session.session_stage.name.startswith("Race"):
             server.current_session.reorder_by_best_time()
