@@ -14,7 +14,13 @@
                 {{ parent.setup_actual.track.name }}
             </h4>
 
-            <h4>{{ parent.setup_actual.get_vehicle_restriction }}</h4>
+            <h4>
+                {% if parent.setup_actual.get_vehicle_restriction %}
+                    {{ parent.setup_actual.get_vehicle_restriction }}
+                {% else %}
+                    Any car
+                {% endif %}
+            </h4>
 
             <p>
                 Real time: {{ session.timestamp|date }} {{ session.timestamp|time }}<br>
