@@ -8,7 +8,7 @@ session_setup = [
     {'model_field': 'server_controls_track', 'api_field': 'ServerControlsTrack', 'push_if': (lambda model: False)},
     {'model_field': 'server_controls_vehicle_class', 'api_field': 'ServerControlsVehicleClass', 'push_if': (lambda model: False)},
     {'model_field': 'server_controls_vehicle', 'api_field': 'ServerControlsVehicle', 'push_if': (lambda model: False)},
-    {'model_field': 'grid_size', 'api_field': 'GridSize', 'push_if': (lambda model: model.server_controls_setup)},
+    {'model_field': 'grid_size', 'api_field': 'GridSize', 'push_if': (lambda model: False)},
     {'model_field': 'max_players', 'api_field': 'MaxPlayers', 'push_if': (lambda model: model.server_controls_setup)},
     {'model_field': 'opponent_difficulty', 'api_field': 'OpponentDifficulty', 'push_if': (lambda model: model.server_controls_setup)},
 
