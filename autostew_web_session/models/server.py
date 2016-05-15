@@ -533,6 +533,8 @@ class Server(models.Model):
 
     def kick(self, refid, ban_seconds):
         if self.back_kicks:
+            name = self.get_member(refid) if self.get_member(refid) is not None else "someone"
+            logging.info("kicking {} ({})".format(name, refid))
             return self.api.kick(refid, ban_seconds)
 
     @transaction.atomic
