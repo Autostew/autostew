@@ -1,8 +1,8 @@
 import datetime
+
 import factory
 
 from autostew_web_session.models.server import Server
-from autostew_web_session.tests.factories.session_setup_factories import SessionSetupFactory
 
 
 class ServerFactory(factory.django.DjangoModelFactory):

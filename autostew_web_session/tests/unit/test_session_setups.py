@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from autostew_web_session.tests.factories.session_setup_factories import SessionSetupFactory
+from autostew_web_session.factories.session_setup_factories import SessionSetupFactory
 
 
 class TrackTests(TestCase):

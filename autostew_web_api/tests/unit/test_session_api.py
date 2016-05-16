@@ -1,6 +1,6 @@
 from rest_framework.test import APIRequestFactory, APITestCase
 
-from autostew_web_session.tests.factories.session_factories import SessionFactory
+from autostew_web_session.factories.session_factories import SessionFactory
 
 
 class SessionApiTests(APITestCase):

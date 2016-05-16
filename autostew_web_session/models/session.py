@@ -5,7 +5,6 @@ from django.db import models
 from django.db.models import QuerySet, Max, Min
 
 import autostew_web_session.models.participant
-from autostew_web_enums import models as enum_models
 from autostew_web_enums.models import SessionState
 from autostew_web_session.models.member import Member
 
@@ -18,39 +17,39 @@ class SessionSetup(models.Model):
     is_template = models.BooleanField(db_index=True)
 
     server_controls_setup = models.BooleanField(
-        help_text="If true, players won't be able to control the race setup")
+            help_text="If true, players won't be able to control the race setup")
     server_controls_track = models.BooleanField(
-        help_text="If true, players won't be able to control track selection")
+            help_text="If true, players won't be able to control track selection")
     server_controls_vehicle_class = models.BooleanField(
-        help_text="If true, players won't be acle to control vehicle class selection")
+            help_text="If true, players won't be acle to control vehicle class selection")
     server_controls_vehicle = models.BooleanField(
-        help_text="If true, players won't be able to access vehicle selection")
+            help_text="If true, players won't be able to access vehicle selection")
     grid_size = models.IntegerField(
-        help_text="How many cars can be on the field, don't set it higher than the track's grid size")
+            help_text="How many cars can be on the field, don't set it higher than the track's grid size")
     max_players = models.IntegerField(
-        help_text="How many human players can join the game")
+            help_text="How many human players can join the game")
     opponent_difficulty = models.IntegerField(default=100,
-        help_text="AI difficulty, 0 to 100")
+                                              help_text="AI difficulty, 0 to 100")
 
     force_identical_vehicles = models.BooleanField()
     allow_custom_vehicle_setup = models.BooleanField()
     force_realistic_driving_aids = models.BooleanField()
     abs_allowed = models.BooleanField(
-        help_text="Won't have any effect if force realistic driving aids is on")
+            help_text="Won't have any effect if force realistic driving aids is on")
     sc_allowed = models.BooleanField(
-        help_text="Won't have any effect if force realistic driving aids is on")
+            help_text="Won't have any effect if force realistic driving aids is on")
     tcs_allowed = models.BooleanField(
-        help_text="Won't have any effect if force realistic driving aids is on")
+            help_text="Won't have any effect if force realistic driving aids is on")
     force_manual = models.BooleanField(
-        help_text="If true, only manual transmission will be allowed")
+            help_text="If true, only manual transmission will be allowed")
     rolling_starts = models.BooleanField(
-        help_text="If true, the race will have a rolling start")
+            help_text="If true, the race will have a rolling start")
     force_same_vehicle_class = models.BooleanField()
     fill_session_with_ai = models.BooleanField()
     mechanical_failures = models.BooleanField()
     auto_start_engine = models.BooleanField()
     timed_race = models.BooleanField(
-        "If true, race length will be measured in minutes")
+            "If true, race length will be measured in minutes")
     ghost_griefers = models.BooleanField()
     enforced_pitstop = models.BooleanField()
 
@@ -59,7 +58,8 @@ class SessionSetup(models.Model):
     qualify_length = models.IntegerField(help_text="In minutes", default=0)
     warmup_length = models.IntegerField(help_text="In minutes", default=0)
     race1_length = models.IntegerField(help_text="In laps or minutes", default=5)
-    race2_length = models.IntegerField(help_text="In laps or minutes (this setting does not have any effect (yet?)", default=0)
+    race2_length = models.IntegerField(help_text="In laps or minutes (this setting does not have any effect (yet?)",
+                                       default=0)
 
     privacy = models.ForeignKey('autostew_web_enums.PrivacyDefinition', null=True)
     damage = models.ForeignKey('autostew_web_enums.DamageDefinition', null=True)
@@ -69,23 +69,23 @@ class SessionSetup(models.Model):
     allowed_views = models.ForeignKey('autostew_web_enums.AllowedViewsDefinition', null=True)
     track = models.ForeignKey('Track', null=True, blank=True)
     vehicle_class = models.ForeignKey('VehicleClass', null=True, blank=True,
-        help_text="Only has a real effect if force_same_vehicle_class")
+                                      help_text="Only has a real effect if force_same_vehicle_class")
     vehicle = models.ForeignKey('Vehicle', null=True, blank=True,
-        help_text="Only has a real effect if force_same_vehicle")
+                                help_text="Only has a real effect if force_same_vehicle")
     date_year = models.IntegerField(help_text="Race date, set to 0 for 'real date'", default=0)
     date_month = models.IntegerField(help_text="Race date, set to 0 for 'real date'", default=0)
     date_day = models.IntegerField(help_text="Race date, set to 0 for 'real date'", default=0)
     date_hour = models.IntegerField(default=9)
     date_minute = models.IntegerField(default=0)
     date_progression = models.IntegerField(default=1,
-        help_text="Time multiplier, unconfirmed allowed values: 0, 1, 2, 5, 10, 30, 60"
-    )
+                                           help_text="Time multiplier, unconfirmed allowed values: "
+                                                     "0, 1, 2, 5, 10, 30, 60")
     weather_progression = models.IntegerField(default=1,
-        help_text="Weather progression multiplier, unconfirmed allowed values: 0, 1, 2, 5, 10, 30, 60"
-    )
+                                              help_text="Weather progression multiplier, "
+                                                        "unconfirmed allowed values: 0, 1, 2, 5, 10, 30, 60")
     weather_slots = models.IntegerField(default=0,
-        help_text="Set to 0 for 'real weather'"
-    )
+                                        help_text="Set to 0 for 'real weather'"
+                                        )
     weather_1 = models.ForeignKey('autostew_web_enums.WeatherDefinition', related_name='+', null=True, blank=True)
     weather_2 = models.ForeignKey('autostew_web_enums.WeatherDefinition', related_name='+', null=True, blank=True)
     weather_3 = models.ForeignKey('autostew_web_enums.WeatherDefinition', related_name='+', null=True, blank=True)
@@ -197,10 +197,10 @@ class Session(models.Model):
 
     def __str__(self):
         return "{track} {restriction} {length} {unit}".format(
-            track=self.setup_actual.track.name,
-            restriction=self.setup_actual.get_vehicle_restriction() if self.setup_actual.get_vehicle_restriction() else "any car",
-            length=self.setup_actual.race1_length,
-            unit=self.setup_actual.get_race_length_unit(),
+                track=self.setup_actual.track.name,
+                restriction=self.setup_actual.get_vehicle_restriction() if self.setup_actual.get_vehicle_restriction() else "any car",
+                length=self.setup_actual.race1_length,
+                unit=self.setup_actual.get_race_length_unit(),
         )
 
     def get_connected_members(self) -> QuerySet:
@@ -244,8 +244,8 @@ class Session(models.Model):
     def previous_in_session(self):
         try:
             target_id = Session.objects.filter(
-                id__lt=self.id,
-                parent=self.parent_or_self,
+                    id__lt=self.id,
+                    parent=self.parent_or_self,
             ).aggregate(Max('id'))['id__max']
             return Session.objects.get(pk=target_id)
         except self.DoesNotExist:
@@ -255,8 +255,8 @@ class Session(models.Model):
     def next_in_session(self):
         try:
             target_id = Session.objects.filter(
-                id__gt=self.id,
-                parent=self.parent_or_self,
+                    id__gt=self.id,
+                    parent=self.parent_or_self,
             ).aggregate(Min('id'))['id__min']
             return Session.objects.get(pk=target_id)
         except self.DoesNotExist:

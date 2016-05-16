@@ -1,5 +1,5 @@
+from autostew_web_enums.factories.enum_factories import *
 from autostew_web_session.models.session import SessionSetup
-from autostew_web_session.tests.factories.enum_factories import *
 
 
 class SessionSetupFactory(factory.django.DjangoModelFactory):

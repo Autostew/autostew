@@ -1,11 +1,12 @@
 import datetime
+
 import factory
 
-from autostew_web_session.models.session import Session
-from autostew_web_session.tests.factories.enum_factories import SessionStateFactory, SessionStageFactory, \
+from autostew_web_enums.factories.enum_factories import SessionStateFactory, SessionStageFactory, \
     SessionPhaseFactory
-from autostew_web_session.tests.factories.server_factories import ServerFactory
-from autostew_web_session.tests.factories.session_setup_factories import SessionSetupFactory
+from autostew_web_session.factories.server_factories import ServerFactory
+from autostew_web_session.factories.session_setup_factories import SessionSetupFactory
+from autostew_web_session.models.session import Session
 
 
 class SessionFactory(factory.django.DjangoModelFactory):
