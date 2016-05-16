@@ -1,11 +1,6 @@
-from datetime import timedelta
-
 from autostew_back.event_handlers.base_event_handler import BaseEventHandler
-from autostew_back.utils import td_to_milli, std_time_format
-from autostew_web_enums.models import EventType, SessionStage
+from autostew_web_enums.models import EventType
 from autostew_web_session.models.event import Event
-from autostew_web_session.models.models import RaceLapSnapshot, Lap
-from autostew_web_session.models.session import Session
 
 
 class HandleIgnore(BaseEventHandler):

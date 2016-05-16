@@ -1,5 +1,3 @@
-from time import sleep
-
 from autostew_back.event_handlers.base_event_handler import BaseEventHandler
 from autostew_web_enums.models import EventType, SessionState
 from autostew_web_session.models.event import Event

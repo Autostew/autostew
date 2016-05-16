@@ -1,8 +1,6 @@
 from autostew_back.event_handlers.base_event_handler import BaseEventHandler
 from autostew_web_enums.models import EventType, SessionState
 from autostew_web_session.models.event import Event
-from autostew_web_session.models.member import Member
-from autostew_web_session.models.session import Session
 
 
 class HandleSessionEnd(BaseEventHandler):

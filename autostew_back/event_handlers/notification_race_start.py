@@ -1,5 +1,5 @@
 from autostew_back.event_handlers.base_event_handler import BaseEventHandler
-from autostew_web_enums.models import EventType, SessionStage, SessionState
+from autostew_web_enums.models import EventType, SessionStage
 from autostew_web_session.models.event import Event
 
 race_starts = [
