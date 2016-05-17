@@ -9,7 +9,10 @@
 
     {% load pagination_tags %}
 
-    {% autopaginate steamuser_list 200 %}
+    {% autopaginate steamuser_list 20 %}
+
+    <div class="container">{% paginate %}</div>
+
 
     <table class="table" data-sortable>
         <thead>
@@ -52,5 +55,5 @@
         </tbody>
     </table>
 
-    {% paginate %}
+    <div class="container">{% paginate %}</div>
 {% endblock %}
