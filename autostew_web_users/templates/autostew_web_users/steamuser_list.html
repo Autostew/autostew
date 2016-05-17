@@ -16,8 +16,8 @@
             <tr>
                 <th>#</th>
                 <th>Name</th>
-                <th data-sortable-type="numeric">Safety class</th>
                 <th data-sortable-type="numeric">Performance rating</th>
+                <th data-sortable-type="numeric">Safety class</th>
                 <th data-sortable-type="numeric">Distance logged</th>
             </tr>
         </thead>
@@ -31,15 +31,15 @@
                         <td>
                             <a href="{{ user.get_absolute_url }}">{{ user.display_name }}</a>
                         </td>
-                        <td data-value="{{ user.safety_rating|default_if_none:1000000 }}">
-                            {% include 'autostew_web_users/safetyclass_label.html' with safetyclass=user.safety_class %}
-                        </td>
                         <td>
                             {% if user.elo_rating %}
                                 {{ user.elo_rating }}
                             {% else %}
                                 -
                             {% endif %}
+                        </td>
+                        <td data-value="{{ user.safety_rating|default_if_none:1000000 }}">
+                            {% include 'autostew_web_users/safetyclass_label.html' with safetyclass=user.safety_class %}
                         </td>
                         <td>
                             {{ user.get_kms }} km

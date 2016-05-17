@@ -13,7 +13,7 @@ class SteamUser(models.Model):
     minimum_elo_rating = 0
 
     class Meta:
-        ordering = ['display_name']
+        ordering = ['-elo_rating', 'display_name']
     steam_id = models.CharField(max_length=100, db_index=True)
     display_name = models.CharField(max_length=100)
     previous_elo_rating = models.IntegerField(null=True)
