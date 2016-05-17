@@ -4,7 +4,7 @@ import factory
 import autostew_web_enums.models
 
 
-class EventFactory(factory.django.DjangoModelFactory):
+class EventDefinitionFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = autostew_web_enums.models.EventDefinition
 
@@ -14,7 +14,7 @@ class EventFactory(factory.django.DjangoModelFactory):
     attributes = 'abc'
 
 
-class GameModeFactory(factory.django.DjangoModelFactory):
+class GameModeDefinitionFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = autostew_web_enums.models.GameModeDefinition
 
@@ -22,7 +22,7 @@ class GameModeFactory(factory.django.DjangoModelFactory):
     ingame_id = random.randint(-9999, 9999)
 
 
-class TireWearFactory(factory.django.DjangoModelFactory):
+class TireWearDefinitionFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = autostew_web_enums.models.TireWearDefinition
 
@@ -30,7 +30,7 @@ class TireWearFactory(factory.django.DjangoModelFactory):
     ingame_id = random.randint(-9999, 9999)
 
 
-class PenaltyFactory(factory.django.DjangoModelFactory):
+class PenaltyDefinitionFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = autostew_web_enums.models.PenaltyDefinition
 
@@ -38,7 +38,7 @@ class PenaltyFactory(factory.django.DjangoModelFactory):
     ingame_id = random.randint(-9999, 9999)
 
 
-class FuelUsageFactory(factory.django.DjangoModelFactory):
+class FuelUsageDefinitionFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = autostew_web_enums.models.FuelUsageDefinition
 
@@ -46,7 +46,7 @@ class FuelUsageFactory(factory.django.DjangoModelFactory):
     ingame_id = random.randint(-9999, 9999)
 
 
-class AllowedViewsFactory(factory.django.DjangoModelFactory):
+class AllowedViewsDefinitionFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = autostew_web_enums.models.AllowedViewsDefinition
 
@@ -54,7 +54,7 @@ class AllowedViewsFactory(factory.django.DjangoModelFactory):
     ingame_id = random.randint(-9999, 9999)
 
 
-class PlayerFlagFactory(factory.django.DjangoModelFactory):
+class PlayerFlagDefinitionFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = autostew_web_enums.models.PlayerFlagDefinition
 
@@ -62,7 +62,7 @@ class PlayerFlagFactory(factory.django.DjangoModelFactory):
     ingame_id = random.randint(-9999, 9999)
 
 
-class WeatherFactory(factory.django.DjangoModelFactory):
+class WeatherDefinitionFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = autostew_web_enums.models.WeatherDefinition
 
@@ -70,7 +70,7 @@ class WeatherFactory(factory.django.DjangoModelFactory):
     ingame_id = random.randint(-9999, 9999)
 
 
-class PrivacyFactory(factory.django.DjangoModelFactory):
+class PrivacyDefinitionFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = autostew_web_enums.models.PrivacyDefinition
 
@@ -78,7 +78,7 @@ class PrivacyFactory(factory.django.DjangoModelFactory):
     ingame_id = random.randint(-9999, 9999)
 
 
-class DamageFactory(factory.django.DjangoModelFactory):
+class DamageDefinitionFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = autostew_web_enums.models.DamageDefinition
 
@@ -86,7 +86,7 @@ class DamageFactory(factory.django.DjangoModelFactory):
     ingame_id = random.randint(-9999, 9999)
 
 
-class SessionFlagFactory(factory.django.DjangoModelFactory):
+class SessionFlagDefinitionFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = autostew_web_enums.models.SessionFlagDefinition
 
@@ -94,7 +94,7 @@ class SessionFlagFactory(factory.django.DjangoModelFactory):
     ingame_id = random.randint(-9999, 9999)
 
 
-class SessionAttributeFactory(factory.django.DjangoModelFactory):
+class SessionAttributeDefinitionFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = autostew_web_enums.models.SessionAttributeDefinition
 
@@ -104,7 +104,7 @@ class SessionAttributeFactory(factory.django.DjangoModelFactory):
     description = factory.Faker('text')
 
 
-class MemberAttributeFactory(factory.django.DjangoModelFactory):
+class MemberAttributeDefinitionFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = autostew_web_enums.models.MemberAttributeDefinition
 
@@ -114,7 +114,7 @@ class MemberAttributeFactory(factory.django.DjangoModelFactory):
     description = factory.Faker('text')
 
 
-class ParticipantAttributeFactory(factory.django.DjangoModelFactory):
+class ParticipantAttributeDefinitionFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = autostew_web_enums.models.ParticipantAttributeDefinition
 

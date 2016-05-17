@@ -40,12 +40,12 @@ class SessionSetupFactory(factory.django.DjangoModelFactory):
     race1_length = 5
     race2_length = 0
 
-    privacy = factory.SubFactory(PrivacyFactory)
-    damage = factory.SubFactory(DamageFactory)
-    tire_wear = factory.SubFactory(TireWearFactory)
-    fuel_usage = factory.SubFactory(FuelUsageFactory)
-    penalties = factory.SubFactory(PenaltyFactory)
-    allowed_views = factory.SubFactory(AllowedViewsFactory)
+    privacy = factory.SubFactory(PrivacyDefinitionFactory)
+    damage = factory.SubFactory(DamageDefinitionFactory)
+    tire_wear = factory.SubFactory(TireWearDefinitionFactory)
+    fuel_usage = factory.SubFactory(FuelUsageDefinitionFactory)
+    penalties = factory.SubFactory(PenaltyDefinitionFactory)
+    allowed_views = factory.SubFactory(AllowedViewsDefinitionFactory)
     track = None
     vehicle_class = None
     vehicle = None
