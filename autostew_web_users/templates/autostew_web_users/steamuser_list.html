@@ -7,9 +7,14 @@
 
     <p>All known drivers: </p>
 
+    {% load pagination_tags %}
+
+    {% autopaginate steamuser_list 200 %}
+
     <table class="table" data-sortable>
         <thead>
             <tr>
+                <th>#</th>
                 <th>Name</th>
                 <th data-sortable-type="numeric">Safety class</th>
                 <th data-sortable-type="numeric">Performance rating</th>
@@ -20,6 +25,9 @@
             {% if steamuser_list %}
                 {% for user in steamuser_list %}
                     <tr>
+                        <td>
+                            {{ forloop.counter }}
+                        </td>
                         <td>
                             <a href="{{ user.get_absolute_url }}">{{ user.display_name }}</a>
                         </td>
@@ -43,4 +51,6 @@
             {% endif %}
         </tbody>
     </table>
+
+    {% paginate %}
 {% endblock %}

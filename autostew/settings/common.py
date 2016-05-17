@@ -1,5 +1,7 @@
 import os
 
+from django.conf.global_settings import TEMPLATE_CONTEXT_PROCESSORS
+
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -22,6 +24,7 @@ INSTALLED_APPS = [
     'autostew_web_home',
     'autostew_web_session',
     'autostew_web_users',
+    'pagination_bootstrap',
     'rest_framework',
 ]
 
@@ -34,6 +37,7 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'pagination_bootstrap.middleware.PaginationMiddleware',
 ]
 
 ROOT_URLCONF = 'autostew.urls'
@@ -90,6 +94,14 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
 STATIC_URL = '/static/'
 
+# Pagination Framework
+TEMPLATE_CONTEXT_PROCESSORS += (
+    'django.contrib.auth.context_processors.auth',
+    'django.core.context_processors.debug',
+    'django.core.context_processors.i18n',
+    'django.core.context_processors.media',
+    'django.core.context_processors.request'
+)
 
 # Pagination for rest framework
 REST_FRAMEWORK = {

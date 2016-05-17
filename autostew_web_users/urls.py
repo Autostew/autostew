@@ -1,10 +1,8 @@
 from django.conf.urls import url
-from django.views.generic.base import TemplateView
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
 
 from autostew_web_users.models import SteamUser, SafetyClass
-from . import views
 
 app_name = 'users'
 urlpatterns = [
