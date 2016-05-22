@@ -8,8 +8,10 @@ from autostew_back.utils import std_time_format
 
 register = template.Library()
 
+
 def is_missing(value):
     return value is None or value == dev.TEMPLATES[0]['OPTIONS']['string_if_invalid']
+
 
 @register.filter
 def milli_to_nicetime(value):

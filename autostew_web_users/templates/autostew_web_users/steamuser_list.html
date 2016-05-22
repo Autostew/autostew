@@ -8,11 +8,11 @@
     <p>All known drivers: </p>
 
     {% load pagination_tags %}
+    {% load pagination_filters %}
 
     {% autopaginate steamuser_list 50 %}
 
     <div class="container">{% paginate %}</div>
-
 
     <table class="table" data-sortable>
         <thead>
@@ -29,7 +29,7 @@
                 {% for user in steamuser_list %}
                     <tr>
                         <td>
-                            {{ forloop.counter }}
+                            {{ page|get_rank|add:forloop.counter }}
                         </td>
                         <td>
                             <a href="{{ user.get_absolute_url }}">{{ user.display_name }}</a>
