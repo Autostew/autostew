@@ -1,3 +1,5 @@
+from unittest.mock import Mock
+
 from django.test import TestCase
 
 from autostew_back.event_handlers.session_start import HandleSessionStart
@@ -19,6 +21,11 @@ class TestSessionStart(TestCase):
 
         self.assertTrue(HandleSessionStart.can_consume(None, event))
 
+    def test_can_not_consume_when_no_session_gets_created(self):
+        event = EventFactory.create()
+
+        self.assertFalse(HandleSessionStart.can_consume(None, event))
+
     def test_consume(self):
         # nothing to test here. Should be tested by server unit tests
-        pass
+        HandleSessionStart.consume(Mock(), Mock())
