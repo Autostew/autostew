@@ -1,4 +1,5 @@
 from datetime import datetime
+
 import factory
 
 from autostew_web_enums.factories.enum_factories import EventTypeFactory
@@ -11,7 +12,7 @@ class EventFactory(factory.django.DjangoModelFactory):
 
     type = factory.SubFactory(EventTypeFactory)
     ingame_index = factory.Sequence(lambda n: n)
-    raw = ''
+    raw = '{"attributes" : {}}'
     retries_remaining = 2
     handled = False
 

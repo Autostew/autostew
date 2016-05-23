@@ -28,22 +28,34 @@ class Event(models.Model):
     retries_remaining = models.SmallIntegerField(default=2)
     handled = models.BooleanField(default=False)
 
+    def save(self, *args, **kwargs):
+        self.jsonformatted_event = json.loads(self.raw)
+        super(Event, self).save(*args, **kwargs)
+
     def event_parse(self):
-        jsonformatted_event = json.loads(self.raw)
-        self.timestamp = timezone.make_aware(datetime.datetime.fromtimestamp(jsonformatted_event['time']))
-        if 'refid' in jsonformatted_event.keys():
+        self.timestamp = timezone.make_aware(datetime.datetime.fromtimestamp(self.jsonformatted_event['time']))
+        self.parse_member()
+        self.parse_participant()
+        self.parse_other_participant()
+        self.parse_recipient()
+
+    def parse_member(self):
+        if 'refid' in self.jsonformatted_event.keys():
             try:
-                self.member = self.server.get_member(jsonformatted_event['refid'])
-                if 'participantid' in jsonformatted_event.keys():
-                    self.participant = self.server.get_participant(jsonformatted_event['participantid'],
-                                                                   jsonformatted_event['refid'])
-            except (Member.DoesNotExist, Participant.DoesNotExist):
-                pass
-        if self.get_attribute('RefId'):
-            try:
-                self.recipient = self.server.get_member(self.get_attribute('RefId'))
+                self.member = self.server.get_member(self.jsonformatted_event['refid'])
             except Member.DoesNotExist:
                 pass
+
+    def parse_participant(self):
+        if 'refid' in self.jsonformatted_event.keys():
+            if 'participantid' in self.jsonformatted_event.keys():
+                try:
+                    self.participant = self.server.get_participant(self.jsonformatted_event['participantid'],
+                                                                   self.jsonformatted_event['refid'])
+                except Participant.DoesNotExist:
+                    pass
+
+    def parse_other_participant(self):
         other_participant_id = self.get_attribute('OtherParticipantId')
         if other_participant_id and other_participant_id != -1:
             try:
@@ -51,8 +63,15 @@ class Event(models.Model):
             except Participant.DoesNotExist:
                 pass
 
+    def parse_recipient(self):
+        if self.get_attribute('RefId'):
+            try:
+                self.recipient = self.server.get_member(self.get_attribute('RefId'))
+            except Member.DoesNotExist:
+                pass
+
     def get_attribute(self, name):
-        return json.loads(self.raw)['attributes'].get(name)
+        return self.jsonformatted_event['attributes'].get(name)
 
     @property
     def race_position(self):
@@ -61,6 +80,10 @@ class Event(models.Model):
     @property
     def new_session_state(self):
         return SessionState.get_or_create_default(name=self.get_attribute('NewState'))
+
+    @new_session_state.setter
+    def new_session_state(self, value):
+        self.jsonformatted_event['attributes']['NewState'] = value
 
     @property
     def previous_session_state(self):
