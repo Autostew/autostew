@@ -73,6 +73,9 @@ class Event(models.Model):
     def get_attribute(self, name):
         return self.jsonformatted_event['attributes'].get(name)
 
+    def set_attribute(self, name, value):
+        self.jsonformatted_event['attributes'][name] = value
+
     @property
     def race_position(self):
         return self.get_attribute('RacePosition')
@@ -80,10 +83,6 @@ class Event(models.Model):
     @property
     def new_session_state(self):
         return SessionState.get_or_create_default(name=self.get_attribute('NewState'))
-
-    @new_session_state.setter
-    def new_session_state(self, value):
-        self.jsonformatted_event['attributes']['NewState'] = value
 
     @property
     def previous_session_state(self):
