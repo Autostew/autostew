@@ -41,9 +41,9 @@ class Event(models.Model):
         self.parse_recipient()
 
     def parse_member(self):
-        if 'refid' in self.jsonformatted_event.keys():
+        if 'refid' in json.loads(self.raw).keys():
             try:
-                self.member = self.server.get_member(self.jsonformatted_event['refid'])
+                self.member = self.server.get_member(json.loads(self.raw)['refid'])
             except Member.DoesNotExist:
                 pass
 
@@ -51,8 +51,8 @@ class Event(models.Model):
         if 'refid' in self.jsonformatted_event.keys():
             if 'participantid' in self.jsonformatted_event.keys():
                 try:
-                    self.participant = self.server.get_participant(self.jsonformatted_event['participantid'],
-                                                                   self.jsonformatted_event['refid'])
+                    self.participant = self.server.get_participant(json.loads(self.raw)['participantid'],
+                                                                   json.loads(self.raw)['refid'])
                 except Participant.DoesNotExist:
                     pass
 
