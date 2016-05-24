@@ -48,8 +48,8 @@ class Event(models.Model):
                 pass
 
     def parse_participant(self):
-        if 'refid' in self.jsonformatted_event.keys():
-            if 'participantid' in self.jsonformatted_event.keys():
+        if 'refid' in json.loads(self.raw).keys():
+            if 'participantid' in json.loads(self.raw).keys():
                 try:
                     self.participant = self.server.get_participant(json.loads(self.raw)['participantid'],
                                                                    json.loads(self.raw)['refid'])
