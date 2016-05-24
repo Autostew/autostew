@@ -71,7 +71,7 @@ class Event(models.Model):
                 pass
 
     def get_attribute(self, name):
-        return self.jsonformatted_event['attributes'].get(name)
+        return json.loads(self.raw)['attributes'].get(name)
 
     def set_attribute(self, name, value):
         self.jsonformatted_event['attributes'][name] = value
