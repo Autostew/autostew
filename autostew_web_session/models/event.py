@@ -33,7 +33,8 @@ class Event(models.Model):
         super(Event, self).save(*args, **kwargs)
 
     def event_parse(self):
-        self.timestamp = timezone.make_aware(datetime.datetime.fromtimestamp(self.jsonformatted_event['time']))
+        jsonformatted_event = json.loads(self.raw)
+        self.timestamp = timezone.make_aware(datetime.datetime.fromtimestamp(jsonformatted_event['time']))
         self.parse_member()
         self.parse_participant()
         self.parse_other_participant()
