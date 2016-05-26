@@ -8,7 +8,7 @@ class SteamUserListView(generic.ListView):
 
     def get_queryset(self):
         name = self.request.GET.get("name")
-        if name is not None:
+        if name is not None and name != '':
             exact_search = self.model.objects.filter(display_name__exact=name)
             contains_search = self.model.objects.filter(display_name__icontains=name)
             if len(exact_search) == 1:
