@@ -5,10 +5,19 @@
         <h1>Drivers</h1>
     </div>
 
+    <div class="container">
+        <form class="form-inline" role="form" method="get" action="{% url 'users:list' %}">
+            <div class="form-group">
+                <label for="name">Steam username: </label>
+                <input type="steam_username" class="form-control" id="steam_username" name="name">
+            </div>
+            <button type="submit" class="btn btn-default">Submit</button>
+        </form>
+    </div>
+
     <p>All known drivers: </p>
 
     {% load pagination_tags %}
-    {% load pagination_filters %}
 
     {% autopaginate steamuser_list 50 %}
 
@@ -29,7 +38,7 @@
                 {% for user in steamuser_list %}
                     <tr>
                         <td>
-                            {{ page|get_rank|add:forloop.counter }}
+                            {{ user.elo_rank }}
                         </td>
                         <td>
                             <a href="{{ user.get_absolute_url }}">{{ user.display_name }}</a>

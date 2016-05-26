@@ -55,6 +55,10 @@ class SteamUser(models.Model):
         self.save()
 
     @property
+    def elo_rank(self):
+        return list(SteamUser.objects.all()).index(self) + 1
+
+    @property
     def transformed_rating(self):
         return 10 ** (self.elo_rating / 400)
 
