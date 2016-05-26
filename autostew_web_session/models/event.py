@@ -4,7 +4,7 @@ import logging
 
 from django.db import models
 from django.utils import timezone
-from jsonfield2 import JSONField
+from jsonfield2 import JSONField, JSONAwareManager
 
 from autostew_web_enums.models import SessionState, LeavingReason, SessionStage, GameModeDefinition, ParticipantState
 from autostew_web_session.models.member import Member
@@ -29,6 +29,8 @@ class Event(models.Model):
     retries_remaining = models.SmallIntegerField(default=2)
     handled = models.BooleanField(default=False)
     jsonformatted_event = JSONField(default={})
+
+    objects = JSONAwareManager(json_fields = ['jsonformatted_event'])
 
     def save(self, *args, **kwargs):
         self.jsonformatted_event = json.loads(self.raw)
