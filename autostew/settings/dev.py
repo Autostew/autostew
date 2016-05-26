@@ -1,4 +1,4 @@
-from .common import *
+from autostew.common import *
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = '7qpccf4yj6zq2fosuxake5w6ixstl#y)jtf++l##$o5%&n!0e@'
