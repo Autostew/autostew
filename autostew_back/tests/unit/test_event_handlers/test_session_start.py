@@ -13,7 +13,7 @@ class TestSessionStart(TestCase):
         event.type.name = EventType.state_changed
         event.set_attribute('NewState', SessionState.lobby)
 
-        #self.assertTrue(HandleSessionStart.can_consume(None, event))
+        self.assertTrue(HandleSessionStart.can_consume(None, event))
 
     def test_can_consume_when_session_gets_created(self):
         event = EventFactory.create()

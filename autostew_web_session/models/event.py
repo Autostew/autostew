@@ -4,6 +4,7 @@ import logging
 
 from django.db import models
 from django.utils import timezone
+from jsonfield2 import JSONField
 
 from autostew_web_enums.models import SessionState, LeavingReason, SessionStage, GameModeDefinition, ParticipantState
 from autostew_web_session.models.member import Member
@@ -27,32 +28,33 @@ class Event(models.Model):
     other_participant = models.ForeignKey('Participant', null=True, blank=True, related_name='+')
     retries_remaining = models.SmallIntegerField(default=2)
     handled = models.BooleanField(default=False)
+    jsonformatted_event = JSONField(default={})
 
     def save(self, *args, **kwargs):
         self.jsonformatted_event = json.loads(self.raw)
         super(Event, self).save(*args, **kwargs)
 
     def event_parse(self):
-        jsonformatted_event = json.loads(self.raw)
-        self.timestamp = timezone.make_aware(datetime.datetime.fromtimestamp(jsonformatted_event['time']))
+        self.timestamp = timezone.make_aware(datetime.datetime.fromtimestamp(self.jsonformatted_event['time']))
         self.parse_member()
         self.parse_participant()
         self.parse_other_participant()
         self.parse_recipient()
+        self.save()
 
     def parse_member(self):
-        if 'refid' in json.loads(self.raw).keys():
+        if 'refid' in self.jsonformatted_event.keys():
             try:
-                self.member = self.server.get_member(json.loads(self.raw)['refid'])
+                self.member = self.server.get_member(self.jsonformatted_event['refid'])
             except Member.DoesNotExist:
                 pass
 
     def parse_participant(self):
-        if 'refid' in json.loads(self.raw).keys():
-            if 'participantid' in json.loads(self.raw).keys():
+        if 'refid' in self.jsonformatted_event.keys():
+            if 'participantid' in self.jsonformatted_event.keys():
                 try:
-                    self.participant = self.server.get_participant(json.loads(self.raw)['participantid'],
-                                                                   json.loads(self.raw)['refid'])
+                    self.participant = self.server.get_participant(self.jsonformatted_event['participantid'],
+                                                                   self.jsonformatted_event['refid'])
                 except Participant.DoesNotExist:
                     pass
 
@@ -72,7 +74,7 @@ class Event(models.Model):
                 pass
 
     def get_attribute(self, name):
-        return json.loads(self.raw)['attributes'].get(name)
+        return self.jsonformatted_event['attributes'].get(name)
 
     def set_attribute(self, name, value):
         self.jsonformatted_event['attributes'][name] = value

@@ -24,6 +24,7 @@ INSTALLED_APPS = [
     'autostew_web_home',
     'autostew_web_session',
     'autostew_web_users',
+    'jsonfield2',
     'pagination_bootstrap',
     'rest_framework',
 ]
