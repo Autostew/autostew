@@ -56,7 +56,8 @@ class SteamUser(models.Model):
 
     @property
     def elo_rank(self):
-        return list(SteamUser.objects.all()).index(self) + 1
+        return SteamUser.objects.filter(
+                            elo_rating__gt=self.elo_rating).count() + 1
 
     @property
     def transformed_rating(self):
