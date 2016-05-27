@@ -36,7 +36,9 @@
                 {% for user in steamuser_list %}
                     <tr>
                         <td>
-                            {{ user.elo_rank }}
+                            {% if user.elo_rank %}
+                                {{ user.elo_rank }}
+                            {% endif %}
                         </td>
                         <td>
                             <a href="{{ user.get_absolute_url }}">{{ user.display_name }}</a>
