@@ -1,4 +1,3 @@
-import sys
 from django.views import generic
 
 from autostew_web_users.models import SteamUser
@@ -8,9 +7,6 @@ class SteamUserListView(generic.ListView):
     model = SteamUser
 
     def get_queryset(self):
-
-        sys.stderr.write('\nin get_queryset' + '\n')
-
         name = self.request.GET.get("name")
         if name is not None and name != '':
             exact_search = self.model.objects.filter(display_name__exact=name)
@@ -35,7 +31,6 @@ class SteamUserListView(generic.ListView):
         return object_list
 
     def get_context_data(self, **kwargs):
-        sys.stderr.write('\n in get_context_data' + '\n')
         context = super(SteamUserListView, self).get_context_data(**kwargs)
         context['page'] = self.request.GET.get('page', '1')
         return context
