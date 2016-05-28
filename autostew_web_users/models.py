@@ -55,6 +55,13 @@ class SteamUser(models.Model):
         self.save()
 
     @property
+    def elo_rank(self):
+        try:
+            return SteamUser.objects.filter(elo_rating__gt=self.elo_rating).count() + 1
+        except ValueError:
+            return SteamUser.objects.all().count()
+
+    @property
     def transformed_rating(self):
         return 10 ** (self.elo_rating / 400)
 
