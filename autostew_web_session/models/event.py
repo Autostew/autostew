@@ -30,7 +30,7 @@ class Event(models.Model):
     handled = models.BooleanField(default=False)
     jsonformatted_event = JSONField(default={})
 
-    objects = JSONAwareManager(json_fields = ['jsonformatted_event'])
+    objects = JSONAwareManager(json_fields=['jsonformatted_event'])
 
     def save(self, *args, **kwargs):
         self.jsonformatted_event = json.loads(self.raw)
