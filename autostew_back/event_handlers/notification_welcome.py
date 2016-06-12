@@ -38,7 +38,7 @@ class HandleNotificationWelcome(BaseEventHandler):
             steam_user.update_safety_class()
             if steam_user.safety_class.order > server.back_minimal_safety_class.order:
                 event.member.send_chat('You will be kicked in 10 seconds because your safety class is too high!', server)
-                start_new_thread(server.kick, (server, event.member.ref_id, 10))
+                start_new_thread(cls.wait_and_kick, (server, event.member.ref_id, 10))
         else:
             for message in welcome_message:
                 event.member.send_chat(
