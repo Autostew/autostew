@@ -52,9 +52,9 @@ class HandleNotificationWelcome(BaseEventHandler):
                 )
 
     @classmethod
-    def wait_and_kick(cls, server, refid, sleep_seconds):
+    def wait_and_kick(cls, server, ref_id, sleep_seconds):
         time.sleep(sleep_seconds)
-        server.kick(refid)
+        server.kick(ref_id)
 
     @classmethod
     def get_performance_rating_message(cls, steam_user):
