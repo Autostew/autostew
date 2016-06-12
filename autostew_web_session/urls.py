@@ -1,12 +1,11 @@
 from django.conf.urls import url
 from django.contrib.auth.decorators import login_required
-from django.views.generic.base import TemplateView
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
 
 from autostew_web_session.models.models import Track
-from autostew_web_session.models.session import SessionSetup, Session
 from autostew_web_session.models.server import Server
+from autostew_web_session.models.session import SessionSetup
 from autostew_web_session.views import ParticipantDetailView, SessionList, TrackDetailView, SessionView
 from . import views
 

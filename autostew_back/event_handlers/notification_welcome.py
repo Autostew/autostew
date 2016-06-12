@@ -1,3 +1,7 @@
+from _thread import start_new_thread
+
+import time
+
 from autostew_back.event_handlers.base_event_handler import BaseEventHandler
 from autostew_web_enums.models import EventType
 from autostew_web_session.models.event import Event
@@ -30,16 +34,27 @@ class HandleNotificationWelcome(BaseEventHandler):
         safety_class_message = cls.get_safety_class_message(steam_user)
         rating_message = cls.get_performance_rating_message(steam_user)
 
-        for message in welcome_message:
-            event.member.send_chat(
-                message.format(
-                    setup_name=server.current_session.setup_actual.name,
-                    player_name=event.member.name,
-                    safety_class_message=safety_class_message,
-                    elo_rating_message=rating_message,
-                    custom_motd=server.back_custom_motd
-                ), server
-            )
+        if server.back_minimal_safety_class:
+            steam_user.update_safety_class()
+            if steam_user.safety_class.order > server.back_minimal_safety_class.order:
+                event.member.send_chat('You will be kicked in 10 seconds because your safety class is too high!', server)
+                start_new_thread(server.kick, (server, event.member.ref_id, 10))
+        else:
+            for message in welcome_message:
+                event.member.send_chat(
+                    message.format(
+                        setup_name=server.current_session.setup_actual.name,
+                        player_name=event.member.name,
+                        safety_class_message=safety_class_message,
+                        elo_rating_message=rating_message,
+                        custom_motd=server.back_custom_motd
+                    ), server
+                )
+
+    @classmethod
+    def wait_and_kick(cls, server, refid, sleep_seconds):
+        time.sleep(sleep_seconds)
+        server.kick(refid)
 
     @classmethod
     def get_performance_rating_message(cls, steam_user):
